@@ -25,8 +25,10 @@ abstract class Track(val root: StackPane, parent: Widget) {
      */
     val trackWidth = (parent as TrackList).stage.width
     val trackHeight = (parent as TrackList).trackHeight
+    val trackColorNormal = Color.WHITESMOKE.darker()
+    val trackColorHL = Color.WHITESMOKE
     val trackList = parent as TrackList
-    abstract val trackRectangle: Rectangle
+    val trackRectangle = Rectangle(trackWidth, trackHeight, trackColorNormal)
     abstract val trackOffsetY: Double
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
@@ -39,10 +41,10 @@ abstract class Track(val root: StackPane, parent: Widget) {
         trackRectangle.strokeWidth = 1.0
         trackRectangle.strokeLineJoin = StrokeLineJoin.ROUND
         trackRectangle.onMouseEntered = EventHandler {
-            trackRectangle.fill = Color.WHITESMOKE
+            trackRectangle.fill = trackColorHL
         }
         trackRectangle.onMouseExited = EventHandler {
-            trackRectangle.fill = Color.WHITESMOKE.darker()
+            trackRectangle.fill = trackColorNormal
         }
         trackRectangle.onMousePressed = EventHandler {
             trackRectangle.opacity = 0.7

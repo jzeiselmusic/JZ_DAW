@@ -17,7 +17,6 @@ class NormalTrack(root: StackPane, override val parent: Widget)
     override val addButton = AddButton(root, trackOffsetY, this)
     override val inputEnableButton = InputEnableButton(root, trackOffsetY, this)
     override val vuMeter = VUMeter(this)
-    override val trackRectangle = Rectangle(trackWidth, trackHeight, Color.WHITESMOKE.darker())
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {

@@ -2,11 +2,8 @@ package org.jzeisel.app_test.component.trackBar.smallComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
-import javafx.scene.control.ContextMenu
-import javafx.scene.control.MenuItem
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
@@ -19,7 +16,6 @@ class InputEnableButton(root: StackPane, yLocation: Double, override val parent:
     private val buttonWidth = 20.0
     private val buttonHeight = 20.0
     private val buttonOffsetX = -(((parent!!.parent!!) as TrackList).stage.width / 2) + 60.0
-    private val contextMenu = ContextMenu()
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -31,18 +27,10 @@ class InputEnableButton(root: StackPane, yLocation: Double, override val parent:
     private var iImageView: ImageView = ImageView(iImage)
 
     private val mouseReleaseEvent = EventHandler<MouseEvent> {
-        if (it.button == MouseButton.SECONDARY) {
-            val location = Pair(it.screenX, it.screenY)
-            mouseReleaseRight(location)
-        } else {
-            mouseReleaseLeft()
-        }
+        mouseReleaseLeft()
     }
 
     init {
-        contextMenu.style = "-fx-background-radius: 5; -fx-background-color: #9370DB; -fx-text-fill: black;"
-        contextMenu.items.add(MenuItem("a"))
-        contextMenu.items.add(MenuItem("b"))
         iImageView.fitHeight = 20.0
         iImageView.isPreserveRatio = true
         iImageView.translateY = yLocation
@@ -83,10 +71,6 @@ class InputEnableButton(root: StackPane, yLocation: Double, override val parent:
                 buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40).saturate()
             }
         }
-    }
-
-    private fun mouseReleaseRight(loc: Pair<Double, Double>) {
-        contextMenu.show(buttonRect, loc.first, loc.second)
     }
 
     override fun addMeToScene(root: StackPane) {
