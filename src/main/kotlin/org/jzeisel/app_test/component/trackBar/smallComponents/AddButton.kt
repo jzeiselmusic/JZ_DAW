@@ -67,7 +67,7 @@ class AddButton(root: StackPane, override val parent: Widget?): Widget {
         verticalLine.onMousePressed = mousePressEvent
         verticalLine.onMouseReleased = mouseReleaseEvent
 
-        (parent!!.parent as TrackList).stageWidthProperty
+        (parent.parent as TrackList).stageWidthProperty
                     .addListener{_, old, new, -> updatePositionOfX(old as Double, new as Double)}
         (parent.parent as TrackList).stageHeightProperty
                     .addListener{_, old, new, -> updatePositionOfY(old as Double, new as Double)}

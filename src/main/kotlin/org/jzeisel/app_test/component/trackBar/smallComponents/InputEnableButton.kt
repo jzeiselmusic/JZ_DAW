@@ -20,9 +20,9 @@ class InputEnableButton(root: StackPane, override val parent: Widget?): Widget {
         const val LEVEL = 3
     }
     private var isEnabled: Boolean = false
-    private val buttonWidth = 20.0
-    private val buttonHeight = 20.0
-    private val buttonOffsetY = (parent as Track).trackOffsetY
+    private val buttonWidth = 15.0
+    private val buttonHeight = 15.0
+    private val buttonOffsetY = (parent as Track).trackOffsetY - 10.0
     private val buttonOffsetX = -(((parent!!.parent!!) as TrackList).stage.width / 2) + 60.0
     override val children = mutableListOf<Widget>()
 
@@ -41,7 +41,7 @@ class InputEnableButton(root: StackPane, override val parent: Widget?): Widget {
     init {
         Logger.debug(TAG, "instantiated: parent is ${(parent as Track).name}", LEVEL)
         Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
-        iImageView.fitHeight = 20.0
+        iImageView.fitHeight = 15.0
         iImageView.isPreserveRatio = true
         iImageView.translateY = buttonOffsetY
         iImageView.translateX = buttonOffsetX
@@ -54,7 +54,7 @@ class InputEnableButton(root: StackPane, override val parent: Widget?): Widget {
         buttonRect.onMouseReleased = mouseReleaseEvent
         iImageView.onMouseReleased = mouseReleaseEvent
 
-        (parent!!.parent as TrackList).stageWidthProperty
+        (parent.parent as TrackList).stageWidthProperty
                 .addListener{ _, old, new -> updatePositionOfX(old as Double, new as Double)}
         (parent.parent as TrackList).stageHeightProperty
                 .addListener{ _, old, new -> updatePositionOfY(old as Double, new as Double)}
@@ -79,7 +79,8 @@ class InputEnableButton(root: StackPane, override val parent: Widget?): Widget {
             }
             false -> {
                 isEnabled = true
-                buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40).saturate()
+                buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40)
+                buttonRect.opacity = 0.9
                 (parent as NormalTrack).audioInputEnable()
             }
         }

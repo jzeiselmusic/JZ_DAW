@@ -21,7 +21,7 @@ class VUMeter(override val parent: Widget): Widget {
     private var isAudioEnabled = false
     val vuMeterWidth = 15.0
     private var vuMeterHeight = (parent as Track).trackHeight / 2.0
-    var vuMeterOffsetX = -((parent.parent as TrackList).stage.width / 2.0) + 120.0
+    var vuMeterOffsetX = -((parent.parent as TrackList).stage.width / 2.0) + 100.0
     private var vuMeterOffsetY = (parent as Track).trackOffsetY
     private val bgColor = Color.GRAY.brighter()
     private val barSep = 1.0

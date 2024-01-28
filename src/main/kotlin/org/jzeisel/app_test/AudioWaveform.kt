@@ -29,7 +29,8 @@ class AudioWaveform : Application() {
         Logger.setDebug(true)
 
         root = StackPane()
-        val scene = Scene(root, Paint.valueOf(Color.DIMGREY.darker().darker().toString()))
+        val scene = Scene(root, null)
+        scene.fill = Color.DIMGREY.darker().darker()
         stage.scene = scene
 
         val trackList = TrackList(root, stage)
