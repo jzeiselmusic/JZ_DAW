@@ -10,10 +10,17 @@ import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.component.trackBar.tracks.TrackList
 import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.component.trackBar.tracks.Track
+import org.jzeisel.app_test.logger.Logger
 
-class AddButton(root: StackPane, yLocation: Double, override val parent: Widget?): Widget {
+class AddButton(root: StackPane, override val parent: Widget?): Widget {
+    companion object {
+        const val TAG = "AddButton"
+        const val LEVEL = 3
+    }
     private val buttonWidth = 20.0
     private val buttonHeight = 20.0
+    private val buttonOffsetY = (parent as Track).trackOffsetY
     private val buttonOffsetX = -(((parent!!.parent!!) as TrackList).stage.width / 2) + 30
     override val children = mutableListOf<Widget>()
 
@@ -22,10 +29,10 @@ class AddButton(root: StackPane, yLocation: Double, override val parent: Widget?
     }
 
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.MEDIUMPURPLE.brighter())
-    private val horizontalLine = Line(buttonOffsetX - buttonWidth / 4, yLocation,
-                                        buttonOffsetX + buttonWidth / 4, yLocation)
-    private val verticalLine = Line(buttonOffsetX, yLocation - buttonWidth / 4,
-                                        buttonOffsetX, yLocation + buttonWidth / 4)
+    private val horizontalLine = Line(buttonOffsetX - buttonWidth / 4, buttonOffsetY,
+                                        buttonOffsetX + buttonWidth / 4, buttonOffsetY)
+    private val verticalLine = Line(buttonOffsetX, buttonOffsetY - buttonWidth / 4,
+                                        buttonOffsetX, buttonOffsetY + buttonWidth / 4)
 
     private val mousePressEvent = EventHandler<MouseEvent> { mousePress() }
     private val mouseReleaseEvent = EventHandler<MouseEvent> {
@@ -37,7 +44,9 @@ class AddButton(root: StackPane, yLocation: Double, override val parent: Widget?
                                         }
 
     init {
-        buttonRect.translateY = yLocation
+        Logger.debug(TAG, "instantiated: parent is ${(parent as Track).name}", LEVEL)
+        Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
+        buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
         buttonRect.arcWidth = 5.0
         buttonRect.arcHeight = 5.0
@@ -45,9 +54,9 @@ class AddButton(root: StackPane, yLocation: Double, override val parent: Widget?
         buttonRect.strokeWidth = 1.6
 
         horizontalLine.translateX = buttonOffsetX
-        horizontalLine.translateY = yLocation
+        horizontalLine.translateY = buttonOffsetY
         verticalLine.translateX = buttonOffsetX
-        verticalLine.translateY = yLocation
+        verticalLine.translateY = buttonOffsetY
         horizontalLine.strokeWidth = 1.6
         verticalLine.strokeWidth = 1.6
 

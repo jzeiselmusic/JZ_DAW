@@ -14,79 +14,48 @@ class Recorder {
             return (byteB.toInt().shl(8)) or byteA.toInt()
         }
     }
-    private lateinit var inputDeviceMixerInfo: Mixer.Info
     private var targetDataLine: TargetDataLine? = null
 
-    fun findInputDevice(): Boolean {
+    fun findDefaultInputDevice(): Mixer.Info? {
         val mixerInfos = AudioSystem.getMixerInfo()
         if (mixerInfos.isNotEmpty()) {
             for (info in mixerInfos) {
                 if (info.name.contains("Default")) {
-                    inputDeviceMixerInfo = info
-                    return true
+                    return info
                 }
             }
         }
-        return false
+        return null
     }
 
-    fun recordMilliSeconds(time: Int) {
-        if (!findInputDevice()) return
-        val targetDataLineInfo = DataLine.Info(TargetDataLine::class.java, audioFormat)
-        try {
-            targetDataLine = AudioSystem.getMixer(inputDeviceMixerInfo).getLine(targetDataLineInfo) as TargetDataLine
-            targetDataLine!!.open()
-            targetDataLine!!.start()
-            val byteArray = ByteArray(1024)
-
-            val startTime = System.currentTimeMillis()
-            while (System.currentTimeMillis() - startTime < time) {
-                val count = targetDataLine!!.read(byteArray, 0, byteArray.size)
-                if (count > 0) {
-                    // process recorded audio
-                    for (i in 0 until count step 2) {
-                        val twoBytes: Int = byteArray[i].toInt() + byteArray[i+1].toInt()
-                        // do something with the data
-                    }
-                }
-            }
-
-            targetDataLine!!.stop()
-            targetDataLine!!.close()
-            targetDataLine = null
-            println("Recording stopped")
-
-        } catch (ex: LineUnavailableException) {
-            ex.printStackTrace()
+    fun findAllInputDevices(): Array<Mixer.Info> {
+        val mixerInfos = AudioSystem.getMixerInfo()
+        if (mixerInfos.isNotEmpty()) {
+            return mixerInfos
+        }
+        else {
+            return arrayOf()
         }
     }
 
-    fun startInputStreaming(): Boolean {
-        if (!findInputDevice()) return false
+    fun startInputStreaming(mixer: Mixer.Info): TargetDataLine? {
         val targetDataLineInfo = DataLine.Info(TargetDataLine::class.java, audioFormat)
-        targetDataLine = AudioSystem.getMixer(inputDeviceMixerInfo).getLine(targetDataLineInfo) as TargetDataLine
+        targetDataLine = AudioSystem.getMixer(mixer).getLine(targetDataLineInfo) as TargetDataLine
         targetDataLine!!.open()
         targetDataLine!!.start()
-        return true
+        return targetDataLine
     }
 
-    fun getLatestStreamByteArray(): ByteArray? {
-        if (targetDataLine == null) {
-            println("error: target data line is null")
-            return null
-        }
+    fun stopInputStreaming(target: TargetDataLine) {
+        target.stop()
+        target.close()
+    }
+
+    fun getLatestStreamByteArray(target: TargetDataLine): ByteArray? {
         val byteArray = ByteArray(1024)
-        val count = targetDataLine!!.read(byteArray, 0, byteArray.size)
+        val count = target.read(byteArray, 0, byteArray.size)
         if (count > 0) return byteArray else {
-            println("error: data was not read")
             return null
         }
-    }
-
-    fun stopInputStreaming() {
-        if (targetDataLine == null) return
-        targetDataLine!!.stop()
-        targetDataLine!!.close()
-        targetDataLine = null
     }
 }

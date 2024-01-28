@@ -10,6 +10,7 @@ import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
 import org.jzeisel.app_test.component.vuMeter.VUMeter
+import org.jzeisel.app_test.logger.Logger
 
 abstract class Track(val root: StackPane, parent: Widget) {
     /* a track component has the following elements:
@@ -29,11 +30,12 @@ abstract class Track(val root: StackPane, parent: Widget) {
     val trackColorHL = Color.WHITESMOKE
     val trackList = parent as TrackList
     val trackRectangle = Rectangle(trackWidth, trackHeight, trackColorNormal)
-    abstract val trackOffsetY: Double
+    abstract var trackOffsetY: Double
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
     // abstract val recorder: Recorder
     abstract val inputEnableButton: InputEnableButton
+    abstract val name: String
 
     fun setTrackRectangleProperties() {
         trackRectangle.translateY = trackOffsetY
@@ -53,10 +55,5 @@ abstract class Track(val root: StackPane, parent: Widget) {
             trackRectangle.opacity = 1.0
         }
 
-        /* all tracks have the same width and height changes */
-        trackList.stageWidthProperty.addListener {_, _, newWidth ->
-                                    trackRectangle.width = newWidth as Double}
-        trackList.stageHeightProperty.addListener {_, old, newHeight ->
-                                    trackRectangle.translateY -= (newHeight as Double - old as Double)/2.0}
     }
 }

@@ -6,13 +6,13 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.component.Widget
 
-class VUBar(color: Color, val offsetY: Double,
+class VUBar(color: Color, private var barOffsetY: Double,
             override val parent: Widget): Widget {
 
-    private val width = (parent as VUMeter).width - 4.0
-    private val height = (parent as VUMeter).barHeight
-    private val offsetX = (parent as VUMeter).offsetX
-    private val rectangle = Rectangle(width, height, color)
+    private val barWidth = (parent as VUMeter).vuMeterWidth - 4.0
+    private val barHeight = (parent as VUMeter).barHeight
+    private var barOffsetX = (parent as VUMeter).vuMeterOffsetX
+    private val barRectangle = Rectangle(barWidth, barHeight, color)
 
     override val children = mutableListOf<Widget>()
 
@@ -21,20 +21,30 @@ class VUBar(color: Color, val offsetY: Double,
     }
 
     fun isVisible(t: Boolean) {
-        rectangle.isVisible = t
+        barRectangle.isVisible = t
+    }
+
+    fun updateOffsetX(new: Double) {
+        barOffsetX = new
+        barRectangle.translateX = barOffsetX
+    }
+
+    fun updateOffsetY(new: Double) {
+        barOffsetY = new
+        barRectangle.translateY = barOffsetY
     }
 
     override fun addMeToScene(root: StackPane) {
-        rectangle.translateX = offsetX
-        rectangle.translateY = offsetY
-        rectangle.arcWidth = 5.0
-        rectangle.arcHeight = 5.0
-        root.children.add(rectangle)
+        barRectangle.translateX = barOffsetX
+        barRectangle.translateY = barOffsetY
+        barRectangle.arcWidth = 5.0
+        barRectangle.arcHeight = 5.0
+        root.children.add(barRectangle)
     }
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
-            root.children.remove(rectangle)
+            root.children.remove(barRectangle)
         }
     }
 }

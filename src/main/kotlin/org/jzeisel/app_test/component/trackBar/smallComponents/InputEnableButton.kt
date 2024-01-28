@@ -9,12 +9,20 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.component.trackBar.tracks.NormalTrack
+import org.jzeisel.app_test.component.trackBar.tracks.Track
 import org.jzeisel.app_test.component.trackBar.tracks.TrackList
+import org.jzeisel.app_test.logger.Logger
 
-class InputEnableButton(root: StackPane, yLocation: Double, override val parent: Widget?): Widget {
+class InputEnableButton(root: StackPane, override val parent: Widget?): Widget {
+    companion object {
+        const val TAG = "InputEnableButton"
+        const val LEVEL = 3
+    }
     private var isEnabled: Boolean = false
     private val buttonWidth = 20.0
     private val buttonHeight = 20.0
+    private val buttonOffsetY = (parent as Track).trackOffsetY
     private val buttonOffsetX = -(((parent!!.parent!!) as TrackList).stage.width / 2) + 60.0
     override val children = mutableListOf<Widget>()
 
@@ -31,11 +39,13 @@ class InputEnableButton(root: StackPane, yLocation: Double, override val parent:
     }
 
     init {
+        Logger.debug(TAG, "instantiated: parent is ${(parent as Track).name}", LEVEL)
+        Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
         iImageView.fitHeight = 20.0
         iImageView.isPreserveRatio = true
-        iImageView.translateY = yLocation
+        iImageView.translateY = buttonOffsetY
         iImageView.translateX = buttonOffsetX
-        buttonRect.translateY = yLocation
+        buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
         buttonRect.arcWidth = 5.0
         buttonRect.arcHeight = 5.0
@@ -65,10 +75,12 @@ class InputEnableButton(root: StackPane, yLocation: Double, override val parent:
             true -> {
                 isEnabled = false
                 buttonRect.fill = Color.TRANSPARENT
+                (parent as NormalTrack).audioInputDisable()
             }
             false -> {
                 isEnabled = true
                 buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40).saturate()
+                (parent as NormalTrack).audioInputEnable()
             }
         }
     }

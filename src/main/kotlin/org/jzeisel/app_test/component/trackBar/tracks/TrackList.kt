@@ -7,13 +7,22 @@ import javafx.beans.value.ChangeListener
 import javafx.scene.control.TextFormatter.Change
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
+import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.logger.Logger
 import kotlin.properties.Delegates
 
 class TrackList(val root: StackPane, val stage: Stage): Widget {
+    companion object {
+        const val TAG = "TrackList"
+        const val LEVEL = 0
+    }
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
     val trackHeight = 100.0
+    var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
+
+    val audioInputManager = AudioInputManager()
 
     /* every track list should start with a Master Track */
     /* this will automatically add the master track */
@@ -21,6 +30,10 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
 
     override val parent: Widget? = null
     override val children = mutableListOf<Widget>()
+
+    init {
+        Logger.debug(TAG, "instantiated: master y-offset $masterOffsetY", LEVEL)
+    }
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -38,9 +51,11 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
     fun addTrack(child: Widget) {
         /* tell this function which child called it */
         /* if called by index -1, then called by master */
-        val newTrack = NormalTrack(root, this)
+        val newTrack = NormalTrack(root, this, children.size.toString())
+        newTrack.addMeToScene(root)
         addChild(newTrack)
-        children.last().addMeToScene(root)
+        Logger.debug(TAG, "adding new track-- called by ${(child as Track).name}", LEVEL)
+        Logger.debug(TAG, "current num tracks-- ${children.size} plus master", LEVEL)
     }
 
     fun removeTrack(child: Widget) {
@@ -54,9 +69,5 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
     fun getNumTracks(): Int {
         /* add one for master track */
         return children.size + 1
-    }
-
-    fun getMasterOffsetY(): Double {
-        return -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
     }
 }
