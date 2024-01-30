@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
+import org.jzeisel.app_test.component.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.component.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
 
@@ -34,6 +35,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val addButton = AddButton(root, this)
     override val inputEnableButton = InputEnableButton(root, this)
     override val vuMeter = VUMeter(this)
+    override val inputSelectArrow = InputSelectArrow(this)
 
     override fun addChild(child: Widget) {
         children.add(child)

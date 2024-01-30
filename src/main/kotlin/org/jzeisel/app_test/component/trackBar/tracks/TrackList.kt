@@ -29,6 +29,7 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
     private val masterTrack: MasterTrack = MasterTrack(root,this)
 
     override val parent: Widget? = null
+    /* all TrackList children will be NormalTracks */
     override val children = mutableListOf<Widget>()
 
     init {
@@ -69,5 +70,12 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
     fun getNumTracks(): Int {
         /* add one for master track */
         return children.size + 1
+    }
+
+    fun broadcastMouseClick() {
+        for (child in children) {
+            val track = child as NormalTrack
+            track.inputSelectArrow.makeInputSelectInvisible()
+        }
     }
 }

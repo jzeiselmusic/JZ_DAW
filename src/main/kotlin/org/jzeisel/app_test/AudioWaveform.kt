@@ -1,14 +1,12 @@
 package org.jzeisel.app_test
 
 import javafx.application.Application
+import javafx.event.EventHandler
 import javafx.scene.Scene
-import javafx.scene.layout.Pane
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
-import javafx.scene.paint.Paint
 import javafx.stage.Stage
-import org.jzeisel.app_test.audio.AudioProcessor
-import org.jzeisel.app_test.audio.Recorder
 import org.jzeisel.app_test.component.trackBar.tracks.TrackList
 import org.jzeisel.app_test.logger.Logger
 
@@ -34,6 +32,10 @@ class AudioWaveform : Application() {
         stage.scene = scene
 
         val trackList = TrackList(root, stage)
+
+        scene.addEventFilter(MouseEvent.MOUSE_CLICKED, EventHandler {
+            trackList.broadcastMouseClick()
+        })
         trackList.addMeToScene(root)
         stage.show()
     }

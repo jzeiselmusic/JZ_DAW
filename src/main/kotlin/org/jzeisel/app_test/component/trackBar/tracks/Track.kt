@@ -9,6 +9,7 @@ import org.jzeisel.app_test.audio.Recorder
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
+import org.jzeisel.app_test.component.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.component.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
 
@@ -35,6 +36,7 @@ abstract class Track(val root: StackPane, parent: Widget) {
     abstract val vuMeter: VUMeter
     // abstract val recorder: Recorder
     abstract val inputEnableButton: InputEnableButton
+    abstract val inputSelectArrow: InputSelectArrow
     abstract val name: String
 
     fun setTrackRectangleProperties() {
