@@ -28,10 +28,12 @@ class InputSelectArrow(override val parent: Widget?) : Widget {
         parentTrack.trackList.stageWidthProperty.addListener { _, old, new ->
             inputSelectRectangle.translateX -= (new as Double - old as Double)/2.0
             inputSelectArrow.translateX -= (new as Double - old as Double)/2.0
+            dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
         }
         parentTrack.trackList.stageHeightProperty.addListener {_, old, new ->
             inputSelectRectangle.translateY -= (new as Double - old as Double)/2.0
             inputSelectArrow.translateY -= (new as Double - old as Double)/2.0
+            dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
         }
         inputSelectRectangle.translateX = -(parentTrack.trackWidth/2.0) + 60.0
         inputSelectRectangle.translateY = parentTrack.trackOffsetY + 10.0

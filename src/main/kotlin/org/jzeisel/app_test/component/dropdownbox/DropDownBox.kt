@@ -76,4 +76,11 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
             }
         }
     }
+
+    fun updateTranslation(newX: Double, newY: Double) {
+        for (rect in rectangleList) {
+            rect.translateX = newX + rect.width / 2.0
+            rect.translateY = (newY + rect.height / 2.0) + 20.0*rectangleList.indexOf(rect)
+        }
+    }
 }
