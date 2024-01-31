@@ -1,5 +1,6 @@
 package org.jzeisel.app_test.component.dropdownbox
 
+import javafx.animation.PauseTransition
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.layout.StackPane
@@ -7,18 +8,13 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
+import javafx.util.Duration
 
 class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (index: Int) -> Unit) {
-    /* this custom dropdown box will essentially be a VBox */
-    /* should be placed at a specific x and y coordinate
-       which is equal to the center x and y of the dropdown arrow
-
-       when the dropdown arrow is clicked, this menu becomes visible
-       when user clicks outside the dropdown box the box becomes invisible
-
-       the dropdown box must be initialized with a menu of string items
-
-       the size of the rectangles are set by the size of the string items */
+    companion object {
+        const val TAG = "DropDownBox"
+        const val LEVEL = 4
+    }
     private val parentButton = parent
     private val rectangleList = mutableListOf<Rectangle>()
     private val textList = mutableListOf<Text>()
@@ -27,7 +23,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
     private var rectangleWidth = 100.0
     private var rectangleHeight = 25.0
     init {
-        /* find largest text and conform width */
+        /* find the largest text and conform width */
         for ( string in stringList ) {
             val testText = Text(string)
             if (testText.boundsInLocal.width > (rectangleWidth - 8)) rectangleWidth = testText.boundsInLocal.width + 8
@@ -41,7 +37,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
             text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + 20.0*idx
             text.fill = Color.BLACK
             text.textAlignment = TextAlignment.CENTER
-            text.isVisible = false
+            text.isVisible = true
             /*********************/
             val rect = Rectangle(rectangleWidth, rectangleHeight, Color.MEDIUMPURPLE.brighter())
             rect.translateX = buttonOffsetX + rectangleWidth / 2.0
@@ -50,7 +46,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
             rect.strokeWidth = 1.0
             rect.arcWidth = 3.0
             rect.arcHeight = 3.0
-            rect.isVisible = false
+            rect.isVisible = true
             /*********************/
             text.onMouseEntered = EventHandler {
                 rect.fill = Color.MEDIUMPURPLE
@@ -71,51 +67,26 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
             rect.onMouseClicked = EventHandler {
                 clickCallback(idx)
             }
-            /*********************/
             rectangleList.add(rect)
             textList.add(text)
         }
     }
 
     fun addMeToScene(root: StackPane) {
-        for ((rectangle, text) in rectangleList.zip(textList)) {
-            root.children.add(rectangle)
-            root.children.add(text)
+        val delay = PauseTransition(Duration.millis(100.0));
+        Platform.runLater {
+            delay.setOnFinished {
+                root.children.addAll(rectangleList)
+                root.children.addAll(textList)
+            }
+            delay.play()
         }
     }
 
     fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
-            for ((rectangle, text) in rectangleList.zip(textList)) {
-                root.children.remove(rectangle)
-                root.children.remove(text)
-            }
-        }
-    }
-
-    fun makeVisible() {
-        Platform.runLater {
-            for ((rectangle, text) in rectangleList.zip(textList)) {
-                rectangle.toFront()
-                text.toFront()
-            }
-        }
-        val thread = Thread {
-            Thread.sleep(100)
-            for ((rectangle, text) in rectangleList.zip(textList)) {
-                rectangle.isVisible = true
-                text.isVisible = true
-            }
-        }
-        thread.start()
-    }
-
-    fun makeInvisible() {
-        Platform.runLater {
-            for ((rectangle, text) in rectangleList.zip(textList)) {
-                rectangle.isVisible = false
-                text.isVisible = false
-            }
+            root.children.removeAll(textList)
+            root.children.removeAll(rectangleList)
         }
     }
 

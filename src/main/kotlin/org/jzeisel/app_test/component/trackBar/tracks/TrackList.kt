@@ -22,10 +22,11 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
     val trackHeight = 100.0
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
 
-    val audioInputManager = AudioInputManager()
-
+    val audioInputManager = AudioInputManager(this)
+    val audioInputByTrack = mutableMapOf<Widget, Int?>()
+    /* widgets will only be in this list if they are enabled */
+    val tracksEnabled = mutableListOf<Widget>()
     /* every track list should start with a Master Track */
-    /* this will automatically add the master track */
     private val masterTrack: MasterTrack = MasterTrack(root,this)
 
     override val parent: Widget? = null
@@ -55,6 +56,7 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
         val newTrack = NormalTrack(root, this, children.size.toString())
         newTrack.addMeToScene(root)
         addChild(newTrack)
+        audioInputByTrack[newTrack] = null
         Logger.debug(TAG, "adding new track-- called by ${(child as Track).name}", LEVEL)
         Logger.debug(TAG, "current num tracks-- ${children.size} plus master", LEVEL)
     }
@@ -72,10 +74,25 @@ class TrackList(val root: StackPane, val stage: Stage): Widget {
         return children.size + 1
     }
 
-    fun broadcastMouseClick() {
+    fun broadcastMouseClick(root: StackPane) {
         for (child in children) {
             val track = child as NormalTrack
-            track.inputSelectArrow.makeInputSelectInvisible()
+            track.inputSelectArrow.removeDropDownBox(root)
         }
+    }
+
+    fun setTrackAudioInput(index: Int, child: Widget) {
+        audioInputByTrack[child] = index
+        Logger.debug(TAG, "track ${(child as NormalTrack).name} set input to $index", LEVEL)
+    }
+
+    fun setTrackEnabled(child: Widget) {
+        tracksEnabled.add(child)
+        Logger.debug(TAG, "track ${(child as NormalTrack).name} is monitoring input ${audioInputByTrack[child]}", LEVEL)
+    }
+
+    fun setTrackDisabled(child: Widget) {
+        tracksEnabled.remove(child)
+        Logger.debug(TAG, "track ${(child as NormalTrack).name} is not monitoring input ${audioInputByTrack[child]}", LEVEL)
     }
 }

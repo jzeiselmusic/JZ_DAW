@@ -1,9 +1,10 @@
 package org.jzeisel.app_test.audio
 
+import org.jzeisel.app_test.component.trackBar.tracks.TrackList
 import javax.sound.sampled.Mixer
 import javax.sound.sampled.TargetDataLine
 
-class AudioInputManager {
+class AudioInputManager(private val parent: TrackList) {
     /*
     audio input manager keeps track of which audio inputs are enabled and
     provides an interface to read data from those inputs such that every

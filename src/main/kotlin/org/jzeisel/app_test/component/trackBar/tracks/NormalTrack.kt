@@ -2,10 +2,6 @@ package org.jzeisel.app_test.component.trackBar.tracks
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
-import javafx.scene.shape.Polygon
-import javafx.scene.shape.Rectangle
-import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
@@ -39,7 +35,7 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     override val vuMeter = VUMeter(this)
     override val addButton = AddButton(this)
     override val inputEnableButton = InputEnableButton(this)
-    override val inputSelectArrow = InputSelectArrow(this)
+    override val inputSelectArrow = InputSelectArrow(root, this)
 
     override fun addMeToScene(root: StackPane) {
         root.children.add(trackRectangle)
@@ -52,6 +48,9 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
         addChild(inputEnableButton)
         addChild(inputSelectArrow)
     }
+
+    var audioInputIndex: Int? = null
+    var audioInputEnabled = false
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -70,9 +69,17 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     /* a normal track is able to arm audio for recording.
        this means starting an audio stream to this track */
     fun audioInputEnable() {
-
+        trackList.setTrackEnabled(this)
+        audioInputEnabled = true
     }
 
     fun audioInputDisable() {
+        trackList.setTrackDisabled(this)
+        audioInputEnabled = false
+    }
+
+    fun setAudioInputIndex(index: Int) {
+        audioInputIndex = index
+        trackList.setTrackAudioInput(index, this)
     }
 }

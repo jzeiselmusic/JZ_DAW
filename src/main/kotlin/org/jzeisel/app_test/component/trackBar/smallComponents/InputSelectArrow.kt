@@ -9,21 +9,22 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.dropdownbox.DropDownBox
+import org.jzeisel.app_test.component.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.component.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
-class InputSelectArrow(override val parent: Widget?) : Widget {
+class InputSelectArrow(private val root: StackPane, override val parent: Widget?) : Widget {
     companion object {
         const val TAG = "InputSelectArrow"
         const val LEVEL = 4
     }
     override val children: MutableList<Widget> = mutableListOf()
     private val parentTrack = parent as Track
-    var isDropDownBoxActive = false
-    val inputSelectRectangle = Rectangle(15.0, 15.0, Color.MEDIUMPURPLE.brighter())
-    val inputSelectArrow = Polygon(0.0, 0.0,
-            8.0, 0.0,
-            4.0, -4.0)
+    private var isDropDownBoxActive = false
+    private val inputSelectRectangle = Rectangle(15.0, 15.0, Color.MEDIUMPURPLE.brighter())
+    private val inputSelectArrow = Polygon(0.0, 0.0,
+                                        8.0, 0.0,
+                                        4.0, -4.0)
     init {
         parentTrack.trackList.stageWidthProperty.addListener { _, old, new ->
             inputSelectRectangle.translateX -= (new as Double - old as Double)/2.0
@@ -51,27 +52,37 @@ class InputSelectArrow(override val parent: Widget?) : Widget {
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
     }
 
-    val dropDownBox = DropDownBox(parentTrack.trackList.audioInputManager.allMixerNames,
+    private val dropDownBox = DropDownBox(parentTrack.trackList.audioInputManager.allMixerNames,
                                   inputSelectRectangle,
                                   ::selectionChosen)
 
     init {
         inputSelectRectangle.onMouseReleased = EventHandler {
-            dropDownBox.makeVisible()
+            Logger.debug(TAG, "input select rectangle clicked for track ${parentTrack.name}", LEVEL)
+            dropDownBox.addMeToScene(root)
             isDropDownBoxActive = true
         }
         inputSelectArrow.onMouseReleased = EventHandler {
-            dropDownBox.makeVisible()
+            Logger.debug(TAG, "input select arrow clicked for track ${parentTrack.name}", LEVEL)
+            dropDownBox.addMeToScene(root)
             isDropDownBoxActive = true
         }
+
+        Logger.debug(TAG, "instantiated input selector- parent is track ${parentTrack.name}", LEVEL)
     }
     override fun addChild(child: Widget) {
     }
 
+    fun removeDropDownBox(root: StackPane) {
+        dropDownBox.removeMeFromScene(root)
+    }
+
     override fun addMeToScene(root: StackPane) {
-        root.children.add(inputSelectRectangle)
-        root.children.add(inputSelectArrow)
-        dropDownBox.addMeToScene(root)
+        Platform.runLater {
+            root.children.add(inputSelectRectangle)
+            root.children.add(inputSelectArrow)
+            Logger.debug(TAG, "rectangle and arrow added to scene", LEVEL)
+        }
     }
 
     override fun removeMeFromScene(root: StackPane) {
@@ -83,15 +94,12 @@ class InputSelectArrow(override val parent: Widget?) : Widget {
             children.clear()
             root.children.remove(inputSelectArrow)
             root.children.remove(inputSelectRectangle)
+            Logger.debug(TAG, "arrow and rectangle removed from scene", LEVEL)
         }
     }
 
-    fun makeInputSelectInvisible() {
-        dropDownBox.makeInvisible()
-        isDropDownBoxActive = false
-    }
-
-    fun selectionChosen(index: Int) {
+    private fun selectionChosen(index: Int) {
         Logger.debug(TAG, "chose index $index", LEVEL)
+        (parentTrack as NormalTrack).setAudioInputIndex(index)
     }
 }

@@ -18,7 +18,7 @@ class AudioWaveform : Application() {
     private lateinit var root: StackPane
 
     override fun start(stage: Stage) {
-        stage.title = "My App"
+        stage.title = "JZ Digital Audio Workstation"
         stage.isResizable = true
         stage.width = INIT_STAGE_WIDTH
         stage.height = INIT_STAGE_HEIGHT + 4
@@ -34,7 +34,7 @@ class AudioWaveform : Application() {
         val trackList = TrackList(root, stage)
 
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED, EventHandler {
-            trackList.broadcastMouseClick()
+            trackList.broadcastMouseClick(root)
         })
         trackList.addMeToScene(root)
         stage.show()
