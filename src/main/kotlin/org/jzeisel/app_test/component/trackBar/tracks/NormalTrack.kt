@@ -37,8 +37,8 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
         Logger.debug(TAG, "instantiated: y-offset $trackOffsetY", LEVEL)
     }
     override val vuMeter = VUMeter(this)
-    override val addButton = AddButton(root, this)
-    override val inputEnableButton = InputEnableButton(root, this)
+    override val addButton = AddButton(this)
+    override val inputEnableButton = InputEnableButton(this)
     override val inputSelectArrow = InputSelectArrow(this)
 
     override fun addMeToScene(root: StackPane) {

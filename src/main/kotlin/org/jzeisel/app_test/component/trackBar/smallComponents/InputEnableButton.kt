@@ -14,7 +14,7 @@ import org.jzeisel.app_test.component.trackBar.tracks.Track
 import org.jzeisel.app_test.component.trackBar.tracks.TrackList
 import org.jzeisel.app_test.logger.Logger
 
-class InputEnableButton(root: StackPane, override val parent: Widget?): Widget {
+class InputEnableButton(override val parent: Widget?): Widget {
     companion object {
         const val TAG = "InputEnableButton"
         const val LEVEL = 3

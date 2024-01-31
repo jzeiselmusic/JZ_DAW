@@ -51,7 +51,9 @@ class InputSelectArrow(override val parent: Widget?) : Widget {
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
     }
 
-    val dropDownBox = DropDownBox(arrayListOf("hello", "world"), inputSelectRectangle, ::selectionChosen)
+    val dropDownBox = DropDownBox(parentTrack.trackList.audioInputManager.allMixerNames,
+                                  inputSelectRectangle,
+                                  ::selectionChosen)
 
     init {
         inputSelectRectangle.onMouseReleased = EventHandler {

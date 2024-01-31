@@ -15,8 +15,8 @@ class AudioInputManager {
     private val audioProcessor = AudioProcessor(50)
 
     /* find all available audio inputs */
-    val allMixerInfos: Array<Mixer.Info> = recorder.findAllInputDevices()
-    val allMixerNames: Array<String> = allMixerInfos.map { it.name }.toTypedArray()
+    val allMixerInfos: List<Mixer.Info> = recorder.findAllInputDevices().toList()
+    val allMixerNames: List<String> = allMixerInfos.map { it.name }
     /* all ports are disabled by default */
     private var enabledMixers = Array(allMixerInfos.size) { false }
     private val targetDataLines: Array<TargetDataLine?> = Array(allMixerInfos.size) { null }

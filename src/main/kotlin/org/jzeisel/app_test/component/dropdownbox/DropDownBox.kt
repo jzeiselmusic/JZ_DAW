@@ -25,27 +25,15 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
     private val buttonOffsetX = parentButton.translateX
     private val buttonOffsetY = parentButton.translateY
     private var rectangleWidth = 100.0
-    private var rectangleHeight = 20.0
+    private var rectangleHeight = 25.0
     init {
+        /* find largest text and conform width */
+        for ( string in stringList ) {
+            val testText = Text(string)
+            if (testText.boundsInLocal.width > (rectangleWidth - 8)) rectangleWidth = testText.boundsInLocal.width + 8
+            if (testText.boundsInLocal.height > (rectangleHeight - 8)) rectangleHeight = testText.boundsInLocal.height + 8
+        }
         for ( (idx,string) in stringList.withIndex() ) {
-            val rect = Rectangle(100.0, 20.0, Color.MEDIUMPURPLE.brighter())
-            rect.translateX = buttonOffsetX + rectangleWidth / 2.0
-            rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + 20.0*idx
-            rect.stroke = Color.BLACK
-            rect.strokeWidth = 1.0
-            rect.arcWidth = 3.0
-            rect.arcHeight = 3.0
-            rect.onMouseEntered = EventHandler {
-                rect.fill = Color.MEDIUMPURPLE
-            }
-            rect.onMouseExited = EventHandler {
-                rect.fill = Color.MEDIUMPURPLE.brighter()
-            }
-            rect.onMouseClicked = EventHandler {
-                clickCallback(idx)
-            }
-            rect.isVisible = false
-            /**************/
             val text = Text(buttonOffsetX + rectangleWidth / 2.0,
                     (buttonOffsetY + rectangleHeight / 2.0) + 20.0*idx,
                     string)
@@ -54,6 +42,16 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
             text.fill = Color.BLACK
             text.textAlignment = TextAlignment.CENTER
             text.isVisible = false
+            /*********************/
+            val rect = Rectangle(rectangleWidth, rectangleHeight, Color.MEDIUMPURPLE.brighter())
+            rect.translateX = buttonOffsetX + rectangleWidth / 2.0
+            rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + 20.0*idx
+            rect.stroke = Color.BLACK
+            rect.strokeWidth = 1.0
+            rect.arcWidth = 3.0
+            rect.arcHeight = 3.0
+            rect.isVisible = false
+            /*********************/
             text.onMouseEntered = EventHandler {
                 rect.fill = Color.MEDIUMPURPLE
             }
@@ -63,6 +61,17 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
             text.onMouseClicked = EventHandler {
                 clickCallback(idx)
             }
+            /*********************/
+            rect.onMouseEntered = EventHandler {
+                rect.fill = Color.MEDIUMPURPLE
+            }
+            rect.onMouseExited = EventHandler {
+                rect.fill = Color.MEDIUMPURPLE.brighter()
+            }
+            rect.onMouseClicked = EventHandler {
+                clickCallback(idx)
+            }
+            /*********************/
             rectangleList.add(rect)
             textList.add(text)
         }
@@ -85,6 +94,12 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
     }
 
     fun makeVisible() {
+        Platform.runLater {
+            for ((rectangle, text) in rectangleList.zip(textList)) {
+                rectangle.toFront()
+                text.toFront()
+            }
+        }
         val thread = Thread {
             Thread.sleep(100)
             for ((rectangle, text) in rectangleList.zip(textList)) {

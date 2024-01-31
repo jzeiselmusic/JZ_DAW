@@ -13,7 +13,7 @@ import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
-class AddButton(root: StackPane, override val parent: Widget?): Widget {
+class AddButton(override val parent: Widget?): Widget {
     companion object {
         const val TAG = "AddButton"
         const val LEVEL = 3
