@@ -8,7 +8,7 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.component.trackBar.tracks.TrackList
+import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
@@ -21,7 +21,7 @@ class AddButton(override val parent: Widget?): Widget {
     private val buttonWidth = 20.0
     private val buttonHeight = 20.0
     private val buttonOffsetY = (parent as Track).trackOffsetY
-    private val buttonOffsetX = -(((parent!!.parent!!) as TrackList).stage.width / 2) + 30
+    private val buttonOffsetX = -(((parent!!.parent!!) as TrackListViewModel).stage.width / 2) + 30
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -67,9 +67,9 @@ class AddButton(override val parent: Widget?): Widget {
         verticalLine.onMousePressed = mousePressEvent
         verticalLine.onMouseReleased = mouseReleaseEvent
 
-        (parent.parent as TrackList).stageWidthProperty
+        (parent.parent as TrackListViewModel).stageWidthProperty
                     .addListener{_, old, new, -> updatePositionOfX(old as Double, new as Double)}
-        (parent.parent as TrackList).stageHeightProperty
+        (parent.parent as TrackListViewModel).stageHeightProperty
                     .addListener{_, old, new, -> updatePositionOfY(old as Double, new as Double)}
     }
 
@@ -86,11 +86,11 @@ class AddButton(override val parent: Widget?): Widget {
     }
 
     private fun addTrack() {
-        (parent!!.parent as TrackList).addTrack(parent)
+        (parent!!.parent as TrackListViewModel).addTrack(parent)
     }
 
     private fun removeTrack() {
-        (parent!!.parent as TrackList).removeTrack(parent)
+        (parent!!.parent as TrackListViewModel).removeTrack(parent)
     }
 
     private fun mousePress() {

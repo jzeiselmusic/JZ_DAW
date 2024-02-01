@@ -11,7 +11,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.component.trackBar.tracks.Track
-import org.jzeisel.app_test.component.trackBar.tracks.TrackList
+import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.logger.Logger
 
 class InputEnableButton(override val parent: Widget?): Widget {
@@ -23,7 +23,7 @@ class InputEnableButton(override val parent: Widget?): Widget {
     private val buttonWidth = 15.0
     private val buttonHeight = 15.0
     private val buttonOffsetY = (parent as Track).trackOffsetY - 10.0
-    private val buttonOffsetX = -(((parent!!.parent!!) as TrackList).stage.width / 2) + 60.0
+    private val buttonOffsetX = -(((parent!!.parent!!) as TrackListViewModel).stage.width / 2) + 60.0
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -54,9 +54,9 @@ class InputEnableButton(override val parent: Widget?): Widget {
         buttonRect.onMouseReleased = mouseReleaseEvent
         iImageView.onMouseReleased = mouseReleaseEvent
 
-        (parent.parent as TrackList).stageWidthProperty
+        (parent.parent as TrackListViewModel).stageWidthProperty
                 .addListener{ _, old, new -> updatePositionOfX(old as Double, new as Double)}
-        (parent.parent as TrackList).stageHeightProperty
+        (parent.parent as TrackListViewModel).stageHeightProperty
                 .addListener{ _, old, new -> updatePositionOfY(old as Double, new as Double)}
     }
 

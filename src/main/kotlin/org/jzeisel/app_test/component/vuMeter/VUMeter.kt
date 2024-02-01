@@ -5,7 +5,7 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.audio.AudioProcessor
-import org.jzeisel.app_test.component.trackBar.tracks.TrackList
+import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
@@ -21,7 +21,7 @@ class VUMeter(override val parent: Widget): Widget {
     private var isAudioEnabled = false
     val vuMeterWidth = 15.0
     private var vuMeterHeight = (parent as Track).trackHeight / 2.0
-    var vuMeterOffsetX = -((parent.parent as TrackList).stage.width / 2.0) + 100.0
+    var vuMeterOffsetX = -((parent.parent as TrackListViewModel).stage.width / 2.0) + 100.0
     private var vuMeterOffsetY = (parent as Track).trackOffsetY
     private val bgColor = Color.GRAY.brighter()
     private val barSep = 1.0
@@ -45,9 +45,9 @@ class VUMeter(override val parent: Widget): Widget {
         vuMeterRectangle.arcHeight = 5.0
         vuMeterRectangle.stroke = Color.BLACK
         vuMeterRectangle.strokeWidth = 1.5
-        (parent.parent as TrackList).stageWidthProperty
+        (parent.parent as TrackListViewModel).stageWidthProperty
                 .addListener{_, old, new, -> updatePositionOfX(old as Double, new as Double)}
-        (parent.parent as TrackList).stageHeightProperty
+        (parent.parent as TrackListViewModel).stageHeightProperty
                 .addListener{_, old, new, -> updatePositionOfY(old as Double, new as Double)}
         root.children.add(vuMeterRectangle)
         makeMeterBars(root)

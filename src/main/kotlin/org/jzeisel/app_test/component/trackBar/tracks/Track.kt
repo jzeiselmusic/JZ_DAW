@@ -5,13 +5,11 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
-import org.jzeisel.app_test.audio.Recorder
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.component.vuMeter.VUMeter
-import org.jzeisel.app_test.logger.Logger
 
 abstract class Track(val root: StackPane, parent: Widget) {
     /* a track component has the following elements:
@@ -25,11 +23,11 @@ abstract class Track(val root: StackPane, parent: Widget) {
         7. a recorder object to save audio input
            when the master wants to record
      */
-    val trackWidth = (parent as TrackList).stage.width
-    val trackHeight = (parent as TrackList).trackHeight
+    val trackWidth = (parent as TrackListViewModel).stage.width
+    val trackHeight = (parent as TrackListViewModel).trackHeight
     val trackColorNormal = Color.WHITESMOKE.darker()
     val trackColorHL = Color.WHITESMOKE
-    val trackList = parent as TrackList
+    val trackListViewModel = parent as TrackListViewModel
     val trackRectangle = Rectangle(trackWidth, trackHeight, trackColorNormal)
     abstract var trackOffsetY: Double
     abstract val addButton: AddButton

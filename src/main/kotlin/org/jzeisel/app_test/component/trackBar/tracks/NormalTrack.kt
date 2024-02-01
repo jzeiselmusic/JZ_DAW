@@ -17,17 +17,17 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     }
 
     /* same as a master track except its y offset will change */
-    override var trackOffsetY = trackList.masterOffsetY +
-            trackList.getNumTracks() * trackList.trackHeight
+    override var trackOffsetY = trackListViewModel.masterOffsetY +
+            trackListViewModel.getNumTracks() * trackListViewModel.trackHeight
     override val children = mutableListOf<Widget>()
     init {
         setTrackRectangleProperties()
         /* all tracks have the same width and height changes */
-        trackList.stageWidthProperty.addListener { _, _, newWidth ->
+        trackListViewModel.stageWidthProperty.addListener { _, _, newWidth ->
             trackRectangle.width = newWidth as Double
 
         }
-        trackList.stageHeightProperty.addListener { _, old, newHeight ->
+        trackListViewModel.stageHeightProperty.addListener { _, old, newHeight ->
             trackRectangle.translateY -= (newHeight as Double - old as Double) / 2.0
         }
         Logger.debug(TAG, "instantiated: y-offset $trackOffsetY", LEVEL)
@@ -49,8 +49,8 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
         addChild(inputSelectArrow)
     }
 
-    var audioInputIndex: Int? = null
-    var audioInputEnabled = false
+    private var audioInputIndex: Int? = null
+    private var audioInputEnabled = false
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -66,20 +66,18 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
         }
     }
 
-    /* a normal track is able to arm audio for recording.
-       this means starting an audio stream to this track */
     fun audioInputEnable() {
-        trackList.setTrackEnabled(this)
+        trackListViewModel.setTrackEnabled(this)
         audioInputEnabled = true
     }
 
     fun audioInputDisable() {
-        trackList.setTrackDisabled(this)
+        trackListViewModel.setTrackDisabled(this)
         audioInputEnabled = false
     }
 
     fun setAudioInputIndex(index: Int) {
         audioInputIndex = index
-        trackList.setTrackAudioInput(index, this)
+        trackListViewModel.setTrackAudioInput(index, this)
     }
 }

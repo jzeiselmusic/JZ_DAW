@@ -7,7 +7,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
-import org.jzeisel.app_test.component.trackBar.tracks.TrackList
+import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.logger.Logger
 
 class AudioWaveform : Application() {
@@ -24,19 +24,19 @@ class AudioWaveform : Application() {
         stage.height = INIT_STAGE_HEIGHT + 4
         stage.isResizable = true
 
-        Logger.setDebug(true)
+        Logger.setDebug(false)
 
         root = StackPane()
         val scene = Scene(root, null)
         scene.fill = Color.DIMGREY.darker().darker()
         stage.scene = scene
 
-        val trackList = TrackList(root, stage)
+        val trackListViewModel = TrackListViewModel(root, stage)
 
-        scene.addEventFilter(MouseEvent.MOUSE_CLICKED, EventHandler {
-            trackList.broadcastMouseClick(root)
-        })
-        trackList.addMeToScene(root)
+        scene.addEventFilter(MouseEvent.MOUSE_CLICKED) {
+            trackListViewModel.broadcastMouseClick(root)
+        }
+        trackListViewModel.addMeToScene(root)
         stage.show()
     }
 }

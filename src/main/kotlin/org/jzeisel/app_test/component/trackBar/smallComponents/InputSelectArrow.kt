@@ -26,12 +26,12 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
                                         8.0, 0.0,
                                         4.0, -4.0)
     init {
-        parentTrack.trackList.stageWidthProperty.addListener { _, old, new ->
+        parentTrack.trackListViewModel.stageWidthProperty.addListener { _, old, new ->
             inputSelectRectangle.translateX -= (new as Double - old as Double)/2.0
             inputSelectArrow.translateX -= (new as Double - old as Double)/2.0
             dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
         }
-        parentTrack.trackList.stageHeightProperty.addListener {_, old, new ->
+        parentTrack.trackListViewModel.stageHeightProperty.addListener { _, old, new ->
             inputSelectRectangle.translateY -= (new as Double - old as Double)/2.0
             inputSelectArrow.translateY -= (new as Double - old as Double)/2.0
             dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
@@ -52,7 +52,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
     }
 
-    private val dropDownBox = DropDownBox(parentTrack.trackList.audioInputManager.allMixerNames,
+    private val dropDownBox = DropDownBox(parentTrack.trackListViewModel.audioInputManager.allMixerNames,
                                   inputSelectRectangle,
                                   ::selectionChosen)
 

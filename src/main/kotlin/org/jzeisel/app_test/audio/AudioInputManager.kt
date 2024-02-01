@@ -1,10 +1,12 @@
 package org.jzeisel.app_test.audio
 
-import org.jzeisel.app_test.component.trackBar.tracks.TrackList
+import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
+import org.jzeisel.app_test.logger.Logger
 import javax.sound.sampled.Mixer
 import javax.sound.sampled.TargetDataLine
 
-class AudioInputManager(private val parent: TrackList) {
+class AudioInputManager(private val parent: TrackListViewModel) {
     /*
     audio input manager keeps track of which audio inputs are enabled and
     provides an interface to read data from those inputs such that every
@@ -15,6 +17,9 @@ class AudioInputManager(private val parent: TrackList) {
     private val recorder = Recorder()
     private val audioProcessor = AudioProcessor(50)
 
+    val audioInputByTrack = mutableMapOf<Widget, Int?>()
+    /* widgets will only be in this list if they are enabled */
+    val tracksEnabled = mutableListOf<Widget>()
     /* find all available audio inputs */
     val allMixerInfos: List<Mixer.Info> = recorder.findAllInputDevices().toList()
     val allMixerNames: List<String> = allMixerInfos.map { it.name }
@@ -27,6 +32,22 @@ class AudioInputManager(private val parent: TrackList) {
     fun findIndexOfDefaultInput() {
         val mixer = recorder.findDefaultInputDevice()
         println("found default mixer: index ${allMixerInfos.indexOf(mixer)}")
+    }
+
+    fun addTrack(track: Widget) {
+        audioInputByTrack[track] = null
+    }
+
+    fun setTrackAudioInput(child: Widget, index: Int) {
+        audioInputByTrack[child] = index
+    }
+
+    fun setTrackEnabled(child: Widget) {
+        tracksEnabled.add(child)
+    }
+
+    fun setTrackDisabled(child: Widget) {
+        tracksEnabled.remove(child)
     }
 
     fun enableInputAtIndex(index: Int) {
