@@ -42,15 +42,21 @@ class AudioInputManager(private val parent: TrackListViewModel) {
         audioInputByTrack[child] = index
     }
 
-    fun setTrackEnabled(child: Widget) {
+    fun setTrackEnabled(child: Widget): Boolean {
         tracksEnabled.add(child)
+        /* enable the mixer and data line that this track (child) has chosen */
+        audioInputByTrack[child]?.let{
+            enableInputAtIndex(it)
+            return true
+        }
+        return false
     }
 
     fun setTrackDisabled(child: Widget) {
         tracksEnabled.remove(child)
     }
 
-    fun enableInputAtIndex(index: Int) {
+    private fun enableInputAtIndex(index: Int) {
         enabledMixers[index] = true
         targetDataLines[index] = recorder.startInputStreaming(allMixerInfos[index])
         dataAcquisitionThreads[index] = Thread {

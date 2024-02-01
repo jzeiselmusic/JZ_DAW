@@ -1,7 +1,9 @@
 package org.jzeisel.app_test.component.trackBar.tracks
 
+import javafx.animation.Animation
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
+import javafx.util.Duration
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
@@ -51,6 +53,7 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
 
     private var audioInputIndex: Int? = null
     private var audioInputEnabled = false
+    private var latestVUMeterThread: Thread? = null
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -66,9 +69,15 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
         }
     }
 
-    fun audioInputEnable() {
-        trackListViewModel.setTrackEnabled(this)
-        audioInputEnabled = true
+    fun audioInputEnable(): Boolean {
+        val result = trackListViewModel.setTrackEnabled(this)
+        if (result) {
+            audioInputEnabled = true
+            return true
+        }
+        else {
+            return false
+        }
     }
 
     fun audioInputDisable() {
@@ -79,5 +88,18 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     fun setAudioInputIndex(index: Int) {
         audioInputIndex = index
         trackListViewModel.setTrackAudioInput(index, this)
+    }
+
+    fun startGettingDataForVuMeter() {
+        audioInputIndex?.let {
+            Logger.debug(TAG, "starting vu meter stream for track $name", LEVEL)
+            latestVUMeterThread = Thread {
+                while (true) {
+                    vuMeter.setBarsBasedOnAudio(trackListViewModel.audioInputManager, it)
+                    Thread.sleep(150)
+                }
+            }
+            latestVUMeterThread?.start()
+        }
     }
 }

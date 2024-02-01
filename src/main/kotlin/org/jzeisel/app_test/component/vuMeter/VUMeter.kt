@@ -4,8 +4,8 @@ import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.audio.AudioProcessor
-import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
@@ -17,12 +17,12 @@ class VUMeter(override val parent: Widget): Widget {
     }
     /* object that represents a single VUMeter */
     /* made of 2 rectangles and a set of numBars Bars */
-    private val numBars = 100
-    private var isAudioEnabled = false
+    private val parentTrack = parent as Track
+    private val numBars = 20
     val vuMeterWidth = 15.0
-    private var vuMeterHeight = (parent as Track).trackHeight / 2.0
-    var vuMeterOffsetX = -((parent.parent as TrackListViewModel).stage.width / 2.0) + 100.0
-    private var vuMeterOffsetY = (parent as Track).trackOffsetY
+    private var vuMeterHeight = parentTrack.trackHeight / 2.0
+    var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + 100.0
+    private var vuMeterOffsetY = parentTrack.trackOffsetY
     private val bgColor = Color.GRAY.brighter()
     private val barSep = 1.0
     private val volumePerBar = 3000.0 / numBars
@@ -33,21 +33,21 @@ class VUMeter(override val parent: Widget): Widget {
     override val children = mutableListOf<Widget>()
 
     init {
-        Logger.debug(TAG, "instantiated: parent is ${(parent as Track).name}", LEVEL)
+        Logger.debug(TAG, "instantiated: parent is ${parentTrack.name}", LEVEL)
         Logger.debug(TAG, "\t y-offset is $vuMeterOffsetY", LEVEL)
     }
 
     override fun addMeToScene(root: StackPane) {
-        Logger.debug(TAG, "adding to scene: y-offset is ${(parent as Track).trackOffsetY}", LEVEL)
+        Logger.debug(TAG, "adding to scene: y-offset is ${parentTrack.trackOffsetY}", LEVEL)
         vuMeterRectangle.translateX = vuMeterOffsetX
         vuMeterRectangle.translateY = vuMeterOffsetY
         vuMeterRectangle.arcWidth = 5.0
         vuMeterRectangle.arcHeight = 5.0
         vuMeterRectangle.stroke = Color.BLACK
         vuMeterRectangle.strokeWidth = 1.5
-        (parent.parent as TrackListViewModel).stageWidthProperty
+        parentTrack.trackListViewModel.stageWidthProperty
                 .addListener{_, old, new, -> updatePositionOfX(old as Double, new as Double)}
-        (parent.parent as TrackListViewModel).stageHeightProperty
+        parentTrack.trackListViewModel.stageHeightProperty
                 .addListener{_, old, new, -> updatePositionOfY(old as Double, new as Double)}
         root.children.add(vuMeterRectangle)
         makeMeterBars(root)
@@ -96,10 +96,12 @@ class VUMeter(override val parent: Widget): Widget {
             addChild(VUBar(color, vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
                                 - (bar * (barHeight + barSep)), this))
         }
-        for (bar in children) {
-            bar.addMeToScene(root)
-            /* initially make invisible */
-            (bar as VUBar).isVisible(false)
+        Platform.runLater {
+            for (bar in children) {
+                bar.addMeToScene(root)
+                /* initially make invisible */
+                (bar as VUBar).isVisible(false)
+            }
         }
     }
 
@@ -115,11 +117,12 @@ class VUMeter(override val parent: Widget): Widget {
 
     private fun makeBarVisible(bar: VUBar) {
         bar.isVisible(true)
+        bar.bringToFront()
     }
 
-    fun setBarsBasedOnAudio(audioUnit: AudioProcessor) {
-        if (isAudioEnabled) {
-            val mean = audioUnit.getMeanOfLastNSamples()
+    fun setBarsBasedOnAudio(audioInputManager: AudioInputManager, index: Int) {
+        val mean = audioInputManager.dataStreams[index]
+        Platform.runLater {
             makeAllBarsInvisible()
             for (i in 1..numBars) {
                 if (mean >= volumePerBar * i) {
@@ -130,14 +133,4 @@ class VUMeter(override val parent: Widget): Widget {
             }
         }
     }
-
-    fun setAudioEnabled() {
-        isAudioEnabled = true
-    }
-
-    fun setAudioDisabled() {
-        isAudioEnabled = false
-        makeAllBarsInvisible()
-    }
-
 }

@@ -19,11 +19,12 @@ class InputEnableButton(override val parent: Widget?): Widget {
         const val TAG = "InputEnableButton"
         const val LEVEL = 3
     }
+    private val parentTrack = parent as Track
     private var isEnabled: Boolean = false
     private val buttonWidth = 15.0
     private val buttonHeight = 15.0
-    private val buttonOffsetY = (parent as Track).trackOffsetY - 10.0
-    private val buttonOffsetX = -(((parent!!.parent!!) as TrackListViewModel).stage.width / 2) + 60.0
+    private val buttonOffsetY = parentTrack.trackOffsetY - 10.0
+    private val buttonOffsetX = -(parentTrack.trackListViewModel.stage.width / 2) + 60.0
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -39,7 +40,7 @@ class InputEnableButton(override val parent: Widget?): Widget {
     }
 
     init {
-        Logger.debug(TAG, "instantiated: parent is ${(parent as Track).name}", LEVEL)
+        Logger.debug(TAG, "instantiated: parent is ${parentTrack.name}", LEVEL)
         Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
         iImageView.fitHeight = 15.0
         iImageView.isPreserveRatio = true
@@ -54,9 +55,9 @@ class InputEnableButton(override val parent: Widget?): Widget {
         buttonRect.onMouseReleased = mouseReleaseEvent
         iImageView.onMouseReleased = mouseReleaseEvent
 
-        (parent.parent as TrackListViewModel).stageWidthProperty
+        parentTrack.trackListViewModel.stageWidthProperty
                 .addListener{ _, old, new -> updatePositionOfX(old as Double, new as Double)}
-        (parent.parent as TrackListViewModel).stageHeightProperty
+        parentTrack.trackListViewModel.stageHeightProperty
                 .addListener{ _, old, new -> updatePositionOfY(old as Double, new as Double)}
     }
 
@@ -75,13 +76,16 @@ class InputEnableButton(override val parent: Widget?): Widget {
             true -> {
                 isEnabled = false
                 buttonRect.fill = Color.TRANSPARENT
-                (parent as NormalTrack).audioInputDisable()
+                (parentTrack as NormalTrack).audioInputDisable()
             }
             false -> {
-                isEnabled = true
-                buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40)
-                buttonRect.opacity = 0.9
-                (parent as NormalTrack).audioInputEnable()
+                if ((parentTrack as NormalTrack).audioInputEnable()) {
+                    isEnabled = true
+                    buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40)
+                    buttonRect.opacity = 0.9
+
+                    parentTrack.startGettingDataForVuMeter()
+                }
             }
         }
     }

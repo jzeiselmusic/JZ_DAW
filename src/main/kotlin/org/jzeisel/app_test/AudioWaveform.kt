@@ -24,7 +24,7 @@ class AudioWaveform : Application() {
         stage.height = INIT_STAGE_HEIGHT + 4
         stage.isResizable = true
 
-        Logger.setDebug(false)
+        Logger.setDebug(true)
 
         root = StackPane()
         val scene = Scene(root, null)

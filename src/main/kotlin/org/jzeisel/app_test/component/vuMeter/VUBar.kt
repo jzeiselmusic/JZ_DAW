@@ -20,6 +20,10 @@ class VUBar(color: Color, private var barOffsetY: Double,
         /* VUBar will not have any children */
     }
 
+    fun bringToFront() {
+        barRectangle.toFront()
+    }
+
     fun isVisible(t: Boolean) {
         barRectangle.isVisible = t
     }

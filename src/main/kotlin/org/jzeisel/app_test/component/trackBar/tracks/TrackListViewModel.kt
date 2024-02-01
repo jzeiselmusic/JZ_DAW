@@ -78,8 +78,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         audioInputManager.setTrackAudioInput(child, index)
     }
 
-    fun setTrackEnabled(child: Widget) {
-        audioInputManager.setTrackEnabled(child)
+    fun setTrackEnabled(child: Widget): Boolean {
+        return audioInputManager.setTrackEnabled(child)
     }
 
     fun setTrackDisabled(child: Widget) {
