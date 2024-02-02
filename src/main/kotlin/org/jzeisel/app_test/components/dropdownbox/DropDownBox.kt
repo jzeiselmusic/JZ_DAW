@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.component.dropdownbox
+package org.jzeisel.app_test.components.dropdownbox
 
 import javafx.animation.PauseTransition
 import javafx.application.Platform

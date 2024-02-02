@@ -1,13 +1,12 @@
 package org.jzeisel.app_test
 
 import javafx.application.Application
-import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
-import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
+import org.jzeisel.app_test.components.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.logger.Logger
 
 class AudioWaveform : Application() {

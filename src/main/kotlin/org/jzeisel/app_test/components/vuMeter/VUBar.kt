@@ -1,10 +1,10 @@
-package org.jzeisel.app_test.component.vuMeter
+package org.jzeisel.app_test.components.vuMeter
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.components.Widget
 
 class VUBar(color: Color, private var barOffsetY: Double,
             override val parent: Widget): Widget {

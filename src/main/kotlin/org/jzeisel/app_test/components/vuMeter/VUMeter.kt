@@ -1,13 +1,12 @@
-package org.jzeisel.app_test.component.vuMeter
+package org.jzeisel.app_test.components.vuMeter
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.audio.AudioInputManager
-import org.jzeisel.app_test.audio.AudioProcessor
-import org.jzeisel.app_test.component.Widget
-import org.jzeisel.app_test.component.trackBar.tracks.Track
+import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
 class VUMeter(override val parent: Widget): Widget {

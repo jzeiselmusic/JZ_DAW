@@ -1,8 +1,8 @@
 package org.jzeisel.app_test.audio
 
-import org.jzeisel.app_test.component.Widget
-import org.jzeisel.app_test.component.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
+import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
+import org.jzeisel.app_test.components.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.logger.Logger
 import javax.sound.sampled.Mixer
 import javax.sound.sampled.TargetDataLine

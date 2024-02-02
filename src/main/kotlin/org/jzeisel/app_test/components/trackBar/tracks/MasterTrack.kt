@@ -1,12 +1,12 @@
-package org.jzeisel.app_test.component.trackBar.tracks
+package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
-import org.jzeisel.app_test.component.Widget
-import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
-import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
-import org.jzeisel.app_test.component.trackBar.smallComponents.InputSelectArrow
-import org.jzeisel.app_test.component.vuMeter.VUMeter
+import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
+import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
+import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
+import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
 
 class MasterTrack(root: StackPane, override val parent: Widget)
@@ -16,6 +16,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         const val LEVEL = 1
     }
     override val name = "Master"
+
     override val children = mutableListOf<Widget>()
     override var trackOffsetY = trackListViewModel.masterOffsetY
     init {
@@ -24,7 +25,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         trackListViewModel.stageWidthProperty.addListener { _, old, new ->
             trackRectangle.width = new as Double
             trackDivider.translateX -= (new as Double - old as Double) / 2.0
-            trackListViewModel.currentDividerOffset = trackDivider.translateX
+            trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
         }
         trackListViewModel.stageHeightProperty.addListener { _, old, new ->
             trackRectangle.translateY -= (new as Double - old as Double) / 2.0
@@ -38,6 +39,11 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val vuMeter = VUMeter(this)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
+
+    override fun respondToChange(newValue: Double) {
+        trackDivider.translateX = newValue
+        waveFormBox.respondToDividerShift(newValue)
+    }
 
     override fun addChild(child: Widget) {
         children.add(child)

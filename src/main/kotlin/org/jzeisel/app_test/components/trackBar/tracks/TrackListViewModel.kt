@@ -1,12 +1,14 @@
-package org.jzeisel.app_test.component.trackBar.tracks
+package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.application.Platform
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.jzeisel.app_test.audio.AudioInputManager
-import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
 class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     companion object {
@@ -17,11 +19,14 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
     val trackHeight = 100.0
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
-    var currentDividerOffset = -100.0
+    var currentDividerOffset = Observable(-100.0)
 
     val audioInputManager = AudioInputManager(this)
 
     private val masterTrack: MasterTrack = MasterTrack(root,this)
+    init {
+        currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
+    }
 
     override val parent: Widget? = null
     /* all TrackList children will be NormalTracks */
@@ -33,6 +38,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     override fun addChild(child: Widget) {
         children.add(child)
+        currentDividerOffset.addListener(child as ObservableListener<Double>)
     }
 
     override fun addMeToScene(root: StackPane) {

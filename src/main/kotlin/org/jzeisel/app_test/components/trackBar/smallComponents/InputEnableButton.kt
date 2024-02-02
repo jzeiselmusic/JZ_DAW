@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.component.trackBar.smallComponents
+package org.jzeisel.app_test.components.trackBar.smallComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -8,10 +8,9 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.component.Widget
-import org.jzeisel.app_test.component.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.component.trackBar.tracks.Track
-import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
+import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
+import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
 class InputEnableButton(override val parent: Widget?): Widget {

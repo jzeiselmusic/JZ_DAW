@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.component.trackBar.smallComponents
+package org.jzeisel.app_test.components.trackBar.smallComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -7,10 +7,10 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
-import org.jzeisel.app_test.component.Widget
-import org.jzeisel.app_test.component.dropdownbox.DropDownBox
-import org.jzeisel.app_test.component.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.component.trackBar.tracks.Track
+import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.dropdownbox.DropDownBox
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
+import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?) : Widget {

@@ -1,11 +1,11 @@
-package org.jzeisel.app_test.component.trackBar.tracks
+package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
-import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.components.Widget
 
 class WaveFormBox(override val parent: Widget) : Widget {
     override val children: MutableList<Widget> = mutableListOf()
@@ -17,7 +17,7 @@ class WaveFormBox(override val parent: Widget) : Widget {
                                    Color.MEDIUMPURPLE.darker())
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
-        trackRectangle.translateX = waveFormWidth / 2.0 + parentTrack.initialDividerOffset
+        trackRectangle.translateX = waveFormWidth / 2.0 + parentTrack.initialDividerOffset.getValue()
         trackRectangle.opacity = 0.80
         trackRectangle.stroke = Color.BLACK
         trackRectangle.strokeWidth = 0.5
@@ -41,5 +41,10 @@ class WaveFormBox(override val parent: Widget) : Widget {
         Platform.runLater {
             root.children.remove(trackRectangle)
         }
+    }
+
+    fun respondToDividerShift(newValue: Double) {
+        trackRectangle.translateX  = waveFormWidth / 2.0 + newValue
+        trackRectangle.toFront()
     }
 }

@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.component
+package org.jzeisel.app_test.components
 
 import javafx.scene.layout.StackPane
 

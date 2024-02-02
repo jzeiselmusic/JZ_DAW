@@ -1,19 +1,19 @@
-package org.jzeisel.app_test.component.trackBar.tracks
+package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.event.EventHandler
 import javafx.scene.Cursor
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
-import org.jzeisel.app_test.component.Widget
-import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
-import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
-import org.jzeisel.app_test.component.trackBar.smallComponents.InputSelectArrow
-import org.jzeisel.app_test.component.vuMeter.VUMeter
+import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
+import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
+import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
+import org.jzeisel.app_test.components.vuMeter.VUMeter
+import org.jzeisel.app_test.util.ObservableListener
 
-abstract class Track(val root: StackPane, parent: Widget) {
+abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<Double> {
     /* a track component has the following elements:
         1. a vuMeter
         2. a waveform box
@@ -61,7 +61,12 @@ abstract class Track(val root: StackPane, parent: Widget) {
         }
 
         trackDivider.translateY = trackOffsetY
-        trackDivider.translateX = initialDividerOffset
+        trackDivider.translateX = initialDividerOffset.getValue()
         trackDivider.cursor = Cursor.H_RESIZE
+
+        trackDivider.onMouseDragged = EventHandler {
+            trackDivider.translateX += it.x
+            trackListViewModel.currentDividerOffset.setValueAndNotify(trackDivider.translateX)
+        }
     }
 }
