@@ -1,6 +1,8 @@
 package org.jzeisel.app_test.component.trackBar.tracks
 
 import javafx.event.EventHandler
+import javafx.scene.Cursor
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -23,18 +25,21 @@ abstract class Track(val root: StackPane, parent: Widget) {
         7. a recorder object to save audio input
            when the master wants to record
      */
-    val trackWidth = (parent as TrackListViewModel).stage.width
-    val trackHeight = (parent as TrackListViewModel).trackHeight
-    val trackColorNormal = Color.WHITESMOKE.darker()
-    val trackColorHL = Color.WHITESMOKE
     val trackListViewModel = parent as TrackListViewModel
+    val trackWidth = trackListViewModel.stage.width
+    val trackHeight = trackListViewModel.trackHeight
+    val trackColorNormal = Color.WHITESMOKE.darker().darker()
+    val trackColorHL = Color.WHITESMOKE.darker()
     val trackRectangle = Rectangle(trackWidth, trackHeight, trackColorNormal)
+    val trackDivider = Rectangle(3.0, trackHeight, Color.BLACK)
+    val initialDividerOffset = trackListViewModel.currentDividerOffset
     abstract var trackOffsetY: Double
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
     // abstract val recorder: Recorder
     abstract val inputEnableButton: InputEnableButton
     abstract val inputSelectArrow: InputSelectArrow
+    abstract val waveFormBox: WaveFormBox
     abstract val name: String
 
     fun setTrackRectangleProperties() {
@@ -55,5 +60,8 @@ abstract class Track(val root: StackPane, parent: Widget) {
             trackRectangle.opacity = 1.0
         }
 
+        trackDivider.translateY = trackOffsetY
+        trackDivider.translateX = initialDividerOffset
+        trackDivider.cursor = Cursor.H_RESIZE
     }
 }

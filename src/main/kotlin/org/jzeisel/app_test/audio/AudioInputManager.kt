@@ -1,12 +1,17 @@
 package org.jzeisel.app_test.audio
 
 import org.jzeisel.app_test.component.Widget
+import org.jzeisel.app_test.component.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.component.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.logger.Logger
 import javax.sound.sampled.Mixer
 import javax.sound.sampled.TargetDataLine
 
-class AudioInputManager(private val parent: TrackListViewModel) {
+class AudioInputManager(parent: TrackListViewModel) {
+    companion object {
+        const val TAG = "AudioInputManager"
+        const val LVL = 4
+    }
     /*
     audio input manager keeps track of which audio inputs are enabled and
     provides an interface to read data from those inputs such that every
@@ -17,6 +22,7 @@ class AudioInputManager(private val parent: TrackListViewModel) {
     private val recorder = Recorder()
     private val audioProcessor = AudioProcessor(50)
 
+    val trackListViewModel = parent
     val audioInputByTrack = mutableMapOf<Widget, Int?>()
     /* widgets will only be in this list if they are enabled */
     val tracksEnabled = mutableListOf<Widget>()
@@ -57,22 +63,37 @@ class AudioInputManager(private val parent: TrackListViewModel) {
     }
 
     private fun enableInputAtIndex(index: Int) {
-        enabledMixers[index] = true
-        targetDataLines[index] = recorder.startInputStreaming(allMixerInfos[index])
-        dataAcquisitionThreads[index] = Thread {
-            while(true) {
-                val data = recorder.getLatestStreamByteArray(targetDataLines[index]!!)
-                if (data != null) {
-                    val count = data.size
-                    for (i in 0 until count step 2) {
-                        val sample: Int = Recorder.bytesToInt(data[i], data[i+1])
-                        audioProcessor.addSample(sample)
-                        dataStreams[index] = audioProcessor.getMeanOfLastNSamples()
+        if (!enabledMixers[index]) {
+            enabledMixers[index] = true
+            targetDataLines[index] = recorder.startInputStreaming(allMixerInfos[index])
+            dataAcquisitionThreads[index] = Thread {
+                Logger.debug(TAG, "starting thread for $index", LVL)
+                while (true) {
+                    val data = recorder.getLatestStreamByteArray(targetDataLines[index]!!)
+                    if (data != null) {
+                        val count = data.size
+                        // Logger.debug(TAG, "n data: $count", LVL)
+                        if (count % 2 == 0) {
+                            for (i in 0 until count step 2) {
+                                val sample: Int = Recorder.bytesToInt(data[i], data[i + 1])
+                                audioProcessor.addSample(sample)
+                                dataStreams[index] = audioProcessor.getMeanOfLastNSamples()
+                            }
+                            for (track in trackListViewModel.children) {
+                                val t = track as NormalTrack
+                                if (t.audioInputEnabled && t.audioInputIndex == index) {
+                                    t.vuMeter.setBarsBasedOnAudio(this, index)
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        Logger.debug(TAG, "data is null", LVL)
                     }
                 }
             }
+            dataAcquisitionThreads[index]!!.start()
         }
-        dataAcquisitionThreads[index]!!.start()
     }
 
 }

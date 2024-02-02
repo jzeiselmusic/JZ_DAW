@@ -24,7 +24,7 @@ class VUMeter(override val parent: Widget): Widget {
     var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + 100.0
     private var vuMeterOffsetY = parentTrack.trackOffsetY
     private val bgColor = Color.GRAY.brighter()
-    private val barSep = 1.0
+    private val barSep = 0.0
     private val volumePerBar = 3000.0 / numBars
 
     private val vuMeterRectangle = Rectangle(vuMeterWidth, vuMeterHeight, bgColor)

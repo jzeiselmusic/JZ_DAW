@@ -21,11 +21,14 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     init {
         setTrackRectangleProperties()
         /* all tracks have the same width and height changes */
-        trackListViewModel.stageWidthProperty.addListener { _, _, newWidth ->
-            trackRectangle.width = newWidth as Double
+        trackListViewModel.stageWidthProperty.addListener { _, old, new ->
+            trackRectangle.width = new as Double
+            trackDivider.translateX -= (new as Double - old as Double) / 2.0
+            trackListViewModel.currentDividerOffset = trackDivider.translateX
         }
-        trackListViewModel.stageHeightProperty.addListener { _, old, newHeight ->
-            trackRectangle.translateY -= (newHeight as Double - old as Double) / 2.0
+        trackListViewModel.stageHeightProperty.addListener { _, old, new ->
+            trackRectangle.translateY -= (new as Double - old as Double) / 2.0
+            trackDivider.translateY -= (new as Double - old as Double) / 2.0
             trackListViewModel.masterOffsetY = trackRectangle.translateY
         }
         Logger.debug(TAG, "instantiated: y-offset $trackOffsetY", LEVEL)
@@ -34,6 +37,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val inputEnableButton = InputEnableButton(this)
     override val vuMeter = VUMeter(this)
     override val inputSelectArrow = InputSelectArrow(root, this)
+    override val waveFormBox = WaveFormBox(this)
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -41,10 +45,13 @@ class MasterTrack(root: StackPane, override val parent: Widget)
 
     override fun addMeToScene(root: StackPane) {
         root.children.add(trackRectangle)
+        root.children.add(trackDivider)
         vuMeter.addMeToScene(root)
         addButton.addMeToScene(root)
+        waveFormBox.addMeToScene(root)
         addChild(vuMeter)
         addChild(addButton)
+        addChild(waveFormBox)
     }
 
     override fun removeMeFromScene(root: StackPane) {

@@ -41,8 +41,8 @@ class VUBar(color: Color, private var barOffsetY: Double,
     override fun addMeToScene(root: StackPane) {
         barRectangle.translateX = barOffsetX
         barRectangle.translateY = barOffsetY
-        barRectangle.arcWidth = 5.0
-        barRectangle.arcHeight = 5.0
+        barRectangle.arcWidth = 0.5
+        barRectangle.arcHeight = 0.5
         root.children.add(barRectangle)
     }
 

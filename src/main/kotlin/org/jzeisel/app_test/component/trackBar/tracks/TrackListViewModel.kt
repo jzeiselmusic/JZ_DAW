@@ -17,6 +17,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
     val trackHeight = 100.0
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
+    var currentDividerOffset = -100.0
 
     val audioInputManager = AudioInputManager(this)
 
@@ -49,7 +50,6 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         val newTrack = NormalTrack(root, this, children.size.toString())
         newTrack.addMeToScene(root)
         addChild(newTrack)
-        audioInputManager.addTrack(newTrack)
         Logger.debug(TAG, "adding new track-- called by ${(child as Track).name}", LEVEL)
         Logger.debug(TAG, "current num tracks-- ${children.size} plus master", LEVEL)
     }
@@ -75,14 +75,12 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {
-        audioInputManager.setTrackAudioInput(child, index)
     }
 
     fun setTrackEnabled(child: Widget): Boolean {
-        return audioInputManager.setTrackEnabled(child)
+        return true
     }
 
     fun setTrackDisabled(child: Widget) {
-        audioInputManager.setTrackDisabled(child)
     }
 }

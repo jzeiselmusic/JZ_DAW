@@ -1,9 +1,7 @@
 package org.jzeisel.app_test.component.trackBar.tracks
 
-import javafx.animation.Animation
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
-import javafx.util.Duration
 import org.jzeisel.app_test.component.Widget
 import org.jzeisel.app_test.component.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.component.trackBar.smallComponents.InputEnableButton
@@ -25,12 +23,15 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     init {
         setTrackRectangleProperties()
         /* all tracks have the same width and height changes */
-        trackListViewModel.stageWidthProperty.addListener { _, _, newWidth ->
-            trackRectangle.width = newWidth as Double
-
+        trackListViewModel.stageWidthProperty.addListener { _, old, new ->
+            trackRectangle.width = new as Double
+            trackDivider.translateX -= (new as Double - old as Double) / 2.0
+            trackListViewModel.currentDividerOffset = trackDivider.translateX
         }
-        trackListViewModel.stageHeightProperty.addListener { _, old, newHeight ->
-            trackRectangle.translateY -= (newHeight as Double - old as Double) / 2.0
+        trackListViewModel.stageHeightProperty.addListener { _, old, new ->
+            trackRectangle.translateY -= (new as Double - old as Double) / 2.0
+            trackDivider.translateY -= (new as Double - old as Double) / 2.0
+            trackOffsetY = trackRectangle.translateY
         }
         Logger.debug(TAG, "instantiated: y-offset $trackOffsetY", LEVEL)
     }
@@ -38,22 +39,25 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     override val addButton = AddButton(this)
     override val inputEnableButton = InputEnableButton(this)
     override val inputSelectArrow = InputSelectArrow(root, this)
+    override val waveFormBox = WaveFormBox(this)
 
     override fun addMeToScene(root: StackPane) {
         root.children.add(trackRectangle)
+        root.children.add(trackDivider)
         vuMeter.addMeToScene(root)
         addButton.addMeToScene(root)
         inputEnableButton.addMeToScene(root)
         inputSelectArrow.addMeToScene(root)
+        waveFormBox.addMeToScene(root)
         addChild(vuMeter)
         addChild(addButton)
         addChild(inputEnableButton)
         addChild(inputSelectArrow)
+        addChild(waveFormBox)
     }
 
-    private var audioInputIndex: Int? = null
-    private var audioInputEnabled = false
-    private var latestVUMeterThread: Thread? = null
+    var audioInputIndex: Int? = null
+    var audioInputEnabled = false
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -91,15 +95,5 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     }
 
     fun startGettingDataForVuMeter() {
-        audioInputIndex?.let {
-            Logger.debug(TAG, "starting vu meter stream for track $name", LEVEL)
-            latestVUMeterThread = Thread {
-                while (true) {
-                    vuMeter.setBarsBasedOnAudio(trackListViewModel.audioInputManager, it)
-                    Thread.sleep(150)
-                }
-            }
-            latestVUMeterThread?.start()
-        }
     }
 }
