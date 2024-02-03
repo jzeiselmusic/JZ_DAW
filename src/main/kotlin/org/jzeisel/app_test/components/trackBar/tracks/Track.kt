@@ -86,4 +86,6 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         trackLabelNumber.translateY = trackOffsetY
         trackLabelNumber.translateX = trackLabel.translateX
     }
+
+    abstract fun addTrack()
 }

@@ -20,11 +20,11 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
     val trackHeight = 100.0
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
-    val addButtonOffset = 40.0
-    val inputButtonsOffset = 70.0
-    val vuMeterOffset = 115.0
+    val addButtonOffset = 45.0
+    val inputButtonsOffset = 75.0
+    val vuMeterOffset = 120.0
     var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
-    var currentDividerOffset = Observable(-stageWidthProperty.value / 2.0 + 150.0)
+    var currentDividerOffset = Observable(-stageWidthProperty.value / 2.0 + 155.0)
 
     val audioInputManager = AudioInputManager(this)
 
@@ -59,10 +59,19 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     fun addTrack(child: Widget) {
         /* tell this function which child called it */
         /* if called by index -1, then called by master */
-        val newTrack = NormalTrack(root, this, children.size.toString())
+        val newTrack = NormalTrack(root, this,
+                ((child as NormalTrack).name.toInt() + 1).toString(), child as Track)
         newTrack.addMeToScene(root)
         addChild(newTrack)
         Logger.debug(TAG, "adding new track-- called by ${(child as Track).name}", LEVEL)
+        Logger.debug(TAG, "current num tracks-- ${children.size} plus master", LEVEL)
+    }
+
+    fun addTrackFromMaster() {
+        val newTrack = NormalTrack(root, this, "0", masterTrack)
+        newTrack.addMeToScene(root)
+        addChild(newTrack)
+        Logger.debug(TAG, "adding new track-- called by master}", LEVEL)
         Logger.debug(TAG, "current num tracks-- ${children.size} plus master", LEVEL)
     }
 

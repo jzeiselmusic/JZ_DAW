@@ -9,7 +9,8 @@ import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
 
-class NormalTrack(root: StackPane, override val parent: Widget, override val name: String)
+class NormalTrack(root: StackPane, override val parent: Widget,
+                  override val name: String, progenitor: Track)
     : Track(root, parent), Widget {
     companion object {
         const val TAG = "NormalTrack"
@@ -17,8 +18,7 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     }
 
     /* same as a master track except its y offset will change */
-    override var trackOffsetY = trackListViewModel.masterOffsetY +
-            trackListViewModel.getNumTracks() * trackListViewModel.trackHeight
+    override var trackOffsetY = progenitor.trackOffsetY + trackListViewModel.trackHeight
     override val children = mutableListOf<Widget>()
     init {
         setTrackRectangleProperties()
@@ -102,6 +102,10 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
             root.children.remove(trackLabel)
             root.children.remove(labelDivider)
         }
+    }
+
+    override fun addTrack() {
+        trackListViewModel.addTrack(this)
     }
 
     fun audioInputEnable(): Boolean {

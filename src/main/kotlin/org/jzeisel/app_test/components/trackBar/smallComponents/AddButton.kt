@@ -89,7 +89,7 @@ class AddButton(override val parent: Widget): Widget {
     }
 
     private fun addTrack() {
-        trackListViewModel.addTrack(parent)
+        parentTrack.addTrack()
     }
 
     private fun removeTrack() {

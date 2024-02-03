@@ -60,6 +60,10 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         children.add(child)
     }
 
+    override fun addTrack() {
+        trackListViewModel.addTrackFromMaster()
+    }
+
     override fun addMeToScene(root: StackPane) {
         root.children.add(trackRectangle)
         root.children.add(trackDivider)
