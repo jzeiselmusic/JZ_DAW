@@ -8,6 +8,7 @@ import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableList
 import org.jzeisel.app_test.util.ObservableListener
 
 class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
@@ -34,15 +35,16 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     override val parent: Widget? = null
     /* all TrackList children will be NormalTracks */
-    override val children = mutableListOf<Widget>()
+    override val children = ObservableList<Widget>(0)
 
     init {
         Logger.debug(TAG, "instantiated: master y-offset $masterOffsetY", LEVEL)
     }
 
     override fun addChild(child: Widget) {
-        children.add(child)
+        children.addAndNotify(child)
         currentDividerOffset.addListener(child as ObservableListener<Double>)
+        children.addListener(child as ObservableListener<Int>)
     }
 
     override fun addMeToScene(root: StackPane) {
@@ -68,7 +70,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         /* same comment as above */
         Platform.runLater {
             children.last().removeMeFromScene(root)
-            children.remove(children.last())
+            children.removeListener(children.last() as ObservableListener<Int>)
+            children.removeAndNotify(children.last())
         }
     }
 

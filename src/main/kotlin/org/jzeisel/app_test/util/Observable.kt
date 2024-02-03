@@ -4,6 +4,7 @@ class Observable<DataType>(initialValue: DataType) {
     private val listeners = mutableListOf<ObservableListener<DataType>>()
     private var value = initialValue
 
+
     fun getValue(): DataType {
         return value
     }
@@ -31,7 +32,7 @@ class Observable<DataType>(initialValue: DataType) {
 
     private fun notifyListeners(newValue: DataType) {
         for (listener in listeners) {
-            listener.respondToChange(newValue)
+            listener.respondToChange(this, newValue)
         }
     }
 }

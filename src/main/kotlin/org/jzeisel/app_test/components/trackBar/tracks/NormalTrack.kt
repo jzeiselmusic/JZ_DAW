@@ -50,9 +50,19 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     override val inputEnableButton = InputEnableButton(this)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
-    override fun respondToChange(newValue: Double) {
-        trackDivider.translateX = newValue
-        waveFormBox.respondToDividerShift(newValue)
+    override fun respondToChange(observable: Any, value: Double, grow: Boolean) {
+        when (observable) {
+            trackListViewModel.currentDividerOffset -> {
+                trackDivider.translateX = value
+                waveFormBox.respondToDividerShift(value)
+            }
+            trackListViewModel.children -> {
+                if (grow)
+                    Logger.debug(TAG, "track $name notified: track added at $value", LEVEL)
+                else
+                    Logger.debug(TAG, "track $name notified: track removed at $value", LEVEL)
+            }
+        }
     }
 
     override fun addMeToScene(root: StackPane) {

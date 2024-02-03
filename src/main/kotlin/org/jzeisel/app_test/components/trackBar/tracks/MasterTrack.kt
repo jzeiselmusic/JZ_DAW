@@ -47,9 +47,13 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
 
-    override fun respondToChange(newValue: Double) {
-        trackDivider.translateX = newValue
-        waveFormBox.respondToDividerShift(newValue)
+    override fun respondToChange(observable: Any, value: Double, grow: Boolean) {
+        when (observable) {
+            trackListViewModel.currentDividerOffset -> {
+                trackDivider.translateX = value
+                waveFormBox.respondToDividerShift(value)
+            }
+        }
     }
 
     override fun addChild(child: Widget) {
