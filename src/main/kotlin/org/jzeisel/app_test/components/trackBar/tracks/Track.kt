@@ -6,12 +6,14 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
+import javafx.scene.text.Text
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.util.ObservableListener
+import kotlin.math.abs
 
 abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<Double> {
     /* a track component has the following elements:
@@ -32,11 +34,13 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     val trackColorHL = Color.WHITESMOKE.darker()
     val trackRectangle = Rectangle(trackWidth, trackHeight, trackColorNormal)
     val trackDivider = Rectangle(3.0, trackHeight, Color.BLACK)
+    val labelDivider = Rectangle(1.5, trackHeight, Color.BLACK)
+    val trackLabel = Rectangle()
+    val trackLabelNumber = Text("1")
     val initialDividerOffset = trackListViewModel.currentDividerOffset
     abstract var trackOffsetY: Double
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
-    // abstract val recorder: Recorder
     abstract val inputEnableButton: InputEnableButton
     abstract val inputSelectArrow: InputSelectArrow
     abstract val waveFormBox: WaveFormBox
@@ -68,5 +72,18 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
             trackDivider.translateX += it.x
             trackListViewModel.currentDividerOffset.setValueAndNotify(trackDivider.translateX)
         }
+
+        labelDivider.translateY = trackOffsetY
+        labelDivider.translateX = trackListViewModel.labelDividerOffset
+
+        trackLabel.width = trackListViewModel.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
+        trackLabel.height = trackHeight
+        trackLabel.fill = Color.GRAY.brighter()
+        trackLabel.opacity = 0.5
+        trackLabel.translateY = trackOffsetY
+        trackLabel.translateX = -trackListViewModel.stageWidthProperty.value / 2.0 + trackLabel.width / 2.0
+
+        trackLabelNumber.translateY = trackOffsetY
+        trackLabelNumber.translateX = trackLabel.translateX
     }
 }

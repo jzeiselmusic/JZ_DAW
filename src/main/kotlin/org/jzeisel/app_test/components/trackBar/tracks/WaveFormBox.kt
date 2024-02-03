@@ -18,7 +18,7 @@ class WaveFormBox(override val parent: Widget) : Widget {
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
         trackRectangle.translateX = waveFormWidth / 2.0 + parentTrack.initialDividerOffset.getValue()
-        trackRectangle.opacity = 0.80
+        trackRectangle.opacity = 0.8
         trackRectangle.stroke = Color.BLACK
         trackRectangle.strokeWidth = 0.5
         trackRectangle.strokeLineJoin = StrokeLineJoin.ROUND

@@ -17,10 +17,11 @@ class VUMeter(override val parent: Widget): Widget {
     /* object that represents a single VUMeter */
     /* made of 2 rectangles and a set of numBars Bars */
     private val parentTrack = parent as Track
+    private val trackListViewModel = parentTrack.trackListViewModel
     private val numBars = 20
-    val vuMeterWidth = 15.0
-    private var vuMeterHeight = parentTrack.trackHeight / 2.0
-    var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + 100.0
+    val vuMeterWidth = 20.0
+    private var vuMeterHeight = parentTrack.trackHeight / 1.75
+    var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + trackListViewModel.vuMeterOffset
     private var vuMeterOffsetY = parentTrack.trackOffsetY
     private val bgColor = Color.GRAY.brighter()
     private val barSep = 0.0
@@ -56,8 +57,8 @@ class VUMeter(override val parent: Widget): Widget {
         val newX = vuMeterRectangle.translateX - (new - old)/2.0
         vuMeterRectangle.translateX = newX
         vuMeterOffsetX = newX
-        for (bar in 0 until numBars) {
-            (children[bar] as VUBar).updateOffsetX(newX)
+        for (bar in children) {
+            (bar as VUBar).updateOffsetX(newX)
         }
     }
 
@@ -65,10 +66,10 @@ class VUMeter(override val parent: Widget): Widget {
         val newY = vuMeterRectangle.translateY - (new - old)/2.0
         vuMeterRectangle.translateY = newY
         vuMeterOffsetY = newY
-        for (bar in 0 until numBars) {
-            (children[bar] as VUBar).updateOffsetY(
+        for (bar in children) {
+            (bar as VUBar).updateOffsetY(
                     vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
-                        - (bar * (barHeight + barSep)))
+                        - (children.indexOf(bar) * (barHeight + barSep)))
         }
     }
 

@@ -22,16 +22,26 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     override val children = mutableListOf<Widget>()
     init {
         setTrackRectangleProperties()
+        trackLabelNumber.text = (name.toInt() + 1).toString()
         /* all tracks have the same width and height changes */
         trackListViewModel.stageWidthProperty.addListener { _, old, new ->
-            trackRectangle.width = new as Double
-            trackDivider.translateX -= (new as Double - old as Double) / 2.0
+            val amtChange = (new as Double - old as Double) / 2.0
+            trackRectangle.width = new
+            trackDivider.translateX -= amtChange
             trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
+            labelDivider.translateX -= amtChange
+            trackListViewModel.labelDividerOffset = labelDivider.translateX
+            trackLabel.translateX -= amtChange
+            trackLabelNumber.translateX -= amtChange
         }
         trackListViewModel.stageHeightProperty.addListener { _, old, new ->
-            trackRectangle.translateY -= (new as Double - old as Double) / 2.0
-            trackDivider.translateY -= (new as Double - old as Double) / 2.0
+            val amtChange = (new as Double - old as Double) / 2.0
+            trackRectangle.translateY -= amtChange
+            trackDivider.translateY -= amtChange
+            labelDivider.translateY -= amtChange
+            trackLabel.translateY -= amtChange
             trackOffsetY = trackRectangle.translateY
+            trackLabelNumber.translateY -= amtChange
         }
         Logger.debug(TAG, "instantiated: y-offset $trackOffsetY", LEVEL)
     }
@@ -48,6 +58,9 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
     override fun addMeToScene(root: StackPane) {
         root.children.add(trackRectangle)
         root.children.add(trackDivider)
+        root.children.add(trackLabel)
+        root.children.add(labelDivider)
+        root.children.add(trackLabelNumber)
         vuMeter.addMeToScene(root)
         addButton.addMeToScene(root)
         inputEnableButton.addMeToScene(root)
@@ -73,7 +86,11 @@ class NormalTrack(root: StackPane, override val parent: Widget, override val nam
                 child.removeMeFromScene(root)
             }
             children.clear()
+            root.children.remove(trackLabelNumber)
+            root.children.remove(trackDivider)
             root.children.remove(trackRectangle)
+            root.children.remove(trackLabel)
+            root.children.remove(labelDivider)
         }
     }
 

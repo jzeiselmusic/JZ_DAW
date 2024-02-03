@@ -10,18 +10,21 @@ import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
-class AddButton(override val parent: Widget?): Widget {
+class AddButton(override val parent: Widget): Widget {
     companion object {
         const val TAG = "AddButton"
         const val LEVEL = 3
     }
+    private val parentTrack = parent as Track
+    private val trackListViewModel = parentTrack.trackListViewModel
     private val buttonWidth = 20.0
     private val buttonHeight = 20.0
-    private val buttonOffsetY = (parent as Track).trackOffsetY
-    private val buttonOffsetX = -(((parent!!.parent!!) as TrackListViewModel).stage.width / 2) + 30
+    private val buttonOffsetY = parentTrack.trackOffsetY
+    private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.addButtonOffset
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -44,7 +47,7 @@ class AddButton(override val parent: Widget?): Widget {
                                         }
 
     init {
-        Logger.debug(TAG, "instantiated: parent is ${(parent as Track).name}", LEVEL)
+        Logger.debug(TAG, "instantiated: parent is ${parentTrack.name}", LEVEL)
         Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
         buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
@@ -67,9 +70,9 @@ class AddButton(override val parent: Widget?): Widget {
         verticalLine.onMousePressed = mousePressEvent
         verticalLine.onMouseReleased = mouseReleaseEvent
 
-        (parent.parent as TrackListViewModel).stageWidthProperty
+        trackListViewModel.stageWidthProperty
                     .addListener{_, old, new, -> updatePositionOfX(old as Double, new as Double)}
-        (parent.parent as TrackListViewModel).stageHeightProperty
+        trackListViewModel.stageHeightProperty
                     .addListener{_, old, new, -> updatePositionOfY(old as Double, new as Double)}
     }
 
@@ -86,11 +89,12 @@ class AddButton(override val parent: Widget?): Widget {
     }
 
     private fun addTrack() {
-        (parent!!.parent as TrackListViewModel).addTrack(parent)
+        trackListViewModel.addTrack(parent)
     }
 
     private fun removeTrack() {
-        (parent!!.parent as TrackListViewModel).removeTrack(parent)
+        if (parent is NormalTrack)
+        trackListViewModel.removeTrack(parent)
     }
 
     private fun mousePress() {

@@ -11,8 +11,8 @@ import org.jzeisel.app_test.logger.Logger
 
 class AudioWaveform : Application() {
     companion object {
-        private const val INIT_STAGE_HEIGHT = 360.0
-        private const val INIT_STAGE_WIDTH = 640.0
+        private const val INIT_STAGE_HEIGHT = 440.0
+        private const val INIT_STAGE_WIDTH = 840.0
     }
     private lateinit var root: StackPane
 

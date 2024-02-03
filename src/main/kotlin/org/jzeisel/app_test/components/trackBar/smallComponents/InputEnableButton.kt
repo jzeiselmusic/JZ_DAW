@@ -19,11 +19,12 @@ class InputEnableButton(override val parent: Widget?): Widget {
         const val LEVEL = 3
     }
     private val parentTrack = parent as Track
+    private val trackListViewModel = parentTrack.trackListViewModel
     private var isEnabled: Boolean = false
-    private val buttonWidth = 15.0
-    private val buttonHeight = 15.0
-    private val buttonOffsetY = parentTrack.trackOffsetY - 10.0
-    private val buttonOffsetX = -(parentTrack.trackListViewModel.stage.width / 2) + 60.0
+    private val buttonWidth = 20.0
+    private val buttonHeight = 20.0
+    private val buttonOffsetY = parentTrack.trackOffsetY - 15.0
+    private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputButtonsOffset
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -97,6 +98,7 @@ class InputEnableButton(override val parent: Widget?): Widget {
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
             root.children.remove(buttonRect)
+            root.children.remove(iImageView)
         }
     }
 
