@@ -14,6 +14,7 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import java.util.*
 
 class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
     companion object {
@@ -31,7 +32,16 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
     override fun addChild(child: Widget) {
     }
 
-    private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.MEDIUMPURPLE.brighter())
+    private fun getRandomColor(): Color {
+        val random = Random()
+        val red = random.nextInt(256)
+        val green = random.nextInt(256)
+        val blue = random.nextInt(256)
+
+        return Color.rgb(red, green, blue)
+    }
+
+    private val buttonRect = Rectangle(buttonWidth, buttonHeight, getRandomColor())
     private val horizontalLine = Line(buttonOffsetX - buttonWidth / 4, buttonOffsetY,
                                         buttonOffsetX + buttonWidth / 4, buttonOffsetY)
     private val verticalLine = Line(buttonOffsetX, buttonOffsetY - buttonWidth / 4,

@@ -28,13 +28,14 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         }
         masterTrack.trackWidth = new
     }
+    /* initial offsets */
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
     val addButtonOffset = 45.0
     val inputButtonsOffset = 75.0
     val vuMeterOffset = 120.0
     var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
     var currentDividerOffset = Observable(-stageWidthProperty.value / 2.0 + 155.0)
-
+    /*      *****      */
     val audioInputManager = AudioInputManager(this)
 
     private val masterTrack: MasterTrack = MasterTrack(root,this)
@@ -61,9 +62,12 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
             }
     }
 
+    val numChildren: Int
+        get() = children.size
+
     override fun addChild(child: Widget) {
         children = children.toMutableList().apply {
-            add(child)
+            add((child as NormalTrack).index, child)
         }
         currentDividerOffset.addListener(child as ObservableListener<Double>)
     }
@@ -100,11 +104,6 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
                 remove(child)
             }
         }
-    }
-
-    fun getNumTracks(): Int {
-        /* add one for master track */
-        return children.size + 1
     }
 
     fun broadcastMouseClick(root: StackPane) {
