@@ -8,13 +8,14 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
+import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
-class AddButton(override val parent: Widget): Widget {
+class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
     companion object {
         const val TAG = "AddButton"
         const val LEVEL = 3
@@ -28,7 +29,6 @@ class AddButton(override val parent: Widget): Widget {
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
-        /* AddButton does not have any children */
     }
 
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.MEDIUMPURPLE.brighter())
@@ -69,23 +69,6 @@ class AddButton(override val parent: Widget): Widget {
         horizontalLine.onMouseReleased = mouseReleaseEvent
         verticalLine.onMousePressed = mousePressEvent
         verticalLine.onMouseReleased = mouseReleaseEvent
-
-        trackListViewModel.stageWidthProperty
-                    .addListener{_, old, new, -> updatePositionOfX(old as Double, new as Double)}
-        trackListViewModel.stageHeightProperty
-                    .addListener{_, old, new, -> updatePositionOfY(old as Double, new as Double)}
-    }
-
-    private fun updatePositionOfX(old: Double, new: Double) {
-        buttonRect.translateX -= (new - old)/2.0
-        horizontalLine.translateX -= (new - old)/ 2.0
-        verticalLine.translateX -= (new - old)/2.0
-    }
-
-    private fun updatePositionOfY(old: Double, new: Double) {
-        buttonRect.translateY -= (new - old)/2.0
-        horizontalLine.translateY -= (new - old)/2.0
-        verticalLine.translateY -= (new - old)/2.0
     }
 
     private fun addTrack() {
@@ -129,5 +112,17 @@ class AddButton(override val parent: Widget): Widget {
             root.children.remove(horizontalLine)
             root.children.remove(verticalLine)
         }
+    }
+
+    override fun respondToOffsetYChange(old: Double, new: Double) {
+        buttonRect.translateY += new - old
+        horizontalLine.translateY += new - old
+        verticalLine.translateY += new - old
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        buttonRect.translateX -= (new - old)/2.0
+        horizontalLine.translateX -= (new - old)/ 2.0
+        verticalLine.translateX -= (new - old)/2.0
     }
 }

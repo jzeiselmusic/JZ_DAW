@@ -5,11 +5,12 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.audio.AudioInputManager
+import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
-class VUMeter(override val parent: Widget): Widget {
+class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
     companion object {
         const val TAG = "VUMeter"
         const val LEVEL = 3
@@ -20,7 +21,7 @@ class VUMeter(override val parent: Widget): Widget {
     private val trackListViewModel = parentTrack.trackListViewModel
     private val numBars = 20
     val vuMeterWidth = 20.0
-    private var vuMeterHeight = parentTrack.trackHeight / 1.75
+    private var vuMeterHeight = parentTrack.initialTrackHeight / 1.75
     var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + trackListViewModel.vuMeterOffset
     private var vuMeterOffsetY = parentTrack.trackOffsetY
     private val bgColor = Color.GRAY.brighter()
@@ -45,32 +46,8 @@ class VUMeter(override val parent: Widget): Widget {
         vuMeterRectangle.arcHeight = 5.0
         vuMeterRectangle.stroke = Color.BLACK
         vuMeterRectangle.strokeWidth = 1.5
-        parentTrack.trackListViewModel.stageWidthProperty
-                .addListener{_, old, new, -> updatePositionOfX(old as Double, new as Double)}
-        parentTrack.trackListViewModel.stageHeightProperty
-                .addListener{_, old, new, -> updatePositionOfY(old as Double, new as Double)}
         root.children.add(vuMeterRectangle)
         makeMeterBars(root)
-    }
-
-    private fun updatePositionOfX(old: Double, new: Double) {
-        val newX = vuMeterRectangle.translateX - (new - old)/2.0
-        vuMeterRectangle.translateX = newX
-        vuMeterOffsetX = newX
-        for (bar in children) {
-            (bar as VUBar).updateOffsetX(newX)
-        }
-    }
-
-    private fun updatePositionOfY(old: Double, new: Double) {
-        val newY = vuMeterRectangle.translateY - (new - old)/2.0
-        vuMeterRectangle.translateY = newY
-        vuMeterOffsetY = newY
-        for (bar in children) {
-            (bar as VUBar).updateOffsetY(
-                    vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
-                        - (children.indexOf(bar) * (barHeight + barSep)))
-        }
     }
 
     override fun removeMeFromScene(root: StackPane) {
@@ -131,6 +108,26 @@ class VUMeter(override val parent: Widget): Widget {
                     break
                 }
             }
+        }
+    }
+
+    override fun respondToOffsetYChange(old: Double, new: Double) {
+        val newY = vuMeterRectangle.translateY + (new - old)
+        vuMeterRectangle.translateY = newY
+        vuMeterOffsetY = newY
+        for (bar in children) {
+            (bar as VUBar).updateOffsetY(
+                    vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
+                            - (children.indexOf(bar) * (barHeight + barSep)))
+        }
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        val newX = vuMeterRectangle.translateX - (new - old)/2.0
+        vuMeterRectangle.translateX = newX
+        vuMeterOffsetX = newX
+        for (bar in children) {
+            (bar as VUBar).updateOffsetX(newX)
         }
     }
 }

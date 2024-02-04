@@ -8,8 +8,8 @@ import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.Observable
-import org.jzeisel.app_test.util.ObservableList
 import org.jzeisel.app_test.util.ObservableListener
+import kotlin.properties.Delegates
 
 class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     companion object {
@@ -18,7 +18,16 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
-    val trackHeight = 100.0
+    var trackHeight: Double by Delegates.observable(100.0) {
+        _, old, new ->
+    }
+    var trackWidth: Double by Delegates.observable(stageWidthProperty.value) {
+        _, _, new ->
+        for (child in children) {
+            (child as NormalTrack).trackWidth = new
+        }
+        masterTrack.trackWidth = new
+    }
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
     val addButtonOffset = 45.0
     val inputButtonsOffset = 75.0
@@ -31,20 +40,32 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     private val masterTrack: MasterTrack = MasterTrack(root,this)
     init {
         currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
+        stageWidthProperty.addListener { _, _, new ->
+            trackWidth = new as Double
+        }
+        stageHeightProperty.addListener {_, old, new ->
+            for (child in children) {
+                (child as NormalTrack).trackOffsetY -= (new as Double - old as Double)/2.0
+            }
+            masterTrack.trackOffsetY -= (new as Double - old as Double)/2.0
+        }
     }
 
     override val parent: Widget? = null
     /* all TrackList children will be NormalTracks */
-    override val children = ObservableList<Widget>(0)
-
-    init {
-        Logger.debug(TAG, "instantiated: master y-offset $masterOffsetY", LEVEL)
+    override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) {
+        _, old, new ->
+            for (child in children) {
+                val t = child as NormalTrack
+                t.respondToChangeInTrackList(old, new)
+            }
     }
 
     override fun addChild(child: Widget) {
-        children.addAndNotify(child)
+        children = children.toMutableList().apply {
+            add(child)
+        }
         currentDividerOffset.addListener(child as ObservableListener<Double>)
-        children.addListener(child as ObservableListener<Int>)
     }
 
     override fun addMeToScene(root: StackPane) {
@@ -60,27 +81,24 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         /* tell this function which child called it */
         /* if called by index -1, then called by master */
         val newTrack = NormalTrack(root, this,
-                ((child as NormalTrack).name.toInt() + 1).toString(), child as Track)
+                (child as NormalTrack).index + 1, child as Track)
         newTrack.addMeToScene(root)
         addChild(newTrack)
-        Logger.debug(TAG, "adding new track-- called by ${(child as Track).name}", LEVEL)
-        Logger.debug(TAG, "current num tracks-- ${children.size} plus master", LEVEL)
     }
 
     fun addTrackFromMaster() {
-        val newTrack = NormalTrack(root, this, "0", masterTrack)
+        val newTrack = NormalTrack(root, this, 0, masterTrack)
         newTrack.addMeToScene(root)
         addChild(newTrack)
-        Logger.debug(TAG, "adding new track-- called by master}", LEVEL)
-        Logger.debug(TAG, "current num tracks-- ${children.size} plus master", LEVEL)
     }
 
     fun removeTrack(child: Widget) {
         /* same comment as above */
         Platform.runLater {
-            children.last().removeMeFromScene(root)
-            children.removeListener(children.last() as ObservableListener<Int>)
-            children.removeAndNotify(children.last())
+            child.removeMeFromScene(root)
+            children = children.toMutableList().apply {
+                remove(child)
+            }
         }
     }
 

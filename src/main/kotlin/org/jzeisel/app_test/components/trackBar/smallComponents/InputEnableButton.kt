@@ -8,12 +8,13 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
-class InputEnableButton(override val parent: Widget?): Widget {
+class InputEnableButton(override val parent: Widget?): Widget, TrackComponentWidget {
     companion object {
         const val TAG = "InputEnableButton"
         const val LEVEL = 3
@@ -54,21 +55,6 @@ class InputEnableButton(override val parent: Widget?): Widget {
         buttonRect.strokeWidth = 1.6
         buttonRect.onMouseReleased = mouseReleaseEvent
         iImageView.onMouseReleased = mouseReleaseEvent
-
-        parentTrack.trackListViewModel.stageWidthProperty
-                .addListener{ _, old, new -> updatePositionOfX(old as Double, new as Double)}
-        parentTrack.trackListViewModel.stageHeightProperty
-                .addListener{ _, old, new -> updatePositionOfY(old as Double, new as Double)}
-    }
-
-    private fun updatePositionOfX(old: Double, new: Double) {
-        buttonRect.translateX -= (new - old)/2.0
-        iImageView.translateX -= (new - old)/2.0
-    }
-
-    private fun updatePositionOfY(old: Double, new: Double) {
-        buttonRect.translateY -= (new - old)/2.0
-        iImageView.translateY -= (new - old)/2.0
     }
 
     private fun mouseReleaseLeft() {
@@ -100,6 +86,16 @@ class InputEnableButton(override val parent: Widget?): Widget {
             root.children.remove(buttonRect)
             root.children.remove(iImageView)
         }
+    }
+
+    override fun respondToOffsetYChange(old: Double, new: Double) {
+        buttonRect.translateY += new - old
+        iImageView.translateY += new - old
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        buttonRect.translateX -= (new - old)/2.0
+        iImageView.translateX -= (new - old)/2.0
     }
 
 }

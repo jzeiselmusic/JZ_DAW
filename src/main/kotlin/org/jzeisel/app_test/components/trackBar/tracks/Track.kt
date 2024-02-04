@@ -28,13 +28,13 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
            when the master wants to record
      */
     val trackListViewModel = parent as TrackListViewModel
-    val trackWidth = trackListViewModel.stage.width
-    val trackHeight = trackListViewModel.trackHeight
+    val initialTrackWidth = trackListViewModel.stage.width
+    val initialTrackHeight = trackListViewModel.trackHeight
     val trackColorNormal = Color.WHITESMOKE.darker().darker()
     val trackColorHL = Color.WHITESMOKE.darker()
-    val trackRectangle = Rectangle(trackWidth, trackHeight, trackColorNormal)
-    val trackDivider = Rectangle(3.0, trackHeight, Color.BLACK)
-    val labelDivider = Rectangle(1.5, trackHeight, Color.BLACK)
+    val trackRectangle = Rectangle(initialTrackWidth, initialTrackHeight, trackColorNormal)
+    val trackDivider = Rectangle(3.0, initialTrackHeight, Color.BLACK)
+    val labelDivider = Rectangle(1.5, initialTrackHeight, Color.BLACK)
     val trackLabel = Rectangle()
     val trackLabelNumber = Text("1")
     val initialDividerOffset = trackListViewModel.currentDividerOffset
@@ -77,7 +77,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         labelDivider.translateX = trackListViewModel.labelDividerOffset
 
         trackLabel.width = trackListViewModel.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
-        trackLabel.height = trackHeight
+        trackLabel.height = initialTrackHeight
         trackLabel.fill = Color.GRAY.brighter()
         trackLabel.opacity = 0.5
         trackLabel.translateY = trackOffsetY

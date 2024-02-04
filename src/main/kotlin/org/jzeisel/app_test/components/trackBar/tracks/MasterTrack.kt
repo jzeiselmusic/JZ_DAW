@@ -2,12 +2,14 @@ package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
+import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
+import kotlin.properties.Delegates
 
 class MasterTrack(root: StackPane, override val parent: Widget)
     : Track(root, parent), Widget {
@@ -16,30 +18,40 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         const val LEVEL = 1
     }
     override val name = "Master"
-
     override val children = mutableListOf<Widget>()
-    override var trackOffsetY = trackListViewModel.masterOffsetY
+    override var trackOffsetY: Double by Delegates.observable(
+                    trackListViewModel.masterOffsetY) {
+        _, old, new ->
+        trackRectangle.translateY = new
+        trackDivider.translateY = new
+        trackDivider.translateY = new
+        labelDivider.translateY = new
+        trackLabel.translateY = new
+        trackLabelNumber.translateY = new
+        trackListViewModel.masterOffsetY = new
+        for (child in children) {
+            val c = child as TrackComponentWidget
+            c.respondToOffsetYChange(old, new)
+        }
+    }
+    var trackWidth: Double by Delegates.observable(initialTrackWidth) {
+        _, old, new ->
+        val amtChange = (new - old) / 2.0
+        trackRectangle.width = new
+        trackRectangle.width = new
+        trackDivider.translateX -= amtChange
+        trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
+        labelDivider.translateX -= amtChange
+        trackListViewModel.labelDividerOffset = labelDivider.translateX
+        trackLabel.translateX -= amtChange
+        trackLabelNumber.translateX -= amtChange
+        for (child in children) {
+            val c = child as TrackComponentWidget
+            c.respondToWidthChange(old, new)
+        }
+    }
     init {
         setTrackRectangleProperties()
-        /* all tracks have the same width and height changes */
-        trackListViewModel.stageWidthProperty.addListener { _, old, new ->
-            val amtChange = (new as Double - old as Double) / 2.0
-            trackRectangle.width = new
-            trackDivider.translateX -= amtChange
-            trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
-            trackLabel.translateX -= amtChange
-            labelDivider.translateX -= amtChange
-            trackListViewModel.labelDividerOffset = labelDivider.translateX
-        }
-        trackListViewModel.stageHeightProperty.addListener { _, old, new ->
-            val amtChange = (new as Double - old as Double) / 2.0
-            trackRectangle.translateY -= amtChange
-            trackListViewModel.masterOffsetY = trackRectangle.translateY
-            trackDivider.translateY -= amtChange
-            trackLabel.translateY -= amtChange
-            labelDivider.translateY -= amtChange
-        }
-        Logger.debug(TAG, "instantiated: y-offset $trackOffsetY", LEVEL)
     }
     override val addButton = AddButton(this)
     override val inputEnableButton = InputEnableButton(this)
@@ -47,7 +59,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
 
-    override fun respondToChange(observable: Any, value: Double, grow: Boolean) {
+    override fun respondToChange(observable: Any, value: Double) {
         when (observable) {
             trackListViewModel.currentDividerOffset -> {
                 trackDivider.translateX = value

@@ -7,13 +7,15 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
+import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.dropdownbox.DropDownBox
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 
-class InputSelectArrow(private val root: StackPane, override val parent: Widget?) : Widget {
+class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
+            : Widget, TrackComponentWidget {
     companion object {
         const val TAG = "InputSelectArrow"
         const val LEVEL = 4
@@ -27,17 +29,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
                                         8.0, 0.0,
                                         4.0, -4.0)
     init {
-        parentTrack.trackListViewModel.stageWidthProperty.addListener { _, old, new ->
-            inputSelectRectangle.translateX -= (new as Double - old as Double)/2.0
-            inputSelectArrow.translateX -= (new as Double - old as Double)/2.0
-            dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
-        }
-        parentTrack.trackListViewModel.stageHeightProperty.addListener { _, old, new ->
-            inputSelectRectangle.translateY -= (new as Double - old as Double)/2.0
-            inputSelectArrow.translateY -= (new as Double - old as Double)/2.0
-            dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
-        }
-        inputSelectRectangle.translateX = -(parentTrack.trackWidth/2.0) + trackListViewModel.inputButtonsOffset
+        inputSelectRectangle.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListViewModel.inputButtonsOffset
         inputSelectRectangle.translateY = parentTrack.trackOffsetY + 15.0
         inputSelectRectangle.arcWidth = 5.0
         inputSelectRectangle.arcHeight = 5.0
@@ -45,7 +37,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectRectangle.strokeWidth = 1.6
 
         inputSelectArrow.fill = Color.BLACK
-        inputSelectArrow.translateX = -(parentTrack.trackWidth/2.0) + trackListViewModel.inputButtonsOffset - 0.5
+        inputSelectArrow.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListViewModel.inputButtonsOffset - 0.5
         inputSelectArrow.translateY = parentTrack.trackOffsetY + 15.0
         inputSelectArrow.rotate = 180.0
         inputSelectArrow.stroke = Color.BLACK
@@ -102,5 +94,17 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     private fun selectionChosen(index: Int) {
         Logger.debug(TAG, "chose index $index", LEVEL)
         (parentTrack as NormalTrack).setAudioInputIndex(index)
+    }
+
+    override fun respondToOffsetYChange(old: Double, new: Double) {
+        inputSelectRectangle.translateY += new - old
+        inputSelectArrow.translateY += new - old
+        dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        inputSelectRectangle.translateX -= (new - old)/2.0
+        inputSelectArrow.translateX -= (new - old)/2.0
+        dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
     }
 }

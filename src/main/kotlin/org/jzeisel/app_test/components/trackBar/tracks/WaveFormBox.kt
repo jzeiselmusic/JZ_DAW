@@ -5,15 +5,16 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
+import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 
-class WaveFormBox(override val parent: Widget) : Widget {
+class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
     val waveFormWidth = 2000.0
 
     val trackRectangle = Rectangle(waveFormWidth,
-                                   parentTrack.trackHeight,
+                                   parentTrack.initialTrackHeight,
                                    Color.MEDIUMPURPLE.darker())
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
@@ -22,13 +23,6 @@ class WaveFormBox(override val parent: Widget) : Widget {
         trackRectangle.stroke = Color.BLACK
         trackRectangle.strokeWidth = 0.5
         trackRectangle.strokeLineJoin = StrokeLineJoin.ROUND
-
-        parentTrack.trackListViewModel.stageWidthProperty.addListener { _, old, new ->
-            trackRectangle.translateX -= (new as Double - old as Double)/2.0
-        }
-        parentTrack.trackListViewModel.stageHeightProperty.addListener { _, old, new ->
-            trackRectangle.translateY -= (new as Double - old as Double)/2.0
-        }
     }
     override fun addChild(child: Widget) {
     }
@@ -41,6 +35,14 @@ class WaveFormBox(override val parent: Widget) : Widget {
         Platform.runLater {
             root.children.remove(trackRectangle)
         }
+    }
+
+    override fun respondToOffsetYChange(old: Double, new: Double) {
+        trackRectangle.translateY = new
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        trackRectangle.translateX -= (new - old)/2.0
     }
 
     fun respondToDividerShift(newValue: Double) {
