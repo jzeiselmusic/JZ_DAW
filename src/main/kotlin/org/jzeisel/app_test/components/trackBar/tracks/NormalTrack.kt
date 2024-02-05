@@ -12,15 +12,18 @@ import org.jzeisel.app_test.logger.Logger
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,
-                  val index: Int, progenitor: Track)
+                  initialIndex: Int, progenitor: Track)
     : Track(root, parent), Widget {
     companion object {
         const val TAG = "NormalTrack"
         const val LEVEL = 1
     }
-    override var name: String by Delegates.observable ((index + 1).toString()) {
+    override var name: String by Delegates.observable ((initialIndex + 1).toString()) {
         _, _, new -> trackLabelNumber.text = new
     }
+
+    var index = initialIndex
+
     override var trackOffsetY: Double by Delegates.observable(
                 progenitor.trackOffsetY + trackListViewModel.trackHeight) {
         _, old, new ->
@@ -71,11 +74,10 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     fun respondToChangeInTrackList(old: List<Widget>, new: List<Widget>) {
-        val newIndex = new.indexOf(this)
-        Logger.debug(TAG, "track $name new index is $newIndex", LEVEL)
-
-        trackOffsetY = trackListViewModel.masterOffsetY + (newIndex+1)*initialTrackHeight
-        name = (newIndex + 1).toString()
+        index = new.indexOf(this)
+        trackOffsetY = trackListViewModel.masterOffsetY + (index+1)*initialTrackHeight
+        name = (index+1).toString()
+        Logger.debug(TAG, "track $name new index is $index", LEVEL)
     }
 
     override fun addMeToScene(root: StackPane) {
