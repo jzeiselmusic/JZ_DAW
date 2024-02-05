@@ -36,8 +36,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     val trackDivider = Rectangle(3.0, initialTrackHeight, Color.BLACK)
     val labelDivider = Rectangle(1.5, initialTrackHeight, Color.BLACK)
     val trackLabel = Rectangle()
-    val trackLabelNumber = Text("1")
-    val initialDividerOffset = trackListViewModel.currentDividerOffset
+    val trackLabelNumber = Text("")
     abstract var trackOffsetY: Double
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
@@ -65,7 +64,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         }
 
         trackDivider.translateY = trackOffsetY
-        trackDivider.translateX = initialDividerOffset.getValue()
+        trackDivider.translateX = trackListViewModel.currentDividerOffset.getValue()
         trackDivider.cursor = Cursor.H_RESIZE
 
         trackDivider.onMouseDragged = EventHandler {

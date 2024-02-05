@@ -11,14 +11,14 @@ import org.jzeisel.app_test.components.Widget
 class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
+    val trackListViewModel = parentTrack.trackListViewModel
     val waveFormWidth = 2000.0
-
     val trackRectangle = Rectangle(waveFormWidth,
                                    parentTrack.initialTrackHeight,
                                    Color.MEDIUMPURPLE.darker())
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
-        trackRectangle.translateX = waveFormWidth / 2.0 + parentTrack.initialDividerOffset.getValue()
+        trackRectangle.translateX = waveFormWidth / 2.0 + trackListViewModel.currentDividerOffset.getValue()
         trackRectangle.opacity = 0.8
         trackRectangle.stroke = Color.BLACK
         trackRectangle.strokeWidth = 0.5
