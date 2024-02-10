@@ -6,6 +6,7 @@ import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
+import org.jzeisel.app_test.components.trackBar.smallComponents.InputNameBox
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
@@ -58,6 +59,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val vuMeter = VUMeter(this)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
+    override val inputNameBox = InputNameBox(this)
 
     override fun respondToChange(observable: Any, value: Double) {
         when (observable) {

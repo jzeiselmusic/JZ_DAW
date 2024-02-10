@@ -20,7 +20,7 @@ class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     private val numBars = 20
-    val vuMeterWidth = 20.0
+    val vuMeterWidth = trackListViewModel.vuMeterWidth
     private var vuMeterHeight = parentTrack.initialTrackHeight / 1.75
     var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + trackListViewModel.vuMeterOffset
     private var vuMeterOffsetY = parentTrack.trackOffsetY

@@ -12,13 +12,12 @@ import org.jzeisel.app_test.logger.Logger
 class AudioWaveform : Application() {
     companion object {
         private const val INIT_STAGE_HEIGHT = 440.0
-        private const val INIT_STAGE_WIDTH = 840.0
+        private const val INIT_STAGE_WIDTH = 950.0
     }
     private lateinit var root: StackPane
 
     override fun start(stage: Stage) {
         stage.title = "JZ Digital Audio Workstation"
-        stage.isResizable = true
         stage.width = INIT_STAGE_WIDTH
         stage.height = INIT_STAGE_HEIGHT + 4
         stage.isResizable = true

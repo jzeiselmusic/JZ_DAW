@@ -10,6 +10,7 @@ import javafx.scene.text.Text
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
+import org.jzeisel.app_test.components.trackBar.smallComponents.InputNameBox
 import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.util.ObservableListener
@@ -43,6 +44,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     abstract val inputEnableButton: InputEnableButton
     abstract val inputSelectArrow: InputSelectArrow
     abstract val waveFormBox: WaveFormBox
+    abstract val inputNameBox: InputNameBox
     abstract val name: String
 
     fun setTrackRectangleProperties() {
@@ -73,7 +75,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         }
 
         labelDivider.translateY = trackOffsetY
-        labelDivider.translateX = trackListViewModel.labelDividerOffset
+        labelDivider.translateX = - trackListViewModel.stageWidthProperty.value / 2.0 + trackListViewModel.labelDividerOffset
 
         trackLabel.width = trackListViewModel.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
         trackLabel.height = initialTrackHeight

@@ -41,8 +41,6 @@ class InputEnableButton(override val parent: Widget?): Widget, TrackComponentWid
     }
 
     init {
-        Logger.debug(TAG, "instantiated: parent is ${parentTrack.name}", LEVEL)
-        Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
         iImageView.fitHeight = 15.0
         iImageView.isPreserveRatio = true
         iImageView.translateY = buttonOffsetY

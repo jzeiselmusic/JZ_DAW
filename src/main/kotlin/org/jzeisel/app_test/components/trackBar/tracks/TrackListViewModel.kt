@@ -30,11 +30,15 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
     /* initial offsets */
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
+    /* these are currently distance from left-hand size of stage */
     val addButtonOffset = 45.0
     val inputButtonsOffset = 75.0
+    val vuMeterWidth = 20.0
     val vuMeterOffset = 120.0
-    var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
-    var currentDividerOffset = Observable(-stageWidthProperty.value / 2.0 + 155.0)
+    val inputNameBoxSize = 100.0
+    val inputNameBoxOffset = 165.0 + inputNameBoxSize / 2.0 - vuMeterWidth / 2.0
+    var labelDividerOffset = 20.0
+    var currentDividerOffset = Observable(-stageWidthProperty.value / 2.0 + 310.0)
     /*      *****      */
     val audioInputManager = AudioInputManager(this)
 
