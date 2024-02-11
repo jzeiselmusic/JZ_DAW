@@ -1,18 +1,29 @@
 package org.jzeisel.app_test.components.trackBar.smallComponents
 
+import javafx.event.EventHandler
+import javafx.scene.control.TextField
+import javafx.scene.input.MouseButton
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
+import javafx.scene.layout.VBox
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
+import javafx.scene.text.TextFlow
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
+import org.jzeisel.app_test.logger.Logger
 
 class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
+    companion object {
+        const val TAG = "InputNameBox"
+    }
     override val children = mutableListOf<Widget>()
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
+    private val nameText = Text()
     private val generalBox = Rectangle(trackListViewModel.inputNameBoxWidth,
                                         trackListViewModel.buttonSize,
                                         trackListViewModel.generalGray)
@@ -25,7 +36,6 @@ class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
             nameText.text = value
             field = value
         }
-    private val nameText = Text()
 
 
     init {
@@ -36,13 +46,22 @@ class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
         generalBox.arcWidth = trackListViewModel.arcSize
         generalBox.arcHeight = trackListViewModel.arcSize
 
-        if (parentTrack is MasterTrack) nameText.text = "Master"
-        else nameText.text = "Track ${parentTrack.name}"
+        nameText.text = name
         nameText.translateY = generalBox.translateY
         nameText.translateX = generalBox.translateX
         nameText.textAlignment = TextAlignment.CENTER
         nameText.fill = trackListViewModel.strokeColor
         nameText.isVisible = true
+
+        val doubleClickHandler = EventHandler<MouseEvent>{
+            if (it.button.equals(MouseButton.PRIMARY)) {
+                if (it.clickCount == 2) {
+                }
+            }
+        }
+
+        generalBox.onMouseClicked = doubleClickHandler
+        nameText.onMouseClicked = doubleClickHandler
     }
     override fun addChild(child: Widget) {
     }
