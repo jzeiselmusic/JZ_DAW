@@ -26,8 +26,8 @@ class TextField(private val parentRect: Rectangle,
         const val LEVEL = 4
     }
     private var isShowing = false
-    private val rectangleWidth: Double get() { return parentRect.width - 6.0 }
-    private val rectangleHeight: Double get() { return parentRect.height - 2.0 }
+    private val rectangleWidth: Double get() { return parentRect.width }
+    private val rectangleHeight: Double get() { return parentRect.height }
     private val rectangleTranslateX: Double get() { return parentRect.translateX }
     private val rectangleTranslateY: Double get() { return parentRect.translateY }
     private val textString: String get() { return parentText.text }
@@ -49,7 +49,9 @@ class TextField(private val parentRect: Rectangle,
         rectangle.translateY = rectangleTranslateY
         rectangle.arcWidth = trackListViewModel.arcSize
         rectangle.arcHeight = trackListViewModel.arcSize
-        rectangle.fill = Color.WHITESMOKE
+        rectangle.fill = Color.WHITESMOKE.brighter()
+        rectangle.stroke = trackListViewModel.strokeColor
+        rectangle.strokeWidth = 2.3
 
         text.text = textString
         text.fill = textFill
@@ -91,17 +93,14 @@ class TextField(private val parentRect: Rectangle,
 
     fun removeMeFromScene(root: StackPane) {
         if (isShowing) {
-            Logger.debug(TAG, "exiting text field", 5)
-            cursor.isVisible = false
-            text.isVisible = false
-            rectangle.isVisible = false
             Platform.runLater {
-                root.children.remove(cursor)
-                root.children.remove(text)
-                root.children.remove(rectangle)
+                timeline.stop()
+                cursor.isVisible = false
+                text.isVisible = false
+                rectangle.isVisible = false
+                root.children.removeAll(cursor, rectangle, text)
+                isShowing = false
             }
-            timeline.stop()
-            isShowing = false
         }
     }
 
