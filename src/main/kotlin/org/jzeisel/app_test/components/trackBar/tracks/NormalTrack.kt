@@ -64,7 +64,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val inputEnableButton = InputEnableButton(this)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
-    override val inputNameBox = InputNameBox(this)
+    override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
 
     override fun respondToChange(observable: Any, value: Double) {
@@ -128,6 +128,10 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     override fun addTrack() {
         trackListViewModel.addTrack(this)
+    }
+
+    override fun backspaceText() {
+        inputNameBox.backspaceText()
     }
 
     fun audioInputEnable(): Boolean {

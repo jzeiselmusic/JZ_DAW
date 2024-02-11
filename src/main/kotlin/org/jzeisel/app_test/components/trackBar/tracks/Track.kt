@@ -89,4 +89,6 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     }
 
     abstract fun addTrack()
+
+    abstract fun backspaceText()
 }

@@ -39,10 +39,12 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val buttonSize = widgetSize
     val arcSize = 5.0
     val strokeSize = 1.3
+    var verticalDistancesBetweenWidgets = 15.0
+    /* colors */
     val strokeColor = Color.BLACK
     val generalPurple = Color.MEDIUMPURPLE.darker()
     val generalGray = Color.GRAY.brighter()
-    var verticalDistancesBetweenWidgets = 15.0
+    val backgroundGray = Color.DIMGREY.darker().darker()
     /* initial offsets */
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
     /* these are currently distance from left-hand size of stage */
@@ -128,6 +130,14 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
             val track = child as NormalTrack
             track.inputSelectArrow.removeDropDownBox(root)
         }
+    }
+
+    fun broadcastBackSpace(root: StackPane) {
+        for (child in children) {
+            val track = child as Track
+            track.backspaceText()
+        }
+        masterTrack.backspaceText()
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {

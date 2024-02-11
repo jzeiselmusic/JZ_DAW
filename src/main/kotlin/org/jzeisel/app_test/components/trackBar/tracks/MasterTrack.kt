@@ -56,7 +56,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val vuMeter = VUMeter(this)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
-    override val inputNameBox = InputNameBox(this)
+    override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
 
     override fun respondToChange(observable: Any, value: Double) {
@@ -74,6 +74,10 @@ class MasterTrack(root: StackPane, override val parent: Widget)
 
     override fun addTrack() {
         trackListViewModel.addTrackFromMaster()
+    }
+
+    override fun backspaceText() {
+        inputNameBox.backspaceText()
     }
 
     override fun addMeToScene(root: StackPane) {

@@ -1,22 +1,20 @@
 package org.jzeisel.app_test.components.trackBar.smallComponents
 
 import javafx.event.EventHandler
-import javafx.scene.control.TextField
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
-import javafx.scene.layout.VBox
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
-import javafx.scene.text.TextFlow
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.textfield.TextField
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
 import org.jzeisel.app_test.logger.Logger
 
-class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
+class InputNameBox(private val root: StackPane, override val parent: Widget) : Widget, TrackComponentWidget {
     companion object {
         const val TAG = "InputNameBox"
     }
@@ -27,6 +25,8 @@ class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
     private val generalBox = Rectangle(trackListViewModel.inputNameBoxWidth,
                                         trackListViewModel.buttonSize,
                                         trackListViewModel.generalGray)
+    private val textField = TextField(generalBox, nameText, trackListViewModel)
+
     var name: String = ""
         get() {
             return if (parentTrack is MasterTrack) "Master"
@@ -56,6 +56,7 @@ class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
         val doubleClickHandler = EventHandler<MouseEvent>{
             if (it.button.equals(MouseButton.PRIMARY)) {
                 if (it.clickCount == 2) {
+                    textField.addMeToScene(root)
                 }
             }
         }
@@ -84,5 +85,9 @@ class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
     override fun respondToWidthChange(old: Double, new: Double) {
         generalBox.translateX -= (new - old)/2.0
         nameText.translateX -= (new - old)/2.0
+    }
+
+    fun backspaceText() {
+        textField.backspace()
     }
 }

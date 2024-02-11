@@ -2,11 +2,13 @@ package org.jzeisel.app_test
 
 import javafx.application.Application
 import javafx.scene.Scene
+import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import org.jzeisel.app_test.logger.Logger
+import javafx.scene.input.KeyCode.BACK_SPACE
 
 class AudioWaveform : Application() {
     companion object {
@@ -32,6 +34,11 @@ class AudioWaveform : Application() {
 
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED) {
             trackListViewModel.broadcastMouseClick(root)
+        }
+        scene.addEventFilter(KeyEvent.KEY_PRESSED) {
+            if (it.code == BACK_SPACE) {
+                trackListViewModel.broadcastBackSpace(root)
+            }
         }
         trackListViewModel.addMeToScene(root)
         stage.show()
