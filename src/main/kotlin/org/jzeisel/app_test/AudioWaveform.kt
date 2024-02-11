@@ -2,6 +2,7 @@ package org.jzeisel.app_test
 
 import javafx.application.Application
 import javafx.scene.Scene
+import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
@@ -39,7 +40,8 @@ class AudioWaveform : Application() {
             if (it.code == BACK_SPACE) {
                 trackListViewModel.broadcastBackSpace()
             }
-            else if (it.code.isLetterKey || it.code.isWhitespaceKey) {
+            else if ((it.code.isLetterKey || it.code.isWhitespaceKey || it.code.isDigitKey)
+                    && it.code != KeyCode.ENTER) {
                 trackListViewModel.broadcastCharacter(it)
             }
         }
