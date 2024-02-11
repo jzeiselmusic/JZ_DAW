@@ -5,8 +5,6 @@ import javafx.animation.PauseTransition
 import javafx.animation.Timeline
 import javafx.application.Platform
 import javafx.event.ActionEvent
-import javafx.event.EventHandler
-import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color

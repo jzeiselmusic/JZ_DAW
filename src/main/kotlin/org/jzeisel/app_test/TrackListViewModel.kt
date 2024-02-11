@@ -11,7 +11,6 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
-import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates

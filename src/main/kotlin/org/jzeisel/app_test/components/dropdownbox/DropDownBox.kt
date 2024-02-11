@@ -4,16 +4,11 @@ import javafx.animation.PauseTransition
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
-import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
-import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.components.trackBar.tracks.Track
-import org.jzeisel.app_test.logger.Logger
 
 class DropDownBox(stringList: List<String>, parent: Rectangle,
                   private val trackListViewModel: TrackListViewModel, clickCallback: (index: Int) -> Unit) {

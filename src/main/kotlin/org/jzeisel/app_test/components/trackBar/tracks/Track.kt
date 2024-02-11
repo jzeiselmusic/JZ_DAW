@@ -2,7 +2,6 @@ package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.event.EventHandler
 import javafx.scene.Cursor
-import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
