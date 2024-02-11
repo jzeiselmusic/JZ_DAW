@@ -95,9 +95,6 @@ class TextField(private val parentRect: Rectangle,
         if (isShowing) {
             Platform.runLater {
                 timeline.stop()
-                cursor.isVisible = false
-                text.isVisible = false
-                rectangle.isVisible = false
                 root.children.removeAll(cursor, rectangle, text)
                 isShowing = false
             }

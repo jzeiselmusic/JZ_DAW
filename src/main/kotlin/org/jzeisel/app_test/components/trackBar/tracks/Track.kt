@@ -55,6 +55,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 1.0
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
+
         trackRectangle.onMouseEntered = EventHandler {
             trackRectangle.fill = trackColorHL
         }

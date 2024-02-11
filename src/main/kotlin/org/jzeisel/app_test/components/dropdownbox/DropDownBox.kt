@@ -28,6 +28,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
     private val buttonOffsetY = parentButton.translateY
     private var rectangleWidth = 100.0
     private var rectangleHeight = 25.0
+    private var isAdded = false
     init {
         /* find the largest text and conform width */
         for ( string in stringList ) {
@@ -82,15 +83,19 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
             delay.setOnFinished {
                 root.children.addAll(rectangleList)
                 root.children.addAll(textList)
+                isAdded = true
             }
             delay.play()
         }
     }
 
     fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
-            root.children.removeAll(textList)
-            root.children.removeAll(rectangleList)
+        if (isAdded) {
+            Platform.runLater {
+                root.children.removeAll(textList)
+                root.children.removeAll(rectangleList)
+                isAdded = false
+            }
         }
     }
 

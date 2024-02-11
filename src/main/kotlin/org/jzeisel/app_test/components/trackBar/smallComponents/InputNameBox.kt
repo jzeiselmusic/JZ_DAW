@@ -47,13 +47,14 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
         generalBox.stroke = trackListViewModel.strokeColor
         generalBox.arcWidth = trackListViewModel.arcSize
         generalBox.arcHeight = trackListViewModel.arcSize
-
+        generalBox.opacity = 0.8
         nameText.text = name
         nameText.translateY = generalBox.translateY
         nameText.translateX = generalBox.translateX
         nameText.textAlignment = TextAlignment.CENTER
         nameText.fill = trackListViewModel.strokeColor
         nameText.isVisible = true
+        nameText.opacity = 0.95
 
         val doubleClickHandler = EventHandler<MouseEvent>{
             if (it.button.equals(MouseButton.PRIMARY)) {
@@ -99,5 +100,9 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
 
     fun exitTextField(root: StackPane) {
         textField.removeMeFromScene(root)
+        generalBox.toBack()
+        nameText.toBack()
+        generalBox.toFront()
+        nameText.toFront()
     }
 }

@@ -133,6 +133,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
             track.inputSelectArrow.removeDropDownBox(root)
             track.inputNameBox.exitTextField(root)
         }
+        masterTrack.inputNameBox.exitTextField(root)
     }
 
     fun broadcastBackSpace() {
