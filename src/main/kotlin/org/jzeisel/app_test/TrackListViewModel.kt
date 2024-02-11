@@ -1,12 +1,15 @@
-package org.jzeisel.app_test.components.trackBar.tracks
+package org.jzeisel.app_test
 
+import javafx.scene.paint.Color
 import javafx.application.Platform
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
+import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
@@ -28,15 +31,25 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         }
         masterTrack.trackWidth = new
     }
+    /* sizes */
+    val separationDistance = 45.0
+    val inputNameBoxWidth = separationDistance*2.0
+    val widgetSize = 20.0
+    val vuMeterWidth = widgetSize
+    val buttonSize = widgetSize
+    val arcSize = 5.0
+    val strokeSize = 1.3
+    val strokeColor = Color.BLACK
+    val generalPurple = Color.MEDIUMPURPLE.darker()
+    val generalGray = Color.GRAY.brighter()
+    var verticalDistancesBetweenWidgets = 15.0
     /* initial offsets */
     var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
     /* these are currently distance from left-hand size of stage */
-    val addButtonOffset = 45.0
-    val inputButtonsOffset = 75.0
-    val vuMeterWidth = 20.0
-    val vuMeterOffset = 120.0
-    val inputNameBoxSize = 100.0
-    val inputNameBoxOffset = 165.0 + inputNameBoxSize / 2.0 - vuMeterWidth / 2.0
+    val addButtonOffset = separationDistance
+    val inputButtonsOffset = addButtonOffset + 30.0
+    val inputNameBoxOffset = inputButtonsOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
+    val vuMeterOffset = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
     var labelDividerOffset = 20.0
     var currentDividerOffset = Observable(-stageWidthProperty.value / 2.0 + 310.0)
     /*      *****      */

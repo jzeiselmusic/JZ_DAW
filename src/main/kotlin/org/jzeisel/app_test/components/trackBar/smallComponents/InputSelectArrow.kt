@@ -24,29 +24,31 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     private var isDropDownBoxActive = false
-    private val inputSelectRectangle = Rectangle(20.0, 20.0, Color.MEDIUMPURPLE.brighter())
+    private val inputSelectRectangle = Rectangle(trackListViewModel.buttonSize,
+                                                trackListViewModel.buttonSize,
+                                                trackListViewModel.generalPurple)
     private val inputSelectArrow = Polygon(0.0, 0.0,
                                         8.0, 0.0,
                                         4.0, -4.0)
     init {
         inputSelectRectangle.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListViewModel.inputButtonsOffset
-        inputSelectRectangle.translateY = parentTrack.trackOffsetY + 15.0
-        inputSelectRectangle.arcWidth = 5.0
-        inputSelectRectangle.arcHeight = 5.0
-        inputSelectRectangle.stroke = Color.BLACK
-        inputSelectRectangle.strokeWidth = 1.6
+        inputSelectRectangle.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
+        inputSelectRectangle.arcWidth = trackListViewModel.arcSize
+        inputSelectRectangle.arcHeight = trackListViewModel.arcSize
+        inputSelectRectangle.stroke = trackListViewModel.strokeColor
+        inputSelectRectangle.strokeWidth = trackListViewModel.strokeSize
 
         inputSelectArrow.fill = Color.BLACK
         inputSelectArrow.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListViewModel.inputButtonsOffset - 0.5
-        inputSelectArrow.translateY = parentTrack.trackOffsetY + 15.0
+        inputSelectArrow.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
         inputSelectArrow.rotate = 180.0
-        inputSelectArrow.stroke = Color.BLACK
-        inputSelectArrow.strokeWidth = 1.0
+        inputSelectArrow.stroke = trackListViewModel.strokeColor
+        inputSelectArrow.strokeWidth = 1.5
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
     }
 
     private val dropDownBox = DropDownBox(trackListViewModel.audioInputManager.allMixerNames,
-                                  inputSelectRectangle,
+                                  inputSelectRectangle, trackListViewModel,
                                   ::selectionChosen)
 
     init {

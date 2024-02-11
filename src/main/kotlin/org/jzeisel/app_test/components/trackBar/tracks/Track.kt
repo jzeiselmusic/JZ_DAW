@@ -7,11 +7,9 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import javafx.scene.text.Text
+import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
-import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
-import org.jzeisel.app_test.components.trackBar.smallComponents.InputNameBox
-import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
+import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.math.abs
@@ -34,8 +32,8 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     val trackColorNormal = Color.WHITESMOKE.darker().darker()
     val trackColorHL = Color.WHITESMOKE.darker()
     val trackRectangle = Rectangle(initialTrackWidth, initialTrackHeight, trackColorNormal)
-    val trackDivider = Rectangle(3.0, initialTrackHeight, Color.BLACK)
-    val labelDivider = Rectangle(1.5, initialTrackHeight, Color.BLACK)
+    val trackDivider = Rectangle(3.0, initialTrackHeight, trackListViewModel.strokeColor)
+    val labelDivider = Rectangle(1.5, initialTrackHeight, trackListViewModel.strokeColor)
     val trackLabel = Rectangle()
     val trackLabelNumber = Text("")
     abstract var trackOffsetY: Double
@@ -45,13 +43,14 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     abstract val inputSelectArrow: InputSelectArrow
     abstract val waveFormBox: WaveFormBox
     abstract val inputNameBox: InputNameBox
+    abstract val volumeSlider: VolumeSlider
     abstract val name: String
 
     fun setTrackRectangleProperties() {
         trackRectangle.translateY = trackOffsetY
-        trackRectangle.stroke = Color.BLACK
+        trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 1.0
-        trackRectangle.strokeLineJoin = StrokeLineJoin.ROUND
+        trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
         trackRectangle.onMouseEntered = EventHandler {
             trackRectangle.fill = trackColorHL
         }
@@ -79,8 +78,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
 
         trackLabel.width = trackListViewModel.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
         trackLabel.height = initialTrackHeight
-        trackLabel.fill = Color.GRAY.brighter()
-        trackLabel.opacity = 0.5
+        trackLabel.fill = trackListViewModel.generalGray
         trackLabel.translateY = trackOffsetY
         trackLabel.translateX = -trackListViewModel.stageWidthProperty.value / 2.0 + trackLabel.width / 2.0
 

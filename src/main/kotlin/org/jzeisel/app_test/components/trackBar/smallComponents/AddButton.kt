@@ -9,7 +9,6 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.TrackComponentWidget
-import org.jzeisel.app_test.components.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
@@ -23,8 +22,8 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
     }
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
-    private val buttonWidth = 20.0
-    private val buttonHeight = 20.0
+    private val buttonWidth = trackListViewModel.buttonSize
+    private val buttonHeight = trackListViewModel.buttonSize
     private val buttonOffsetY = parentTrack.trackOffsetY
     private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.addButtonOffset
     override val children = mutableListOf<Widget>()
@@ -61,17 +60,17 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
         Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
         buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
-        buttonRect.arcWidth = 5.0
-        buttonRect.arcHeight = 5.0
-        buttonRect.stroke = Color.BLACK
-        buttonRect.strokeWidth = 1.6
+        buttonRect.arcWidth = trackListViewModel.arcSize
+        buttonRect.arcHeight = trackListViewModel.arcSize
+        buttonRect.stroke = trackListViewModel.strokeColor
+        buttonRect.strokeWidth = trackListViewModel.strokeSize
 
         horizontalLine.translateX = buttonOffsetX
         horizontalLine.translateY = buttonOffsetY
         verticalLine.translateX = buttonOffsetX
         verticalLine.translateY = buttonOffsetY
-        horizontalLine.strokeWidth = 1.6
-        verticalLine.strokeWidth = 1.6
+        horizontalLine.strokeWidth = 2.2
+        verticalLine.strokeWidth = 2.2
 
         buttonRect.onMousePressed = mousePressEvent
         buttonRect.onMouseReleased = mouseReleaseEvent

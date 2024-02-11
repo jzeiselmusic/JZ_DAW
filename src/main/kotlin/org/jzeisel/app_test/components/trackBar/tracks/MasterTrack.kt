@@ -4,10 +4,7 @@ import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.smallComponents.AddButton
-import org.jzeisel.app_test.components.trackBar.smallComponents.InputEnableButton
-import org.jzeisel.app_test.components.trackBar.smallComponents.InputNameBox
-import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
+import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
 import kotlin.properties.Delegates
@@ -60,6 +57,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
     override val inputNameBox = InputNameBox(this)
+    override val volumeSlider = VolumeSlider(this)
 
     override fun respondToChange(observable: Any, value: Double) {
         when (observable) {
@@ -86,9 +84,13 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         vuMeter.addMeToScene(root)
         addButton.addMeToScene(root)
         waveFormBox.addMeToScene(root)
+        inputNameBox.addMeToScene(root)
+        volumeSlider.addMeToScene(root)
         addChild(vuMeter)
         addChild(addButton)
         addChild(waveFormBox)
+        addChild(inputNameBox)
+        addChild(volumeSlider)
     }
 
     override fun removeMeFromScene(root: StackPane) {

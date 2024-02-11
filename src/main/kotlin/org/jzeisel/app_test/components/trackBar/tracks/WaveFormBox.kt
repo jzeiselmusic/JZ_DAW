@@ -12,17 +12,17 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
     val trackListViewModel = parentTrack.trackListViewModel
-    val waveFormWidth = 2000.0
+    val waveFormWidth = 5000.0
     val trackRectangle = Rectangle(waveFormWidth,
                                    parentTrack.initialTrackHeight,
-                                   Color.MEDIUMPURPLE.darker())
+                                   trackListViewModel.generalPurple)
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
         trackRectangle.translateX = waveFormWidth / 2.0 + trackListViewModel.currentDividerOffset.getValue()
         trackRectangle.opacity = 0.8
-        trackRectangle.stroke = Color.BLACK
+        trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 0.5
-        trackRectangle.strokeLineJoin = StrokeLineJoin.ROUND
+        trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
     }
     override fun addChild(child: Widget) {
     }

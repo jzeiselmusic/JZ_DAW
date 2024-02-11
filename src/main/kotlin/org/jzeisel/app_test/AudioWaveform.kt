@@ -6,7 +6,6 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
-import org.jzeisel.app_test.components.trackBar.tracks.TrackListViewModel
 import org.jzeisel.app_test.logger.Logger
 
 class AudioWaveform : Application() {

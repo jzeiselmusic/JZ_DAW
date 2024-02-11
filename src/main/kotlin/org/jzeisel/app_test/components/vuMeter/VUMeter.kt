@@ -24,7 +24,7 @@ class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
     private var vuMeterHeight = parentTrack.initialTrackHeight / 1.75
     var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + trackListViewModel.vuMeterOffset
     private var vuMeterOffsetY = parentTrack.trackOffsetY
-    private val bgColor = Color.GRAY.brighter()
+    private val bgColor = trackListViewModel.generalGray
     private val barSep = 0.0
     private val volumePerBar = 3000.0 / numBars
 
@@ -36,16 +36,16 @@ class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
     init {
         Logger.debug(TAG, "instantiated: parent is ${parentTrack.name}", LEVEL)
         Logger.debug(TAG, "\t y-offset is $vuMeterOffsetY", LEVEL)
+        vuMeterRectangle.translateX = vuMeterOffsetX
+        vuMeterRectangle.translateY = vuMeterOffsetY
+        vuMeterRectangle.arcWidth = trackListViewModel.arcSize
+        vuMeterRectangle.arcHeight = trackListViewModel.arcSize
+        vuMeterRectangle.stroke = trackListViewModel.strokeColor
+        vuMeterRectangle.strokeWidth = trackListViewModel.strokeSize
     }
 
     override fun addMeToScene(root: StackPane) {
         Logger.debug(TAG, "adding to scene: y-offset is ${parentTrack.trackOffsetY}", LEVEL)
-        vuMeterRectangle.translateX = vuMeterOffsetX
-        vuMeterRectangle.translateY = vuMeterOffsetY
-        vuMeterRectangle.arcWidth = 5.0
-        vuMeterRectangle.arcHeight = 5.0
-        vuMeterRectangle.stroke = Color.BLACK
-        vuMeterRectangle.strokeWidth = 1.5
         root.children.add(vuMeterRectangle)
         makeMeterBars(root)
     }

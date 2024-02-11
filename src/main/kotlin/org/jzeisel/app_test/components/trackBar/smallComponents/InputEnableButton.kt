@@ -22,9 +22,9 @@ class InputEnableButton(override val parent: Widget?): Widget, TrackComponentWid
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     private var isEnabled: Boolean = false
-    private val buttonWidth = 20.0
-    private val buttonHeight = 20.0
-    private val buttonOffsetY = parentTrack.trackOffsetY - 15.0
+    private val buttonWidth = trackListViewModel.buttonSize
+    private val buttonHeight = trackListViewModel.buttonSize
+    private val buttonOffsetY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
     private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputButtonsOffset
     override val children = mutableListOf<Widget>()
 
@@ -41,16 +41,16 @@ class InputEnableButton(override val parent: Widget?): Widget, TrackComponentWid
     }
 
     init {
-        iImageView.fitHeight = 15.0
+        iImageView.fitHeight = trackListViewModel.buttonSize - 5.0
         iImageView.isPreserveRatio = true
         iImageView.translateY = buttonOffsetY
         iImageView.translateX = buttonOffsetX
         buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
-        buttonRect.arcWidth = 5.0
-        buttonRect.arcHeight = 5.0
-        buttonRect.stroke = Color.BLACK
-        buttonRect.strokeWidth = 1.6
+        buttonRect.arcWidth = trackListViewModel.arcSize
+        buttonRect.arcHeight = trackListViewModel.arcSize
+        buttonRect.stroke = trackListViewModel.strokeColor
+        buttonRect.strokeWidth = trackListViewModel.strokeSize
         buttonRect.onMouseReleased = mouseReleaseEvent
         iImageView.onMouseReleased = mouseReleaseEvent
     }

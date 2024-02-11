@@ -9,8 +9,14 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import javafx.util.Duration
+import org.jzeisel.app_test.TrackListViewModel
+import org.jzeisel.app_test.components.trackBar.smallComponents.InputSelectArrow
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
+import org.jzeisel.app_test.components.trackBar.tracks.Track
+import org.jzeisel.app_test.logger.Logger
 
-class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (index: Int) -> Unit) {
+class DropDownBox(stringList: List<String>, parent: Rectangle,
+                  private val trackListViewModel: TrackListViewModel, clickCallback: (index: Int) -> Unit) {
     companion object {
         const val TAG = "DropDownBox"
         const val LEVEL = 4
@@ -30,39 +36,37 @@ class DropDownBox(stringList: List<String>, parent: Rectangle, clickCallback: (i
             if (testText.boundsInLocal.height > (rectangleHeight - 8)) rectangleHeight = testText.boundsInLocal.height + 8
         }
         for ( (idx,string) in stringList.withIndex() ) {
-            val text = Text(buttonOffsetX + rectangleWidth / 2.0,
-                    (buttonOffsetY + rectangleHeight / 2.0) + 20.0*idx,
-                    string)
+            val text = Text(string)
             text.translateX = buttonOffsetX + rectangleWidth / 2.0
-            text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + 20.0*idx
-            text.fill = Color.BLACK
+            text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx
+            text.fill = trackListViewModel.strokeColor
             text.textAlignment = TextAlignment.CENTER
             text.isVisible = true
             /*********************/
-            val rect = Rectangle(rectangleWidth, rectangleHeight, Color.MEDIUMPURPLE.brighter())
+            val rect = Rectangle(rectangleWidth, rectangleHeight, trackListViewModel.generalPurple)
             rect.translateX = buttonOffsetX + rectangleWidth / 2.0
-            rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + 20.0*idx
-            rect.stroke = Color.BLACK
-            rect.strokeWidth = 1.0
+            rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx
+            rect.stroke = trackListViewModel.strokeColor
+            rect.strokeWidth = trackListViewModel.strokeSize
             rect.arcWidth = 3.0
             rect.arcHeight = 3.0
             rect.isVisible = true
             /*********************/
             text.onMouseEntered = EventHandler {
-                rect.fill = Color.MEDIUMPURPLE
+                rect.fill = trackListViewModel.generalPurple.darker()
             }
             text.onMouseExited = EventHandler {
-                rect.fill = Color.MEDIUMPURPLE.brighter()
+                rect.fill = trackListViewModel.generalPurple
             }
             text.onMouseClicked = EventHandler {
                 clickCallback(idx)
             }
             /*********************/
             rect.onMouseEntered = EventHandler {
-                rect.fill = Color.MEDIUMPURPLE
+                rect.fill = trackListViewModel.generalPurple.darker()
             }
             rect.onMouseExited = EventHandler {
-                rect.fill = Color.MEDIUMPURPLE.brighter()
+                rect.fill = trackListViewModel.generalPurple
             }
             rect.onMouseClicked = EventHandler {
                 clickCallback(idx)
