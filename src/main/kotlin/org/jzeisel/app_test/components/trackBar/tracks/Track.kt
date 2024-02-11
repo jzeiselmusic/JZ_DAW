@@ -11,10 +11,12 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
+import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.math.abs
 
 abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<Double> {
+    val TAG = "TrackInterface"
     /* a track component has the following elements:
         1. a vuMeter
         2. a waveform box
@@ -74,7 +76,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         }
 
         labelDivider.translateY = trackOffsetY
-        labelDivider.translateX = - trackListViewModel.stageWidthProperty.value / 2.0 + trackListViewModel.labelDividerOffset
+        labelDivider.translateX = trackListViewModel.labelDividerOffset
 
         trackLabel.width = trackListViewModel.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
         trackLabel.height = initialTrackHeight

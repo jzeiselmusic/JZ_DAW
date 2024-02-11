@@ -16,7 +16,17 @@ class InputNameBox(override val parent: Widget) : Widget, TrackComponentWidget {
     private val generalBox = Rectangle(trackListViewModel.inputNameBoxWidth,
                                         trackListViewModel.buttonSize,
                                         trackListViewModel.generalGray)
+    var name: String = ""
+        get() {
+            return if (parentTrack is MasterTrack) "Master"
+            else "Track ${parentTrack.name}"
+        }
+        set(value) {
+            nameText.text = value
+            field = value
+        }
     private val nameText = Text()
+
 
     init {
         generalBox.translateY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
