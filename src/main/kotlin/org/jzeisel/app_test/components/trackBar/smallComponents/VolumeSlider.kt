@@ -1,20 +1,27 @@
 package org.jzeisel.app_test.components.trackBar.smallComponents
 
+import javafx.animation.Timeline
+import javafx.event.EventHandler
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.Track
+import org.jzeisel.app_test.logger.Logger
+
 
 class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
+    companion object {
+        const val TAG = "VolumeSlider"
+    }
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     override val children = mutableListOf<Widget>()
-    private val sliderBar = Rectangle(trackListViewModel.inputNameBoxWidth, 7.0, trackListViewModel.generalGray)
-    private val sliderCircle = Circle(7.0, trackListViewModel.generalPurple)
+    private val sliderBar = Rectangle(trackListViewModel.inputNameBoxWidth, 6.0, trackListViewModel.generalGray)
+    private val sliderCircle = Circle(6.0, trackListViewModel.generalPurple)
+    private lateinit var timeline: Timeline
     init {
         sliderBar.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
         sliderCircle.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
@@ -27,6 +34,42 @@ class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
         sliderBar.stroke = trackListViewModel.strokeColor
         sliderBar.arcWidth = 7.0
         sliderBar.arcHeight = 7.0
+
+        sliderCircle.onMousePressed = EventHandler {
+            sliderCircle.fill = trackListViewModel.generalPurple.brighter()
+        }
+        sliderCircle.onMouseReleased = EventHandler {
+            sliderCircle.fill = trackListViewModel.generalPurple
+        }
+        sliderCircle.onMouseDragged = EventHandler {
+            sliderCircle.translateX += it.x
+            if (sliderCircle.translateX < (sliderBar.translateX - sliderBar.width/2.0)) {
+                sliderCircle.translateX = sliderBar.translateX - sliderBar.width/2.0
+            }
+            if (sliderCircle.translateX > (sliderBar.translateX + sliderBar.width/2.0)) {
+                sliderCircle.translateX = sliderBar.translateX + sliderBar.width/2.0
+            }
+        }
+
+        sliderBar.onMousePressed = EventHandler {
+            /* it.x here represents distance from the left side of the slider */
+            val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x
+            sliderCircle.fill = trackListViewModel.generalPurple.brighter()
+            sliderCircle.translateX = finalX
+        }
+        sliderBar.onMouseReleased = EventHandler {
+            sliderCircle.fill = trackListViewModel.generalPurple
+        }
+        sliderBar.onMouseDragged = EventHandler {
+            val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x
+            sliderCircle.translateX = finalX
+            if (sliderCircle.translateX < (sliderBar.translateX - sliderBar.width/2.0)) {
+                sliderCircle.translateX = sliderBar.translateX - sliderBar.width/2.0
+            }
+            if (sliderCircle.translateX > (sliderBar.translateX + sliderBar.width/2.0)) {
+                sliderCircle.translateX = sliderBar.translateX + sliderBar.width/2.0
+            }
+        }
     }
     override fun addChild(child: Widget) {
     }
