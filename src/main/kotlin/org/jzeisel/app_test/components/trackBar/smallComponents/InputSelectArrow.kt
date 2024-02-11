@@ -89,7 +89,6 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             children.clear()
             root.children.remove(inputSelectArrow)
             root.children.remove(inputSelectRectangle)
-            Logger.debug(TAG, "arrow and rectangle removed from scene", LEVEL)
         }
     }
 

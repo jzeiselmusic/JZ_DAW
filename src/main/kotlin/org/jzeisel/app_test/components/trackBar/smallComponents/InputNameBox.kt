@@ -27,12 +27,17 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
     private val generalBox = Rectangle(trackListViewModel.inputNameBoxWidth,
                                         trackListViewModel.buttonSize,
                                         trackListViewModel.generalGray)
-    private val textField = TextField(generalBox, nameText, trackListViewModel)
+    private val textField = TextField(generalBox, nameText, trackListViewModel, ::returnValueFromTextField)
+    var nameSetByUser = false
 
     var name: String = ""
         get() {
-            return if (parentTrack is MasterTrack) "Master"
-            else "Track ${parentTrack.name}"
+            return if (nameSetByUser) {
+                field
+            } else {
+                if (parentTrack is MasterTrack) "Master"
+                else "Track ${parentTrack.name}"
+            }
         }
         set(value) {
             nameText.text = value
@@ -104,5 +109,10 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
         nameText.toBack()
         generalBox.toFront()
         nameText.toFront()
+    }
+
+    private fun returnValueFromTextField(userName: String) {
+        nameSetByUser = true
+        name = userName
     }
 }

@@ -21,7 +21,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override var name: String by Delegates.observable ((initialIndex + 1).toString()) {
         _, _, new ->
         trackLabelNumber.text = new
-        inputNameBox.name = "Track $new"
+        if (!inputNameBox.nameSetByUser) inputNameBox.name = "Track $new"
     }
 
     var index = initialIndex

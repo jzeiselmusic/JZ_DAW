@@ -20,12 +20,14 @@ import org.jzeisel.app_test.logger.Logger
 
 class TextField(private val parentRect: Rectangle,
                 private val parentText: Text,
-                private val trackListViewModel: TrackListViewModel) {
+                private val trackListViewModel: TrackListViewModel,
+                private val clickCallback: (name: String) -> Unit) {
     companion object {
         const val TAG = "TextField"
         const val LEVEL = 4
     }
     private var isShowing = false
+    private val cursorDistanceFromEndOfText = 3.0
     private val rectangleWidth: Double get() { return parentRect.width }
     private val rectangleHeight: Double get() { return parentRect.height }
     private val rectangleTranslateX: Double get() { return parentRect.translateX }
@@ -58,9 +60,9 @@ class TextField(private val parentRect: Rectangle,
         text.translateX = rectangleTranslateX
         text.translateY = rectangleTranslateY
 
-        cursor.width = 1.5
-        cursor.height = rectangleHeight - 4.0
-        cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + 2.0
+        cursor.width = 1.2
+        cursor.height = text.boundsInLocal.height - 1.0
+        cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + cursorDistanceFromEndOfText
         cursor.translateY = rectangleTranslateY
         cursor.fill = trackListViewModel.backgroundGray.brighter()
         cursor.stroke = trackListViewModel.backgroundGray.brighter()
@@ -76,6 +78,7 @@ class TextField(private val parentRect: Rectangle,
                 root.children.add(rectangle)
                 root.children.add(text)
                 root.children.add(cursor)
+                isShowing = true
             }
             delay.play()
         }
@@ -87,8 +90,6 @@ class TextField(private val parentRect: Rectangle,
         )
         timeline.cycleCount = Timeline.INDEFINITE
         timeline.play()
-
-        isShowing = true
     }
 
     fun removeMeFromScene(root: StackPane) {
@@ -97,6 +98,7 @@ class TextField(private val parentRect: Rectangle,
                 timeline.stop()
                 root.children.removeAll(cursor, rectangle, text)
                 isShowing = false
+                clickCallback(text.text)
             }
         }
     }
@@ -105,7 +107,7 @@ class TextField(private val parentRect: Rectangle,
         if (isShowing) {
             if (text.text.isNotBlank()) {
                 text.text = text.text.dropLast(1)
-                cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + 2.0
+                cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + cursorDistanceFromEndOfText
             }
         }
     }
@@ -114,7 +116,7 @@ class TextField(private val parentRect: Rectangle,
         if (isShowing) {
             if (character.isShiftDown) text.text += character.code.char.uppercase()
             else text.text += character.code.char.lowercase()
-            cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + 2.0
+            cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + cursorDistanceFromEndOfText
         }
     }
 }
