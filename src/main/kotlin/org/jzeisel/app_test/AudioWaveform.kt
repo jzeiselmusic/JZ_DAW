@@ -37,7 +37,10 @@ class AudioWaveform : Application() {
         }
         scene.addEventFilter(KeyEvent.KEY_PRESSED) {
             if (it.code == BACK_SPACE) {
-                trackListViewModel.broadcastBackSpace(root)
+                trackListViewModel.broadcastBackSpace()
+            }
+            else if (it.code.isLetterKey || it.code.isWhitespaceKey) {
+                trackListViewModel.broadcastCharacter(it)
             }
         }
         trackListViewModel.addMeToScene(root)

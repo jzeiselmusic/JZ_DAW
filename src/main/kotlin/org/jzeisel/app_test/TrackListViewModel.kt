@@ -3,6 +3,7 @@ package org.jzeisel.app_test
 import javafx.scene.paint.Color
 import javafx.application.Platform
 import javafx.beans.property.ReadOnlyDoubleProperty
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.jzeisel.app_test.audio.AudioInputManager
@@ -129,15 +130,24 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         for (child in children) {
             val track = child as NormalTrack
             track.inputSelectArrow.removeDropDownBox(root)
+            track.inputNameBox.exitTextField(root)
         }
     }
 
-    fun broadcastBackSpace(root: StackPane) {
+    fun broadcastBackSpace() {
         for (child in children) {
             val track = child as Track
             track.backspaceText()
         }
         masterTrack.backspaceText()
+    }
+
+    fun broadcastCharacter(character: KeyEvent) {
+        for (child in children) {
+            val track = child as Track
+            track.characterText(character)
+        }
+        masterTrack.characterText(character)
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {

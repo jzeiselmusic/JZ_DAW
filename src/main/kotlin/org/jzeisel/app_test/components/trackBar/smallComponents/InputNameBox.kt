@@ -1,6 +1,8 @@
 package org.jzeisel.app_test.components.trackBar.smallComponents
 
 import javafx.event.EventHandler
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
@@ -89,5 +91,13 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
 
     fun backspaceText() {
         textField.backspace()
+    }
+
+    fun characterText(character: KeyEvent) {
+        textField.character(character)
+    }
+
+    fun exitTextField(root: StackPane) {
+        textField.removeMeFromScene(root)
     }
 }

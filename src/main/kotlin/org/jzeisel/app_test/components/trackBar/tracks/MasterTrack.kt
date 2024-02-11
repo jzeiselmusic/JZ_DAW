@@ -1,6 +1,8 @@
 package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.application.Platform
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
@@ -78,6 +80,10 @@ class MasterTrack(root: StackPane, override val parent: Widget)
 
     override fun backspaceText() {
         inputNameBox.backspaceText()
+    }
+
+    override fun characterText(character: KeyEvent) {
+        inputNameBox.characterText(character)
     }
 
     override fun addMeToScene(root: StackPane) {

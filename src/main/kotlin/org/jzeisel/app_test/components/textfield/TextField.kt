@@ -6,6 +6,7 @@ import javafx.animation.Timeline
 import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
+import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
@@ -89,18 +90,35 @@ class TextField(private val parentRect: Rectangle,
     }
 
     fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
-            root.children.remove(cursor)
-            root.children.remove(text)
-            root.children.remove(rectangle)
+        if (isShowing) {
+            Logger.debug(TAG, "exiting text field", 5)
+            cursor.isVisible = false
+            text.isVisible = false
+            rectangle.isVisible = false
+            Platform.runLater {
+                root.children.remove(cursor)
+                root.children.remove(text)
+                root.children.remove(rectangle)
+            }
+            timeline.stop()
+            isShowing = false
         }
-        timeline.stop()
-        isShowing = false
     }
 
     fun backspace() {
         if (isShowing) {
-            Logger.debug(TAG, "backspace", 5)
+            if (text.text.isNotBlank()) {
+                text.text = text.text.dropLast(1)
+                cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + 2.0
+            }
+        }
+    }
+
+    fun character(character: KeyEvent) {
+        if (isShowing) {
+            if (character.isShiftDown) text.text += character.code.char.uppercase()
+            else text.text += character.code.char.lowercase()
+            cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + 2.0
         }
     }
 }
