@@ -16,6 +16,8 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
     val trackRectangle = Rectangle(waveFormWidth,
                                    parentTrack.initialTrackHeight,
                                    trackListViewModel.generalPurple)
+    val measureDividers = mutableListOf<Rectangle>()
+
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
         trackRectangle.translateX = waveFormWidth / 2.0 + trackListViewModel.currentDividerOffset.getValue()
@@ -23,12 +25,25 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 0.5
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
+
+        for (i in 0..(waveFormWidth/100).toInt()) {
+            val measure = Rectangle(1.0, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
+            measure.opacity = 0.6
+            measure.strokeWidth = 1.0
+            measure.translateY = parentTrack.trackOffsetY
+            measure.translateX = trackRectangle.translateX - waveFormWidth/2.0 + i*100.0
+            measure.toBack()
+            measureDividers.add(measure)
+        }
     }
     override fun addChild(child: Widget) {
     }
 
     override fun addMeToScene(root: StackPane) {
         root.children.add(trackRectangle)
+        for (measureDivider in measureDividers) {
+            root.children.add(measureDivider)
+        }
     }
 
     override fun removeMeFromScene(root: StackPane) {
@@ -39,14 +54,25 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
 
     override fun respondToOffsetYChange(old: Double, new: Double) {
         trackRectangle.translateY = new
+        for (measureDivider in measureDividers) {
+            measureDivider.translateY = new
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        trackRectangle.translateX -= (new - old)/2.0
+        val change = (new - old)/2.0
+        trackRectangle.translateX -= change
+        for (measureDivider in measureDividers) {
+            measureDivider.translateX -= change
+        }
     }
 
     fun respondToDividerShift(newValue: Double) {
-        trackRectangle.translateX  = waveFormWidth / 2.0 + newValue
-        trackRectangle.toFront()
+        val oldTranslate = trackRectangle.translateX
+        trackRectangle.translateX = waveFormWidth / 2.0 + newValue
+        val change = trackRectangle.translateX - oldTranslate
+        for (measureDivider in measureDividers) {
+            measureDivider.translateX += change
+        }
     }
 }
