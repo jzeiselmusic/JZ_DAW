@@ -8,6 +8,7 @@ import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.cursor.CursorFollower
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
@@ -60,7 +61,9 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     private val masterTrack: MasterTrack = MasterTrack(root,this)
 
+    private val cursorFollower: CursorFollower = CursorFollower
     init {
+        cursorFollower.initialize(this)
         currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
         stageWidthProperty.addListener { _, _, new ->
             trackWidth = new as Double
@@ -153,11 +156,16 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
 
     fun broadcastMouseHoverOnWaveFormBox(translateX: Double) {
-        for (child in children) {
-            val track = child as Track
-            track.onMouseHover(translateX)
+        if (!cursorFollower.isShowing) {
+            cursorFollower.addMeToScene(root, translateX)
         }
-        masterTrack.onMouseHover(translateX)
+        else {
+            cursorFollower.updateLocation(translateX)
+        }
+    }
+
+    fun broadcastMouseExitWaveFormBox() {
+        cursorFollower.removeMeFromScene(root)
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {

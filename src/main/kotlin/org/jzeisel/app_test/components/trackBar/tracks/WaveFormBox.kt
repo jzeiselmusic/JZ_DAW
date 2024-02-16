@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.logger.Logger
 
 class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
     companion object {
@@ -35,6 +36,25 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         trackRectangle.onMouseMoved = EventHandler {
             trackListViewModel.broadcastMouseHoverOnWaveFormBox(it.x)
         }
+        trackRectangle.onMouseExited = EventHandler {
+            if ((it.x < 5.0 || it.x > waveFormWidth - 5.0) || (it.y < 5.0 || it.y > trackListViewModel.trackHeight - 5.0)) {
+                trackListViewModel.broadcastMouseExitWaveFormBox()
+                trackRectangle.toBack()
+                trackRectangle.toFront()
+                for (measureDivider in measureDividers) {
+                    measureDivider.toBack()
+                    measureDivider.toFront()
+                }
+                for (tickDivider in beatDividers) {
+                    tickDivider.toBack()
+                    tickDivider.toFront()
+                }
+                for (beatTick in ticksForMasterTrack) {
+                    beatTick.toBack()
+                    beatTick.toFront()
+                }
+            }
+        }
 
         for (i in 0..(waveFormWidth/100).toInt()) {
             val measure = Rectangle(1.0, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
@@ -43,6 +63,7 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
             measure.translateY = parentTrack.trackOffsetY
             measure.translateX = trackRectangle.translateX - waveFormWidth/2.0 + i*100.0
             measure.toBack()
+            measure.isMouseTransparent = true
             measureDividers.add(measure)
             if (parentTrack is MasterTrack) {
                 val tick = Rectangle(1.2, 5.0, trackListViewModel.generalGray.darker())
@@ -53,6 +74,7 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
                 tick.stroke = trackListViewModel.generalGray
                 tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
                 tick.translateX = measure.translateX
+                tick.isMouseTransparent = true
                 ticksForMasterTrack.add(tick)
             }
 
@@ -63,6 +85,7 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
                 beat.translateY = parentTrack.trackOffsetY
                 beat.translateX = measure.translateX + (j * 100.0/4.0)
                 beat.toBack()
+                beat.isMouseTransparent = true
                 beatDividers.add(beat)
                 if (parentTrack is MasterTrack) {
                     val tick = Rectangle(1.0, 3.0, trackListViewModel.generalGray.darker())
@@ -73,6 +96,7 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
                     tick.stroke = trackListViewModel.generalGray
                     tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
                     tick.translateX = beat.translateX
+                    tick.isMouseTransparent = true
                     ticksForMasterTrack.add(tick)
                 }
             }

@@ -94,7 +94,4 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     abstract fun addTrack()
     abstract fun backspaceText()
     abstract fun characterText(character: KeyEvent)
-    fun onMouseHover(translateX: Double) {
-        Logger.debug(TAG, "i am track $name, alerted to hover at $translateX", 5)
-    }
 }
