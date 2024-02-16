@@ -52,7 +52,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     fun setTrackRectangleProperties() {
         trackRectangle.translateY = trackOffsetY
         trackRectangle.stroke = trackListViewModel.strokeColor
-        trackRectangle.strokeWidth = 1.0
+        trackRectangle.strokeWidth = 0.4
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
 
         trackRectangle.onMouseEntered = EventHandler {
@@ -85,7 +85,8 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         trackLabel.fill = trackListViewModel.generalGray
         trackLabel.translateY = trackOffsetY
         trackLabel.translateX = -trackListViewModel.stageWidthProperty.value / 2.0 + trackLabel.width / 2.0
-
+        trackLabel.stroke = trackListViewModel.strokeColor
+        trackLabel.strokeWidth = 0.4
         trackLabelNumber.translateY = trackOffsetY
         trackLabelNumber.translateX = trackLabel.translateX
     }

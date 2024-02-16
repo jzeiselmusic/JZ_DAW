@@ -16,7 +16,9 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
     val trackRectangle = Rectangle(waveFormWidth,
                                    parentTrack.initialTrackHeight,
                                    trackListViewModel.generalPurple)
+
     val measureDividers = mutableListOf<Rectangle>()
+    val beatTickDividers = mutableListOf<Rectangle>()
 
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
@@ -29,11 +31,21 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         for (i in 0..(waveFormWidth/100).toInt()) {
             val measure = Rectangle(1.0, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
             measure.opacity = 0.6
-            measure.strokeWidth = 1.0
+            measure.strokeWidth = 0.8
             measure.translateY = parentTrack.trackOffsetY
             measure.translateX = trackRectangle.translateX - waveFormWidth/2.0 + i*100.0
             measure.toBack()
             measureDividers.add(measure)
+
+            for (j in 1..3) {
+                val beatTick = Rectangle(0.4, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
+                beatTick.opacity = 0.5
+                beatTick.strokeWidth = 0.3
+                beatTick.translateY = parentTrack.trackOffsetY
+                beatTick.translateX = measure.translateX + (j * 100.0/4.0)
+                beatTick.toBack()
+                beatTickDividers.add(beatTick)
+            }
         }
     }
     override fun addChild(child: Widget) {
@@ -44,11 +56,20 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         for (measureDivider in measureDividers) {
             root.children.add(measureDivider)
         }
+        for (tickDivider in beatTickDividers) {
+            root.children.add(tickDivider)
+        }
     }
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
             root.children.remove(trackRectangle)
+            for (measureDivider in measureDividers) {
+                root.children.remove(measureDivider)
+            }
+            for (tickDivider in beatTickDividers) {
+                root.children.remove(tickDivider)
+            }
         }
     }
 
@@ -56,6 +77,9 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         trackRectangle.translateY = new
         for (measureDivider in measureDividers) {
             measureDivider.translateY = new
+        }
+        for (tickDivider in beatTickDividers) {
+            tickDivider.translateY = new
         }
     }
 
@@ -65,6 +89,9 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         for (measureDivider in measureDividers) {
             measureDivider.translateX -= change
         }
+        for (tickDivider in beatTickDividers) {
+            tickDivider.translateX -= change
+        }
     }
 
     fun respondToDividerShift(newValue: Double) {
@@ -73,6 +100,9 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         val change = trackRectangle.translateX - oldTranslate
         for (measureDivider in measureDividers) {
             measureDivider.translateX += change
+        }
+        for (tickDivider in beatTickDividers) {
+            tickDivider.translateX += change
         }
     }
 }
