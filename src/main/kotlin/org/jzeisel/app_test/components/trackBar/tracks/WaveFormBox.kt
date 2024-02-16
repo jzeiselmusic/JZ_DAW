@@ -2,13 +2,15 @@ package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 
 class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
+    companion object {
+        const val TAG = "WaveFormBox"
+    }
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
     val trackListViewModel = parentTrack.trackListViewModel
@@ -18,7 +20,8 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
                                    trackListViewModel.generalPurple)
 
     val measureDividers = mutableListOf<Rectangle>()
-    val beatTickDividers = mutableListOf<Rectangle>()
+    val beatDividers = mutableListOf<Rectangle>()
+    val ticksForMasterTrack = mutableListOf<Rectangle>()
 
     init {
         trackRectangle.translateY = parentTrack.trackOffsetY
@@ -36,15 +39,37 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
             measure.translateX = trackRectangle.translateX - waveFormWidth/2.0 + i*100.0
             measure.toBack()
             measureDividers.add(measure)
+            if (parentTrack is MasterTrack) {
+                val tick = Rectangle(1.2, 5.0, trackListViewModel.generalGray.darker())
+                tick.opacity = 1.0
+                tick.strokeWidth = 0.8
+                tick.arcHeight = 2.0
+                tick.arcWidth = 2.0
+                tick.stroke = trackListViewModel.generalGray
+                tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
+                tick.translateX = measure.translateX
+                ticksForMasterTrack.add(tick)
+            }
 
             for (j in 1..3) {
-                val beatTick = Rectangle(0.4, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
-                beatTick.opacity = 0.5
-                beatTick.strokeWidth = 0.3
-                beatTick.translateY = parentTrack.trackOffsetY
-                beatTick.translateX = measure.translateX + (j * 100.0/4.0)
-                beatTick.toBack()
-                beatTickDividers.add(beatTick)
+                val beat = Rectangle(0.4, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
+                beat.opacity = 0.5
+                beat.strokeWidth = 0.2
+                beat.translateY = parentTrack.trackOffsetY
+                beat.translateX = measure.translateX + (j * 100.0/4.0)
+                beat.toBack()
+                beatDividers.add(beat)
+                if (parentTrack is MasterTrack) {
+                    val tick = Rectangle(1.0, 3.0, trackListViewModel.generalGray.darker())
+                    tick.opacity = 1.0
+                    tick.strokeWidth = 0.4
+                    tick.arcHeight = 2.0
+                    tick.arcWidth = 2.0
+                    tick.stroke = trackListViewModel.generalGray
+                    tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
+                    tick.translateX = beat.translateX
+                    ticksForMasterTrack.add(tick)
+                }
             }
         }
     }
@@ -56,8 +81,11 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         for (measureDivider in measureDividers) {
             root.children.add(measureDivider)
         }
-        for (tickDivider in beatTickDividers) {
+        for (tickDivider in beatDividers) {
             root.children.add(tickDivider)
+        }
+        for (beatTick in ticksForMasterTrack) {
+            root.children.add(beatTick)
         }
     }
 
@@ -67,8 +95,11 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
             for (measureDivider in measureDividers) {
                 root.children.remove(measureDivider)
             }
-            for (tickDivider in beatTickDividers) {
+            for (tickDivider in beatDividers) {
                 root.children.remove(tickDivider)
+            }
+            for (beatTick in ticksForMasterTrack) {
+                root.children.remove(beatTick)
             }
         }
     }
@@ -78,8 +109,11 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         for (measureDivider in measureDividers) {
             measureDivider.translateY = new
         }
-        for (tickDivider in beatTickDividers) {
-            tickDivider.translateY = new
+        for (beat in beatDividers) {
+            beat.translateY = new
+        }
+        for (tick in ticksForMasterTrack) {
+            tick.translateY = new - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
         }
     }
 
@@ -89,8 +123,11 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         for (measureDivider in measureDividers) {
             measureDivider.translateX -= change
         }
-        for (tickDivider in beatTickDividers) {
-            tickDivider.translateX -= change
+        for (beat in beatDividers) {
+            beat.translateX -= change
+        }
+        for (tick in ticksForMasterTrack) {
+            tick.translateX -= change
         }
     }
 
@@ -101,8 +138,11 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         for (measureDivider in measureDividers) {
             measureDivider.translateX += change
         }
-        for (tickDivider in beatTickDividers) {
-            tickDivider.translateX += change
+        for (beat in beatDividers) {
+            beat.translateX += change
+        }
+        for (tick in ticksForMasterTrack) {
+            tick.translateX += change
         }
     }
 }

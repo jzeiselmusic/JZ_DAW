@@ -10,7 +10,7 @@ import org.jzeisel.app_test.util.EventFilter
 
 class AudioWaveform : Application() {
     companion object {
-        private const val INIT_STAGE_HEIGHT = 440.0
+        private const val INIT_STAGE_HEIGHT = 550.0
         private const val INIT_STAGE_WIDTH = 950.0
     }
     private lateinit var root: StackPane

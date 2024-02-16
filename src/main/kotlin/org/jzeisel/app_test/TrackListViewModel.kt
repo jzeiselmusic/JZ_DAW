@@ -47,7 +47,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val generalGray = Color.GRAY.brighter()
     val backgroundGray = Color.DIMGREY.darker().darker()
     /* initial offsets */
-    var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 4.0
+    var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 12.0
     /* these are currently distance from left-hand size of stage */
     val addButtonOffset = separationDistance
     val inputButtonsOffset = addButtonOffset + 30.0
@@ -59,6 +59,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val audioInputManager = AudioInputManager(this)
 
     private val masterTrack: MasterTrack = MasterTrack(root,this)
+
     init {
         currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
         stageWidthProperty.addListener { _, _, new ->
