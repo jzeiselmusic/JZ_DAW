@@ -33,27 +33,8 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         trackRectangle.strokeWidth = 0.5
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
 
-        trackRectangle.onMouseMoved = EventHandler {
-            trackListViewModel.broadcastMouseHoverOnWaveFormBox(it.x)
-        }
-        trackRectangle.onMouseExited = EventHandler {
-            if ((it.x < 5.0 || it.x > waveFormWidth - 5.0) || (it.y < 5.0 || it.y > trackListViewModel.trackHeight - 5.0)) {
-                trackListViewModel.broadcastMouseExitWaveFormBox()
-                trackRectangle.toBack()
-                trackRectangle.toFront()
-                for (measureDivider in measureDividers) {
-                    measureDivider.toBack()
-                    measureDivider.toFront()
-                }
-                for (tickDivider in beatDividers) {
-                    tickDivider.toBack()
-                    tickDivider.toFront()
-                }
-                for (beatTick in ticksForMasterTrack) {
-                    beatTick.toBack()
-                    beatTick.toFront()
-                }
-            }
+        trackRectangle.onMousePressed = EventHandler {
+            trackListViewModel.broadcastMouseClickOnWaveFormBox(it.x)
         }
 
         for (i in 0..(waveFormWidth/100).toInt()) {

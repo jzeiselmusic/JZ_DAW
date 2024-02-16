@@ -84,6 +84,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
                 val t = child as NormalTrack
                 t.respondToChangeInTrackList(old, new)
             }
+            cursorFollower.updateFromTrackList(root)
     }
 
     val numChildren: Int
@@ -155,17 +156,13 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         masterTrack.characterText(character)
     }
 
-    fun broadcastMouseHoverOnWaveFormBox(translateX: Double) {
+    fun broadcastMouseClickOnWaveFormBox(translateX: Double) {
         if (!cursorFollower.isShowing) {
             cursorFollower.addMeToScene(root, translateX)
         }
         else {
             cursorFollower.updateLocation(translateX)
         }
-    }
-
-    fun broadcastMouseExitWaveFormBox() {
-        cursorFollower.removeMeFromScene(root)
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {
