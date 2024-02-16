@@ -152,6 +152,14 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         masterTrack.characterText(character)
     }
 
+    fun broadcastMouseHoverOnWaveFormBox(translateX: Double) {
+        for (child in children) {
+            val track = child as Track
+            track.onMouseHover(translateX)
+        }
+        masterTrack.onMouseHover(translateX)
+    }
+
     fun setTrackAudioInput(index: Int, child: Widget) {
     }
 

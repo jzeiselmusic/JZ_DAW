@@ -1,6 +1,7 @@
 package org.jzeisel.app_test.components.trackBar.tracks
 
 import javafx.application.Platform
+import javafx.event.EventHandler
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
@@ -30,6 +31,10 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 0.5
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
+
+        trackRectangle.onMouseMoved = EventHandler {
+            trackListViewModel.broadcastMouseHoverOnWaveFormBox(it.x)
+        }
 
         for (i in 0..(waveFormWidth/100).toInt()) {
             val measure = Rectangle(1.0, trackListViewModel.trackHeight, trackListViewModel.strokeColor)

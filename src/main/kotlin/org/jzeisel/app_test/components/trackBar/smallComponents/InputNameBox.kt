@@ -13,7 +13,6 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.textfield.TextField
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
-import org.jzeisel.app_test.logger.Logger
 
 class InputNameBox(private val root: StackPane, override val parent: Widget) : Widget, TrackComponentWidget {
     companion object {
