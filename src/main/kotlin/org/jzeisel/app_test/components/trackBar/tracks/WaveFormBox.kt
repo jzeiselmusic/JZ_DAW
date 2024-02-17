@@ -52,7 +52,7 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
                 tick.strokeWidth = 0.8
                 tick.arcHeight = 2.0
                 tick.arcWidth = 2.0
-                tick.stroke = trackListViewModel.generalGray
+                tick.stroke = trackListViewModel.generalGray.darker()
                 tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
                 tick.translateX = measure.translateX
                 tick.isMouseTransparent = true

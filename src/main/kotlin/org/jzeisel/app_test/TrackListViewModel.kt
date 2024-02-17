@@ -64,15 +64,19 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     private val cursorFollower: CursorFollower = CursorFollower
     init {
         cursorFollower.initialize(this)
+        currentDividerOffset.addListener(cursorFollower)
+
         currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
-        stageWidthProperty.addListener { _, _, new ->
+        stageWidthProperty.addListener { _, old, new ->
             trackWidth = new as Double
+            cursorFollower.respondToWidthChange(old as Double, new)
         }
         stageHeightProperty.addListener {_, old, new ->
             for (child in children) {
                 (child as NormalTrack).trackOffsetY -= (new as Double - old as Double)/2.0
             }
             masterTrack.trackOffsetY -= (new as Double - old as Double)/2.0
+            cursorFollower.respondToHeightChange(old, new)
         }
     }
 
