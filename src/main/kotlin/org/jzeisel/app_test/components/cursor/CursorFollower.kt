@@ -68,8 +68,8 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     fun updateLocation(offsetX: Double) {
         if (isShowing) {
             Platform.runLater {
-                currentOffsetX = offsetX
-                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + offsetX
+                currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
+                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
                 cursorPointer.translateX = cursorRectangle.translateX
             }
         }

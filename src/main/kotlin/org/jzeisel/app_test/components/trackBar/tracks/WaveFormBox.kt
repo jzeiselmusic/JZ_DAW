@@ -3,10 +3,12 @@ package org.jzeisel.app_test.components.trackBar.tracks
 import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.layout.StackPane
+import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.cursor.CursorFollower
 import org.jzeisel.app_test.logger.Logger
 
 class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
@@ -36,6 +38,9 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         trackRectangle.onMousePressed = EventHandler {
             trackListViewModel.broadcastMouseClickOnWaveFormBox(it.x)
         }
+        trackRectangle.onMouseDragged = EventHandler {
+            trackListViewModel.broadcastMouseClickOnWaveFormBox(it.x)
+        }
 
         for (i in 0..(waveFormWidth/100).toInt()) {
             val measure = Rectangle(1.0, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
@@ -52,7 +57,7 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
                 tick.strokeWidth = 0.8
                 tick.arcHeight = 2.0
                 tick.arcWidth = 2.0
-                tick.stroke = trackListViewModel.generalGray.darker()
+                tick.stroke = color()
                 tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
                 tick.translateX = measure.translateX
                 tick.isMouseTransparent = true
@@ -83,6 +88,8 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
             }
         }
     }
+
+    private fun color(): Color? = trackListViewModel.generalGray.darker()
     override fun addChild(child: Widget) {
     }
 
