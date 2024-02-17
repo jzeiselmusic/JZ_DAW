@@ -44,6 +44,7 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
 
 
     init {
+        TODO("TextField must move on UI changes")
         generalBox.translateY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
         generalBox.translateX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputNameBoxOffset
         generalBox.strokeWidth = trackListViewModel.strokeSize

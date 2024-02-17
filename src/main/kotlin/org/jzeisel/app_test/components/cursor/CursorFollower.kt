@@ -76,13 +76,15 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     }
 
     fun updateFromTrackList(root: StackPane) {
-        Platform.runLater {
-            cursorRectangle.height = rectangleHeight
-            cursorRectangle.translateY = rectangleTranslateY
-            cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
-            cursorRectangle.toFront()
-            cursorPointer.translateX = cursorRectangle.translateX
-            cursorPointer.toFront()
+        if (isShowing) {
+            Platform.runLater {
+                cursorRectangle.height = rectangleHeight
+                cursorRectangle.translateY = rectangleTranslateY
+                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
+                cursorRectangle.toFront()
+                cursorPointer.translateX = cursorRectangle.translateX
+                cursorPointer.toFront()
+            }
         }
     }
 
