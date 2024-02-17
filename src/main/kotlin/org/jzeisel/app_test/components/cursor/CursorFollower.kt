@@ -92,22 +92,28 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     override fun respondToOffsetYChange(old: Double, new: Double) {}
     fun respondToHeightChange(old: Double, new: Double) {
-        val change = (new - old)/2.0
-        cursorRectangle.translateY -= change
-        cursorPointer.translateY -= change
+        if (isShowing) {
+            val change = (new - old) / 2.0
+            cursorRectangle.translateY -= change
+            cursorPointer.translateY -= change
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        val change = (new - old)/2.0
-        cursorRectangle.translateX -= change
-        cursorPointer.translateX -= change
+        if (isShowing) {
+            val change = (new - old) / 2.0
+            cursorRectangle.translateX -= change
+            cursorPointer.translateX -= change
+        }
     }
 
     override fun respondToChange(observable: Any, value: Double) {
-        when (observable) {
-            trackListViewModel.currentDividerOffset -> {
-                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
-                cursorPointer.translateX = cursorRectangle.translateX
+        if (isShowing) {
+            when (observable) {
+                trackListViewModel.currentDividerOffset -> {
+                    cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
+                    cursorPointer.translateX = cursorRectangle.translateX
+                }
             }
         }
     }

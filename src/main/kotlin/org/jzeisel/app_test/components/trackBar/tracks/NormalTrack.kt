@@ -28,16 +28,16 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override var trackOffsetY: Double by Delegates.observable(
                 progenitor.trackOffsetY + trackListViewModel.trackHeight) {
         _, old, new ->
+            for (child in children) {
+                val c = child as TrackComponentWidget
+                c.respondToOffsetYChange(old, new)
+            }
             trackRectangle.translateY = new
             trackDivider.translateY = new
             trackDivider.translateY = new
             labelDivider.translateY = new
             trackLabel.translateY = new
             trackLabelNumber.translateY = new
-            for (child in children) {
-                val c = child as TrackComponentWidget
-                c.respondToOffsetYChange(old, new)
-            }
     }
     var trackWidth: Double by Delegates.observable(initialTrackWidth) {
         _, old, new ->
