@@ -39,6 +39,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     val labelDivider = Rectangle(1.5, initialTrackHeight, trackListViewModel.strokeColor)
     val trackLabel = Rectangle()
     val trackLabelNumber = Text("")
+    var isSelected = false
     abstract var trackOffsetY: Double
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
@@ -56,9 +57,11 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
 
         trackRectangle.onMouseEntered = EventHandler {
+            if (!isSelected)
             trackRectangle.fill = trackColorHL
         }
         trackRectangle.onMouseExited = EventHandler {
+            if (!isSelected)
             trackRectangle.fill = trackColorNormal
         }
         trackRectangle.onMousePressed = EventHandler {
@@ -95,4 +98,9 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     abstract fun addTrack()
     abstract fun backspaceText()
     abstract fun characterText(character: KeyEvent)
+
+    fun setSelected() {
+        isSelected = true
+        trackRectangle.fill = Color.MEDIUMPURPLE.brighter().brighter().brighter()
+    }
 }

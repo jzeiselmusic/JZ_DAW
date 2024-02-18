@@ -23,7 +23,7 @@ class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     override val children = mutableListOf<Widget>()
-    private val sliderBar = Rectangle(trackListViewModel.inputNameBoxWidth, 6.0, trackListViewModel.generalGray)
+    private val sliderBar = Rectangle(trackListViewModel.inputNameBoxWidth, 5.0, trackListViewModel.generalGray)
     private val sliderCircle = Circle(6.0, trackListViewModel.generalPurple)
     init {
         sliderBar.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets

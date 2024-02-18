@@ -175,6 +175,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     fun setTrackSelected(track: Track) {
         trackSelected = track
+        track.setSelected()
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {
