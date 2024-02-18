@@ -1,15 +1,19 @@
 package org.jzeisel.app_test.components.trackBar.smallComponents
 
+import javafx.animation.Animation
+import javafx.animation.ScaleTransition
 import javafx.animation.Timeline
 import javafx.event.EventHandler
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
+import javafx.util.Duration
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.animateObjectScale
 
 
 class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
@@ -28,7 +32,7 @@ class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
         sliderCircle.translateX = sliderBar.translateX + sliderBar.width / 4.0
         sliderCircle.stroke = trackListViewModel.strokeColor
         sliderCircle.strokeLineJoin = StrokeLineJoin.MITER
-        sliderCircle.strokeWidth = trackListViewModel.strokeSize
+        sliderCircle.strokeWidth = trackListViewModel.strokeSize - 0.3
         sliderBar.strokeWidth = trackListViewModel.strokeSize
         sliderBar.stroke = trackListViewModel.strokeColor
         sliderBar.strokeLineJoin = StrokeLineJoin.MITER
@@ -37,9 +41,11 @@ class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
 
         sliderCircle.onMousePressed = EventHandler {
             sliderCircle.fill = trackListViewModel.generalPurple.brighter()
+            animateObjectScale(1.0, 1.3, sliderCircle)
         }
         sliderCircle.onMouseReleased = EventHandler {
             sliderCircle.fill = trackListViewModel.generalPurple
+            animateObjectScale(1.3, 1.0, sliderCircle)
         }
         sliderCircle.onMouseDragged = EventHandler {
             sliderCircle.translateX += it.x
@@ -56,9 +62,11 @@ class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
             val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x
             sliderCircle.fill = trackListViewModel.generalPurple.brighter()
             sliderCircle.translateX = finalX
+            animateObjectScale(1.0, 1.3, sliderCircle)
         }
         sliderBar.onMouseReleased = EventHandler {
             sliderCircle.fill = trackListViewModel.generalPurple
+            animateObjectScale(1.3, 1.0, sliderCircle)
         }
         sliderBar.onMouseDragged = EventHandler {
             val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x

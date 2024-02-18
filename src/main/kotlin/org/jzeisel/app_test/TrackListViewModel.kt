@@ -40,7 +40,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val vuMeterWidth = widgetSize
     val buttonSize = widgetSize
     val arcSize = 5.0
-    val strokeSize = 1.3
+    val strokeSize = 1.2
     var verticalDistancesBetweenWidgets = 15.0
     /* colors */
     val strokeColor = Color.BLACK
