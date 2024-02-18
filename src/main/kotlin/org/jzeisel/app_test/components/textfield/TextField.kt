@@ -13,18 +13,19 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
+import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.logger.Logger
 
 
 class TextField(private val parentRect: Rectangle,
                 private val parentText: Text,
                 private val trackListViewModel: TrackListViewModel,
-                private val clickCallback: (name: String) -> Unit) {
+                private val clickCallback: (name: String) -> Unit) : TrackComponentWidget {
     companion object {
         const val TAG = "TextField"
         const val LEVEL = 4
     }
-    private var isShowing = false
+    var isShowing = false
     private val cursorDistanceFromEndOfText = 3.0
     private val rectangleWidth: Double get() { return parentRect.width }
     private val rectangleHeight: Double get() { return parentRect.height }
@@ -116,5 +117,19 @@ class TextField(private val parentRect: Rectangle,
             else text.text += character.code.char.lowercase()
             cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + cursorDistanceFromEndOfText
         }
+    }
+
+    override fun respondToOffsetYChange(old: Double, new: Double) {
+        val change = new - old
+        cursor.translateY += change
+        rectangle.translateY += change
+        text.translateY += change
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        val change = (new - old) / 2.0
+        cursor.translateX -= change
+        rectangle.translateX -= change
+        text.translateX -= change
     }
 }

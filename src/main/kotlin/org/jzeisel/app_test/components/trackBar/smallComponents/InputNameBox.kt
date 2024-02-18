@@ -44,7 +44,6 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
 
 
     init {
-        TODO("TextField must move on UI changes")
         generalBox.translateY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
         generalBox.translateX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputNameBoxOffset
         generalBox.strokeWidth = trackListViewModel.strokeSize
@@ -85,13 +84,17 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
     }
 
     override fun respondToOffsetYChange(old: Double, new: Double) {
-        generalBox.translateY += new - old
-        nameText.translateY += new - old
+        val change = new - old
+        generalBox.translateY += change
+        nameText.translateY += change
+        if (textField.isShowing) textField.respondToOffsetYChange(old, new)
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        generalBox.translateX -= (new - old)/2.0
-        nameText.translateX -= (new - old)/2.0
+        val change = (new - old) / 2.0
+        generalBox.translateX -= change
+        nameText.translateX -= change
+        if (textField.isShowing) textField.respondToWidthChange(old, new)
     }
 
     fun backspaceText() {
