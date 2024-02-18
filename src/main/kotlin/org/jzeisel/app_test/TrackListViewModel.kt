@@ -62,6 +62,9 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     private val masterTrack: MasterTrack = MasterTrack(root,this)
 
     private val cursorFollower: CursorFollower = CursorFollower
+
+    private var trackSelected: Track? = null
+
     init {
         cursorFollower.initialize(this)
         currentDividerOffset.addListener(cursorFollower)
@@ -168,6 +171,10 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         else {
             cursorFollower.updateLocation(translateX)
         }
+    }
+
+    fun setTrackSelected(track: Track) {
+        trackSelected = track
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {

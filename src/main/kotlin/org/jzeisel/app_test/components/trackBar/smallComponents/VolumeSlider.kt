@@ -31,6 +31,7 @@ class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
         sliderCircle.strokeWidth = trackListViewModel.strokeSize
         sliderBar.strokeWidth = trackListViewModel.strokeSize
         sliderBar.stroke = trackListViewModel.strokeColor
+        sliderBar.strokeLineJoin = StrokeLineJoin.MITER
         sliderBar.arcWidth = 7.0
         sliderBar.arcHeight = 7.0
 
