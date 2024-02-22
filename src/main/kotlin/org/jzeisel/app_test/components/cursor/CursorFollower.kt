@@ -8,6 +8,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
@@ -28,6 +29,10 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
     private var currentOffsetX = 0.0
+
+    init {
+        registerForBroadcasts()
+    }
 
     fun addMeToScene(root: StackPane, offsetX: Double) {
         /* offset x is distance to the right from trac divider offset */
@@ -75,6 +80,29 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         }
     }
 
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        if (isShowing) {
+            when (observable) {
+                trackListViewModel.currentDividerOffset -> {
+                    cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
+                    cursorPointer.translateX = cursorRectangle.translateX
+                }
+                trackListViewModel.testStageWidth -> {
+                    respondToWidthChange(old, new)
+                }
+                trackListViewModel.testStageHeight -> {
+                    respondToHeightChange(old, new)
+                }
+            }
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForDividerOffsetChanges(this)
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+    }
+
     fun updateFromTrackList(root: StackPane) {
         if (isShowing) {
             Platform.runLater {
@@ -93,7 +121,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     }
 
     override fun respondToOffsetYChange(old: Double, new: Double) {}
-    fun respondToHeightChange(old: Double, new: Double) {
+    private fun respondToHeightChange(old: Double, new: Double) {
         if (isShowing) {
             val change = (new - old) / 2.0
             cursorRectangle.translateY -= change
@@ -106,17 +134,6 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
             val change = (new - old) / 2.0
             cursorRectangle.translateX -= change
             cursorPointer.translateX -= change
-        }
-    }
-
-    override fun respondToChange(observable: Any, value: Double) {
-        if (isShowing) {
-            when (observable) {
-                trackListViewModel.currentDividerOffset -> {
-                    cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
-                    cursorPointer.translateX = cursorRectangle.translateX
-                }
-            }
         }
     }
 }

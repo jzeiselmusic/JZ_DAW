@@ -10,8 +10,11 @@ import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.cursor.CursorFollower
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
-class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
+class WaveFormBox(override val parent: Widget) :
+    Widget, TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "WaveFormBox"
     }
@@ -28,6 +31,7 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
     val ticksForMasterTrack = mutableListOf<Rectangle>()
 
     init {
+        registerForBroadcasts()
         trackRectangle.translateY = parentTrack.trackOffsetY
         trackRectangle.translateX = waveFormWidth / 2.0 + trackListViewModel.currentDividerOffset.getValue()
         trackRectangle.opacity = 0.8
@@ -89,6 +93,20 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         }
     }
 
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when(observable) {
+            trackListViewModel.currentDividerOffset -> respondToDividerShift(new)
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForDividerOffsetChanges(this)
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+    }
+
     private fun color(): Color? = trackListViewModel.generalGray.darker()
     override fun addChild(child: Widget) {
     }
@@ -121,16 +139,17 @@ class WaveFormBox(override val parent: Widget) : Widget, TrackComponentWidget {
         }
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        trackRectangle.translateY = new
+    override fun respondToHeightChange(old: Double, new: Double) {
+        val change = (new - old) /2.0
+        trackRectangle.translateY -= change
         for (measureDivider in measureDividers) {
-            measureDivider.translateY = new
+            measureDivider.translateY -= change
         }
         for (beat in beatDividers) {
-            beat.translateY = new
+            beat.translateY -= change
         }
         for (tick in ticksForMasterTrack) {
-            tick.translateY = new - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
+            tick.translateY -= change
         }
     }
 

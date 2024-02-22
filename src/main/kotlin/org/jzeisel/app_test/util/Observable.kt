@@ -3,20 +3,23 @@ package org.jzeisel.app_test.util
 class Observable<DataType>(initialValue: DataType) {
     private val listeners = mutableListOf<ObservableListener<DataType>>()
     private var value = initialValue
-
+    private var performOnChange: () -> Unit = {}
 
     fun getValue(): DataType {
         return value
     }
 
     fun setValueAndNotify(newValue: DataType) {
+        performOnChange()
+        val prevValue = value
         if (newValue != value) {
             value = newValue
-            notifyListeners(newValue)
+            notifyListeners(prevValue, newValue)
         }
     }
 
     fun setValue(newValue: DataType) {
+        performOnChange()
         if (newValue != value) {
             value = newValue
         }
@@ -30,9 +33,13 @@ class Observable<DataType>(initialValue: DataType) {
         listeners.remove(listener)
     }
 
-    private fun notifyListeners(newValue: DataType) {
+    private fun notifyListeners(oldValue: DataType, newValue: DataType) {
         for (listener in listeners) {
-            listener.respondToChange(this, newValue)
+            listener.respondToChange(this, oldValue, newValue)
         }
+    }
+
+    fun setPerformOnChange(func: ()->Unit) {
+        performOnChange = func
     }
 }

@@ -3,11 +3,11 @@ package org.jzeisel.app_test.components.trackBar.tracks
 import javafx.application.Platform
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
-import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,
@@ -25,38 +25,11 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     var index = initialIndex
 
-    override var trackOffsetY: Double by Delegates.observable(
-                progenitor.trackOffsetY + trackListViewModel.trackHeight) {
-        _, old, new ->
-            for (child in children) {
-                val c = child as TrackComponentWidget
-                c.respondToOffsetYChange(old, new)
-            }
-            trackRectangle.translateY = new
-            trackDivider.translateY = new
-            trackDivider.translateY = new
-            labelDivider.translateY = new
-            trackLabel.translateY = new
-            trackLabelNumber.translateY = new
-    }
-    var trackWidth: Double by Delegates.observable(initialTrackWidth) {
-        _, old, new ->
-            val amtChange = (new - old) / 2.0
-            trackRectangle.width = new
-            trackRectangle.width = new
-            trackDivider.translateX -= amtChange
-            trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
-            labelDivider.translateX -= amtChange
-            trackListViewModel.labelDividerOffset = labelDivider.translateX
-            trackLabel.translateX -= amtChange
-            trackLabelNumber.translateX -= amtChange
-            for (child in children) {
-                val c = child as TrackComponentWidget
-                c.respondToWidthChange(old, new)
-            }
-    }
+    override var trackOffsetY: Double = progenitor.trackOffsetY + trackListViewModel.trackHeight
+    var trackWidth: Double = initialTrackWidth
     override val children = mutableListOf<Widget>()
     init {
+        registerForBroadcasts()
         setTrackRectangleProperties()
         trackLabelNumber.text = name
     }
@@ -68,13 +41,39 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
 
-    override fun respondToChange(observable: Any, value: Double) {
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
         when (observable) {
             trackListViewModel.currentDividerOffset -> {
-                trackDivider.translateX = value
-                waveFormBox.respondToDividerShift(value)
+                trackDivider.translateX = new
+            }
+            trackListViewModel.testStageWidth -> {
+                val amtChange = (new - old) / 2.0
+                trackWidth = new
+                trackRectangle.width = new
+                trackRectangle.width = new
+                trackDivider.translateX -= amtChange
+                trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
+                labelDivider.translateX -= amtChange
+                trackListViewModel.labelDividerOffset = labelDivider.translateX
+                trackLabel.translateX -= amtChange
+                trackLabelNumber.translateX -= amtChange
+            }
+            trackListViewModel.testStageHeight -> {
+                trackOffsetY -= (new - old) / 2.0
+                trackRectangle.translateY = trackOffsetY
+                trackDivider.translateY = trackOffsetY
+                trackDivider.translateY = trackOffsetY
+                labelDivider.translateY = trackOffsetY
+                trackLabel.translateY = trackOffsetY
+                trackLabelNumber.translateY = trackOffsetY
             }
         }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForDividerOffsetChanges(this)
     }
 
     fun respondToChangeInTrackList(old: List<Widget>, new: List<Widget>) {

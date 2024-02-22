@@ -23,16 +23,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
-    var trackHeight: Double by Delegates.observable(100.0) {
-        _, old, new ->
-    }
-    var trackWidth: Double by Delegates.observable(stageWidthProperty.value) {
-        _, _, new ->
-        for (child in children) {
-            (child as NormalTrack).trackWidth = new
-        }
-        masterTrack.trackWidth = new
-    }
+    var trackHeight: Double = 100.0
+    var trackWidth: Double = stageWidthProperty.value
     /* sizes */
     val separationDistance = 45.0
     val inputNameBoxWidth = separationDistance*2.0
@@ -55,7 +47,11 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val inputNameBoxOffset = inputButtonsOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
     val vuMeterOffset = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
     var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
-    var currentDividerOffset = Observable(-stageWidthProperty.value / 2.0 + 310.0)
+
+    /* observable variables */
+    var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + 310.0)
+    var testStageWidth = Observable<Double>(stageWidthProperty.value)
+    var testStageHeight = Observable<Double>(stageHeightProperty.value)
     /*      *****      */
     val audioInputManager = AudioInputManager(this)
 
@@ -68,19 +64,13 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     init {
         cursorFollower.initialize(this)
         currentDividerOffset.addListener(cursorFollower)
-
         currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
-        stageWidthProperty.addListener { _, old, new ->
-            trackWidth = new as Double
-            cursorFollower.respondToWidthChange(old as Double, new)
+        stageWidthProperty.addListener { _, _, new ->
+            testStageWidth.setValueAndNotify(new as Double)
+            trackWidth = new
         }
-        stageHeightProperty.addListener {_, old, new ->
-            val change = (new as Double - old as Double)/2.0
-            for (child in children) {
-                (child as NormalTrack).trackOffsetY -= change
-            }
-            masterTrack.trackOffsetY -= change
-            cursorFollower.respondToHeightChange(old, new)
+        stageHeightProperty.addListener {_, _, new ->
+            testStageHeight.setValueAndNotify(new as Double)
         }
     }
 
@@ -176,6 +166,18 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     fun setTrackSelected(track: Track) {
         trackSelected = track
         track.setSelected()
+    }
+
+    fun registerForWidthChanges(listener: ObservableListener<Double>) {
+        testStageWidth.addListener(listener)
+    }
+
+    fun registerForHeightChanges(listener: ObservableListener<Double>) {
+        testStageHeight.addListener(listener)
+    }
+
+    fun registerForDividerOffsetChanges(listener: ObservableListener<Double>) {
+        currentDividerOffset.addListener(listener)
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {
