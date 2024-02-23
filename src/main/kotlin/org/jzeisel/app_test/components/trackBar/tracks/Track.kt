@@ -12,7 +12,6 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
-import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.math.abs
 

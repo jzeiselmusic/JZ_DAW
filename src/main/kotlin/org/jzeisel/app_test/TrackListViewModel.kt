@@ -172,12 +172,24 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         testStageWidth.addListener(listener)
     }
 
+    fun unregisterForWidthChanges(listener: ObservableListener<Double>) {
+        testStageWidth.removeListener(listener)
+    }
+
     fun registerForHeightChanges(listener: ObservableListener<Double>) {
         testStageHeight.addListener(listener)
     }
 
+    fun unregisterForHeightChanges(listener: ObservableListener<Double>) {
+        testStageHeight.removeListener(listener)
+    }
+
     fun registerForDividerOffsetChanges(listener: ObservableListener<Double>) {
         currentDividerOffset.addListener(listener)
+    }
+
+    fun unregisterForDividerOffsetChanges(listener: ObservableListener<Double>) {
+        currentDividerOffset.removeListener(listener)
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {

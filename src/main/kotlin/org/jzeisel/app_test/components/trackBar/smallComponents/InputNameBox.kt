@@ -13,8 +13,11 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.textfield.TextField
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
-class InputNameBox(private val root: StackPane, override val parent: Widget) : Widget, TrackComponentWidget {
+class InputNameBox(private val root: StackPane, override val parent: Widget)
+    : Widget, TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "InputNameBox"
     }
@@ -70,31 +73,51 @@ class InputNameBox(private val root: StackPane, override val parent: Widget) : W
         generalBox.onMouseClicked = doubleClickHandler
         nameText.onMouseClicked = doubleClickHandler
     }
+
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when (observable) {
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForWidthChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForHeightChanges(this)
+    }
+
     override fun addChild(child: Widget) {
     }
 
     override fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
         root.children.add(generalBox)
         root.children.add(nameText)
     }
 
     override fun removeMeFromScene(root: StackPane) {
+        unregisterForBroadcasts()
         root.children.remove(generalBox)
         root.children.remove(nameText)
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        val change = new - old
-        generalBox.translateY += change
-        nameText.translateY += change
-        if (textField.isShowing) textField.respondToOffsetYChange(old, new)
+    override fun respondToHeightChange(old: Double, new: Double) {
+        ((new - old)/2.0).let {
+            generalBox.translateY -= it
+            nameText.translateY -= it
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        val change = (new - old) / 2.0
-        generalBox.translateX -= change
-        nameText.translateX -= change
-        if (textField.isShowing) textField.respondToWidthChange(old, new)
+        ((new - old)/2.0).let {
+            generalBox.translateX -= it
+            nameText.translateX -= it
+        }
     }
 
     fun backspaceText() {

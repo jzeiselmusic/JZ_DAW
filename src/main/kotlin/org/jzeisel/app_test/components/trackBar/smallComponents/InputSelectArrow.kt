@@ -13,9 +13,11 @@ import org.jzeisel.app_test.components.dropdownbox.DropDownBox
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
-            : Widget, TrackComponentWidget {
+            : Widget, TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "InputSelectArrow"
         const val LEVEL = 4
@@ -53,18 +55,32 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
 
     init {
         inputSelectRectangle.onMouseReleased = EventHandler {
-            Logger.debug(TAG, "input select rectangle clicked for track ${parentTrack.name}", LEVEL)
             dropDownBox.addMeToScene(root)
             isDropDownBoxActive = true
         }
         inputSelectArrow.onMouseReleased = EventHandler {
-            Logger.debug(TAG, "input select arrow clicked for track ${parentTrack.name}", LEVEL)
             dropDownBox.addMeToScene(root)
             isDropDownBoxActive = true
         }
-
-        Logger.debug(TAG, "instantiated input selector- parent is track ${parentTrack.name}", LEVEL)
     }
+
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when (observable) {
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForWidthChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForHeightChanges(this)
+    }
+
     override fun addChild(child: Widget) {
     }
 
@@ -74,14 +90,15 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
 
     override fun addMeToScene(root: StackPane) {
         Platform.runLater {
+            registerForBroadcasts()
             root.children.add(inputSelectRectangle)
             root.children.add(inputSelectArrow)
-            Logger.debug(TAG, "rectangle and arrow added to scene", LEVEL)
         }
     }
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
+            unregisterForBroadcasts()
             dropDownBox.removeMeFromScene(root)
             for (child in children) {
                 child.removeMeFromScene(root)
@@ -97,15 +114,17 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         (parentTrack as NormalTrack).setAudioInputIndex(index)
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        inputSelectRectangle.translateY += new - old
-        inputSelectArrow.translateY += new - old
-        dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
+    override fun respondToHeightChange(old: Double, new: Double) {
+        ((new - old)/2.0).let {
+            inputSelectRectangle.translateY -= it
+            inputSelectArrow.translateY -= it
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        inputSelectRectangle.translateX -= (new - old)/2.0
-        inputSelectArrow.translateX -= (new - old)/2.0
-        dropDownBox.updateTranslation(inputSelectRectangle.translateX, inputSelectRectangle.translateY)
+        ((new - old)/2.0).let {
+            inputSelectRectangle.translateX -= it
+            inputSelectArrow.translateX -= it
+        }
     }
 }

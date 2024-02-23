@@ -15,12 +15,15 @@ import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
 
 class TextField(private val parentRect: Rectangle,
                 private val parentText: Text,
                 private val trackListViewModel: TrackListViewModel,
-                private val clickCallback: (name: String) -> Unit) : TrackComponentWidget {
+                private val clickCallback: (name: String) -> Unit)
+    : TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "TextField"
         const val LEVEL = 4
@@ -40,6 +43,8 @@ class TextField(private val parentRect: Rectangle,
     lateinit var cursor: Rectangle
 
     fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
+
         rectangle = Rectangle()
         text = Text()
         cursor = Rectangle()
@@ -98,8 +103,26 @@ class TextField(private val parentRect: Rectangle,
                 root.children.removeAll(cursor, rectangle, text)
                 isShowing = false
                 clickCallback(text.text)
+                unregisterForBroadcasts()
             }
         }
+    }
+
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when (observable) {
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForWidthChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForWidthChanges(this)
     }
 
     fun backspace() {
@@ -119,17 +142,19 @@ class TextField(private val parentRect: Rectangle,
         }
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        val change = new - old
-        cursor.translateY += change
-        rectangle.translateY += change
-        text.translateY += change
+    override fun respondToHeightChange(old: Double, new: Double) {
+        ((new - old)/2.0).let {
+            cursor.translateY -= it
+            rectangle.translateY -= it
+            text.translateY -= it
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        val change = (new - old) / 2.0
-        cursor.translateX -= change
-        rectangle.translateX -= change
-        text.translateX -= change
+        ((new - old) / 2.0).let {
+            cursor.translateX -= it
+            rectangle.translateX -= it
+            text.translateX -= it
+        }
     }
 }

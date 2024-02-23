@@ -13,9 +13,11 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 import java.util.*
 
-class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
+class AddButton(override val parent: Widget): Widget, TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "AddButton"
         const val LEVEL = 3
@@ -80,6 +82,13 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
         verticalLine.onMouseReleased = mouseReleaseEvent
     }
 
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when(observable) {
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
     private fun addTrack() {
         parentTrack.addTrack()
     }
@@ -110,6 +119,7 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
     }
 
     override fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
         root.children.add(buttonRect)
         root.children.add(horizontalLine)
         root.children.add(verticalLine)
@@ -117,21 +127,36 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget {
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
+            unregisterForBroadcasts()
             root.children.remove(buttonRect)
             root.children.remove(horizontalLine)
             root.children.remove(verticalLine)
         }
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        buttonRect.translateY += new - old
-        horizontalLine.translateY += new - old
-        verticalLine.translateY += new - old
+    override fun respondToHeightChange(old: Double, new: Double) {
+        ((new - old)/2.0).let {
+            buttonRect.translateY -= it
+            horizontalLine.translateY -= it
+            verticalLine.translateY -= it
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        buttonRect.translateX -= (new - old)/2.0
-        horizontalLine.translateX -= (new - old)/ 2.0
-        verticalLine.translateX -= (new - old)/2.0
+        ((new - old)/2.0).let {
+            buttonRect.translateX -= it
+            horizontalLine.translateX -= it
+            verticalLine.translateX -= it
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForHeightChanges(this)
     }
 }

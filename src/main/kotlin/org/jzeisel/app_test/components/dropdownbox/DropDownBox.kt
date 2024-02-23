@@ -9,12 +9,16 @@ import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
+import org.jzeisel.app_test.components.TrackComponentWidget
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
 class DropDownBox(stringList: List<String>, parent: Rectangle,
-                  private val trackListViewModel: TrackListViewModel, clickCallback: (index: Int) -> Unit) {
+                  private val trackListViewModel: TrackListViewModel,
+                  clickCallback: (index: Int) -> Unit)
+    : TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "DropDownBox"
-        const val LEVEL = 4
     }
     private val parentButton = parent
     private val rectangleList = mutableListOf<Rectangle>()
@@ -76,6 +80,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
         val delay = PauseTransition(Duration.millis(100.0));
         Platform.runLater {
             delay.setOnFinished {
+                registerForBroadcasts()
                 root.children.addAll(rectangleList)
                 root.children.addAll(textList)
                 isAdded = true
@@ -87,6 +92,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
     fun removeMeFromScene(root: StackPane) {
         if (isAdded) {
             Platform.runLater {
+                unregisterForBroadcasts()
                 root.children.removeAll(textList)
                 root.children.removeAll(rectangleList)
                 isAdded = false
@@ -94,13 +100,40 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
         }
     }
 
-    fun updateTranslation(newX: Double, newY: Double) {
+    override fun respondToHeightChange(old: Double, new: Double) {
         val tList = rectangleList.zip(textList)
-        for ((idx, pair) in tList.withIndex()) {
-            pair.first.translateX = newX + rectangleWidth / 2.0
-            pair.first.translateY = (newY + rectangleHeight / 2.0) + 20.0*idx
-            pair.second.translateX = newX + rectangleWidth / 2.0
-            pair.second.translateY = (newY + rectangleHeight / 2.0) + 20.0*idx
+        for (pair in tList) {
+            ((new - old)/2.0).let {
+                pair.first.translateY -= it
+                pair.second.translateY -= it
+            }
         }
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        val tList = rectangleList.zip(textList)
+        for (pair in tList) {
+            ((new - old)/2.0).let {
+                pair.first.translateX -= it
+                pair.second.translateX -= it
+            }
+        }
+    }
+
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when (observable) {
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForHeightChanges(this)
     }
 }

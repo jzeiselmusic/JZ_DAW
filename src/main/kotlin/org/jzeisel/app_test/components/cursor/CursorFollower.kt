@@ -30,12 +30,9 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var cursorPointer: Polygon
     private var currentOffsetX = 0.0
 
-    init {
-        registerForBroadcasts()
-    }
-
     fun addMeToScene(root: StackPane, offsetX: Double) {
         /* offset x is distance to the right from trac divider offset */
+        registerForBroadcasts()
         isShowing = true
         currentOffsetX = offsetX
         cursorRectangle = Rectangle(rectangleWidth, rectangleHeight, trackListViewModel.generalGray)
@@ -63,6 +60,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     fun removeMeFromScene(root: StackPane) {
         if (isShowing) {
             Platform.runLater {
+                unregisterForBroadcasts()
                 root.children.remove(cursorRectangle)
                 root.children.remove(cursorPointer)
                 isShowing = false
@@ -103,6 +101,12 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         trackListViewModel.registerForHeightChanges(this)
     }
 
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForDividerOffsetChanges(this)
+    }
+
     fun updateFromTrackList(root: StackPane) {
         if (isShowing) {
             Platform.runLater {
@@ -120,20 +124,21 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         this.trackListViewModel = trackListViewModel
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {}
-    private fun respondToHeightChange(old: Double, new: Double) {
+    override fun respondToHeightChange(old: Double, new: Double) {
         if (isShowing) {
-            val change = (new - old) / 2.0
-            cursorRectangle.translateY -= change
-            cursorPointer.translateY -= change
+            ((new - old) / 2.0).let {
+                cursorRectangle.translateY -= it
+                cursorPointer.translateY -= it
+            }
         }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
         if (isShowing) {
-            val change = (new - old) / 2.0
-            cursorRectangle.translateX -= change
-            cursorPointer.translateX -= change
+            ((new - old) / 2.0).let {
+                cursorRectangle.translateX -= it
+                cursorPointer.translateX -= it
+            }
         }
     }
 }

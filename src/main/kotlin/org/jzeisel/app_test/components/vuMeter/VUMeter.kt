@@ -9,8 +9,11 @@ import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
-class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
+class VUMeter(override val parent: Widget)
+    : Widget, TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "VUMeter"
         const val LEVEL = 3
@@ -18,7 +21,7 @@ class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
     /* object that represents a single VUMeter */
     /* made of 2 rectangles and a set of numBars Bars */
     private val parentTrack = parent as Track
-    private val trackListViewModel = parentTrack.trackListViewModel
+    val trackListViewModel = parentTrack.trackListViewModel
     private val numBars = 20
     val vuMeterWidth = trackListViewModel.vuMeterWidth
     private var vuMeterHeight = parentTrack.initialTrackHeight / 1.75
@@ -45,13 +48,14 @@ class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
     }
 
     override fun addMeToScene(root: StackPane) {
-        Logger.debug(TAG, "adding to scene: y-offset is ${parentTrack.trackOffsetY}", LEVEL)
+        registerForBroadcasts()
         root.children.add(vuMeterRectangle)
         makeMeterBars(root)
     }
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
+            unregisterForBroadcasts()
             for (child in children) {
                 child.removeMeFromScene(root)
             }
@@ -111,23 +115,34 @@ class VUMeter(override val parent: Widget): Widget, TrackComponentWidget {
         }
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        val newY = vuMeterRectangle.translateY + (new - old)
-        vuMeterRectangle.translateY = newY
-        vuMeterOffsetY = newY
-        for (bar in children) {
-            (bar as VUBar).updateOffsetY(
-                    vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
-                            - (children.indexOf(bar) * (barHeight + barSep)))
+    override fun respondToHeightChange(old: Double, new: Double) {
+        ((new - old)/2.0).let {
+            vuMeterRectangle.translateY -= it
+            vuMeterOffsetY = vuMeterRectangle.translateY
         }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        val newX = vuMeterRectangle.translateX - (new - old)/2.0
-        vuMeterRectangle.translateX = newX
-        vuMeterOffsetX = newX
-        for (bar in children) {
-            (bar as VUBar).updateOffsetX(newX)
+        ((new - old)/2.0).let {
+            vuMeterRectangle.translateX -= it
+            vuMeterOffsetX = vuMeterRectangle.translateX
         }
+    }
+
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when (observable) {
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForHeightChanges(this)
     }
 }

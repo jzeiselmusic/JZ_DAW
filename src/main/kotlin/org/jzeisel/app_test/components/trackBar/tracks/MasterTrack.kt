@@ -4,15 +4,10 @@ import javafx.application.Platform
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.TrackListViewModel
-import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
-import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.Observable
-import org.jzeisel.app_test.util.ObservableListener
-import kotlin.properties.Delegates
 
 class MasterTrack(root: StackPane, override val parent: Widget)
     : Track(root, parent), Widget {
@@ -26,7 +21,6 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     private val headerBar = Rectangle(trackListViewModel.trackWidth, 12.0, trackListViewModel.generalGray.darker().darker())
     init {
         setTrackRectangleProperties()
-        registerForBroadcasts()
         headerBar.translateY = trackListViewModel.masterOffsetY - trackRectangle.height/2.0 - 6.0
         headerBar.arcWidth = 5.0
         headerBar.arcHeight = 5.0
@@ -80,6 +74,12 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         trackListViewModel.registerForDividerOffsetChanges(this)
     }
 
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForDividerOffsetChanges(this)
+    }
+
     override fun addChild(child: Widget) {
         children.add(child)
     }
@@ -97,6 +97,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     }
 
     override fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
         root.children.add(trackRectangle)
         root.children.add(headerBar)
         root.children.add(trackDivider)
@@ -116,6 +117,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
+            unregisterForBroadcasts()
             for (child in children) {
                 child.removeMeFromScene(root)
             }

@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.trackBar.tracks
+package org.jzeisel.app_test.components.trackBar.smallComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -8,8 +8,8 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.cursor.CursorFollower
-import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
+import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
@@ -31,7 +31,6 @@ class WaveFormBox(override val parent: Widget) :
     val ticksForMasterTrack = mutableListOf<Rectangle>()
 
     init {
-        registerForBroadcasts()
         trackRectangle.translateY = parentTrack.trackOffsetY
         trackRectangle.translateX = waveFormWidth / 2.0 + trackListViewModel.currentDividerOffset.getValue()
         trackRectangle.opacity = 0.8
@@ -107,11 +106,18 @@ class WaveFormBox(override val parent: Widget) :
         trackListViewModel.registerForHeightChanges(this)
     }
 
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForDividerOffsetChanges(this)
+        trackListViewModel.unregisterForWidthChanges(this)
+    }
+
     private fun color(): Color? = trackListViewModel.generalGray.darker()
     override fun addChild(child: Widget) {
     }
 
     override fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
         root.children.add(trackRectangle)
         for (measureDivider in measureDividers) {
             root.children.add(measureDivider)
@@ -126,6 +132,7 @@ class WaveFormBox(override val parent: Widget) :
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
+            unregisterForBroadcasts()
             root.children.remove(trackRectangle)
             for (measureDivider in measureDividers) {
                 root.children.remove(measureDivider)
@@ -140,30 +147,32 @@ class WaveFormBox(override val parent: Widget) :
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {
-        val change = (new - old) /2.0
-        trackRectangle.translateY -= change
-        for (measureDivider in measureDividers) {
-            measureDivider.translateY -= change
-        }
-        for (beat in beatDividers) {
-            beat.translateY -= change
-        }
-        for (tick in ticksForMasterTrack) {
-            tick.translateY -= change
+        ((new - old) /2.0).let {
+            trackRectangle.translateY -= it
+            for (measureDivider in measureDividers) {
+                measureDivider.translateY -= it
+            }
+            for (beat in beatDividers) {
+                beat.translateY -= it
+            }
+            for (tick in ticksForMasterTrack) {
+                tick.translateY -= it
+            }
         }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        val change = (new - old)/2.0
-        trackRectangle.translateX -= change
-        for (measureDivider in measureDividers) {
-            measureDivider.translateX -= change
-        }
-        for (beat in beatDividers) {
-            beat.translateX -= change
-        }
-        for (tick in ticksForMasterTrack) {
-            tick.translateX -= change
+        ((new - old)/2.0).let {
+            trackRectangle.translateX -= it
+            for (measureDivider in measureDividers) {
+                measureDivider.translateX -= it
+            }
+            for (beat in beatDividers) {
+                beat.translateX -= it
+            }
+            for (tick in ticksForMasterTrack) {
+                tick.translateX -= it
+            }
         }
     }
 

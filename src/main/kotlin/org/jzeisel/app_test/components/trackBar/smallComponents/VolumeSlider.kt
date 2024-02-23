@@ -1,22 +1,21 @@
 package org.jzeisel.app_test.components.trackBar.smallComponents
 
-import javafx.animation.Animation
-import javafx.animation.ScaleTransition
-import javafx.animation.Timeline
+import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
-import javafx.util.Duration
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.animateObjectScale
 
-
-class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
+class VolumeSlider(override val parent: Widget)
+    : Widget, TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "VolumeSlider"
     }
@@ -79,26 +78,52 @@ class VolumeSlider(override val parent: Widget) : Widget, TrackComponentWidget {
             }
         }
     }
+
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when (observable) {
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForWidthChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForWidthChanges(this)
+    }
+
     override fun addChild(child: Widget) {
     }
 
     override fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
         root.children.add(sliderBar)
         root.children.add(sliderCircle)
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        root.children.remove(sliderCircle)
-        root.children.remove(sliderBar)
+        Platform.runLater {
+            unregisterForBroadcasts()
+            root.children.remove(sliderCircle)
+            root.children.remove(sliderBar)
+        }
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        sliderCircle.translateY += new - old
-        sliderBar.translateY += new - old
+    override fun respondToHeightChange(old: Double, new: Double) {
+        ((new - old)/2.0).let {
+            sliderCircle.translateY -= it
+            sliderBar.translateY -= it
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        sliderCircle.translateX -= (new - old)/2.0
-        sliderBar.translateX -= (new - old)/2.0
+        ((new - old)/2.0).let {
+            sliderCircle.translateX -= it
+            sliderBar.translateX -= it
+        }
     }
 }

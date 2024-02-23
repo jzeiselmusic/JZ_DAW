@@ -13,8 +13,11 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 
-class InputEnableButton(override val parent: Widget?): Widget, TrackComponentWidget {
+class InputEnableButton(override val parent: Widget?)
+    : Widget, TrackComponentWidget, ObservableListener<Double> {
     companion object {
         const val TAG = "InputEnableButton"
         const val LEVEL = 3
@@ -55,6 +58,23 @@ class InputEnableButton(override val parent: Widget?): Widget, TrackComponentWid
         iImageView.onMouseReleased = mouseReleaseEvent
     }
 
+    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+        when(observable) {
+            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+        }
+    }
+
+    override fun registerForBroadcasts() {
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+    }
+
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForWidthChanges(this)
+    }
+
     private fun mouseReleaseLeft() {
         when (isEnabled) {
             true -> {
@@ -75,25 +95,31 @@ class InputEnableButton(override val parent: Widget?): Widget, TrackComponentWid
     }
 
     override fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
         root.children.add(buttonRect)
         root.children.add(iImageView)
     }
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
+            unregisterForBroadcasts()
             root.children.remove(buttonRect)
             root.children.remove(iImageView)
         }
     }
 
-    override fun respondToOffsetYChange(old: Double, new: Double) {
-        buttonRect.translateY += new - old
-        iImageView.translateY += new - old
+    override fun respondToHeightChange(old: Double, new: Double) {
+        ((new - old)/2.0).let {
+            buttonRect.translateY -= it
+            iImageView.translateY -= it
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-        buttonRect.translateX -= (new - old)/2.0
-        iImageView.translateX -= (new - old)/2.0
+        ((new - old)/2.0).let {
+            buttonRect.translateX -= it
+            iImageView.translateX -= it
+        }
     }
 
 }

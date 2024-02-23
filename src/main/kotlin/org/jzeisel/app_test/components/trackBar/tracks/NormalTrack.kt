@@ -29,7 +29,6 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     var trackWidth: Double = initialTrackWidth
     override val children = mutableListOf<Widget>()
     init {
-        registerForBroadcasts()
         setTrackRectangleProperties()
         trackLabelNumber.text = name
     }
@@ -76,6 +75,12 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         trackListViewModel.registerForDividerOffsetChanges(this)
     }
 
+    override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForDividerOffsetChanges(this)
+    }
+
     fun respondToChangeInTrackList(old: List<Widget>, new: List<Widget>) {
         index = new.indexOf(this)
         trackOffsetY = trackListViewModel.masterOffsetY + (index+1)*initialTrackHeight
@@ -84,6 +89,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     override fun addMeToScene(root: StackPane) {
+        registerForBroadcasts()
         root.children.add(trackRectangle)
         root.children.add(trackDivider)
         root.children.add(trackLabel)
@@ -114,6 +120,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
+            unregisterForBroadcasts()
             for (child in children) {
                 child.removeMeFromScene(root)
             }
