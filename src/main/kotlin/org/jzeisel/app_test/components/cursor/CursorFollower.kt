@@ -8,6 +8,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
@@ -78,19 +79,20 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         }
     }
 
-    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
+    override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         if (isShowing) {
-            when (observable) {
-                trackListViewModel.currentDividerOffset -> {
+            when (broadcastType) {
+                BroadcastType.DIVIDER -> {
                     cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
                     cursorPointer.translateX = cursorRectangle.translateX
                 }
-                trackListViewModel.testStageWidth -> {
+                BroadcastType.STAGE_WIDTH -> {
                     respondToWidthChange(old, new)
                 }
-                trackListViewModel.testStageHeight -> {
+                BroadcastType.STAGE_HEIGHT -> {
                     respondToHeightChange(old, new)
                 }
+                BroadcastType.INDEX -> {}
             }
         }
     }

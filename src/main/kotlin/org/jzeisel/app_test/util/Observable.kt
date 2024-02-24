@@ -9,12 +9,12 @@ class Observable<DataType>(initialValue: DataType) {
         return value
     }
 
-    fun setValueAndNotify(newValue: DataType) {
+    fun setValueAndNotify(newValue: DataType, broadcastType: BroadcastType) {
         performOnChange()
         val prevValue = value
         if (newValue != value) {
             value = newValue
-            notifyListeners(prevValue, newValue)
+            notifyListeners(prevValue, newValue, broadcastType)
         }
     }
 
@@ -33,9 +33,9 @@ class Observable<DataType>(initialValue: DataType) {
         listeners.remove(listener)
     }
 
-    private fun notifyListeners(oldValue: DataType, newValue: DataType) {
+    private fun notifyListeners(oldValue: DataType, newValue: DataType, broadcastType: BroadcastType) {
         for (listener in listeners) {
-            listener.respondToChange(this, oldValue, newValue)
+            listener.respondToChange(broadcastType, oldValue, newValue)
         }
     }
 

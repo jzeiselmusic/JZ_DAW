@@ -12,6 +12,7 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.math.abs
 
@@ -77,7 +78,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
 
         trackDivider.onMouseDragged = EventHandler {
             trackDivider.translateX += it.x
-            trackListViewModel.currentDividerOffset.setValueAndNotify(trackDivider.translateX)
+            trackListViewModel.currentDividerOffset.setValueAndNotify(trackDivider.translateX, BroadcastType.DIVIDER)
         }
 
         labelDivider.translateY = trackOffsetY

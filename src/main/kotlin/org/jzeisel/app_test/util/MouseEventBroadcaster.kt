@@ -7,7 +7,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import org.jzeisel.app_test.TrackListViewModel
 
-object EventBroadcaster {
+object MouseEventBroadcaster {
     private lateinit var root: StackPane
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var scene: Scene

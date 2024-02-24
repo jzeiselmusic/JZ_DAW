@@ -10,6 +10,7 @@ import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
@@ -124,10 +125,12 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
         /* not necessary for drop down box */
     }
 
-    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
-        when (observable) {
-            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
-            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+    override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
+        when (broadcastType) {
+            BroadcastType.STAGE_WIDTH -> respondToWidthChange(old, new)
+            BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
+            BroadcastType.INDEX -> {}
+            BroadcastType.DIVIDER -> {}
         }
     }
 

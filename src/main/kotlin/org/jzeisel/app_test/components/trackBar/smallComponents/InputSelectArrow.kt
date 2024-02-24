@@ -13,6 +13,7 @@ import org.jzeisel.app_test.components.dropdownbox.DropDownBox
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
@@ -61,11 +62,12 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         }
     }
 
-    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
-        when (observable) {
-            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
-            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
-            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
+    override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
+        when (broadcastType) {
+            BroadcastType.STAGE_WIDTH -> respondToWidthChange(old, new)
+            BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
+            BroadcastType.INDEX -> respondToIndexChange(old, new)
+            BroadcastType.DIVIDER -> {}
         }
     }
 

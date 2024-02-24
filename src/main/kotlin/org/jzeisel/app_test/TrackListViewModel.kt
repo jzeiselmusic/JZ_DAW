@@ -12,6 +12,7 @@ import org.jzeisel.app_test.components.cursor.CursorFollower
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
@@ -63,11 +64,11 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         currentDividerOffset.addListener(cursorFollower)
         currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
         stageWidthProperty.addListener { _, _, new ->
-            testStageWidth.setValueAndNotify(new as Double)
+            testStageWidth.setValueAndNotify(new as Double, BroadcastType.STAGE_WIDTH)
             trackWidth = new
         }
         stageHeightProperty.addListener {_, _, new ->
-            testStageHeight.setValueAndNotify(new as Double)
+            testStageHeight.setValueAndNotify(new as Double, BroadcastType.STAGE_HEIGHT)
         }
     }
 

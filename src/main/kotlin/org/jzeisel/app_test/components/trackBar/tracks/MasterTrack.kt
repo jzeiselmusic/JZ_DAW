@@ -7,13 +7,12 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 
 class MasterTrack(root: StackPane, override val parent: Widget)
     : Track(root, parent), Widget {
-    companion object {
-        const val TAG = "MasterTrack"
-    }
+
     override val name = "Master"
     override val children = mutableListOf<Widget>()
     override var trackOffsetY: Double = trackListViewModel.masterOffsetY
@@ -35,13 +34,13 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
 
-    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
-        when (observable) {
-            trackListViewModel.currentDividerOffset -> {
+    override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
+        when (broadcastType) {
+            BroadcastType.DIVIDER -> {
                 trackDivider.translateX = new
                 waveFormBox.respondToDividerShift(new)
             }
-            trackListViewModel.testStageWidth -> {
+            BroadcastType.STAGE_WIDTH -> {
                 val amtChange = (new - old) / 2.0
                 trackWidth = new
                 trackRectangle.width = new
@@ -54,7 +53,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
                 trackLabel.translateX -= amtChange
                 trackLabelNumber.translateX -= amtChange
             }
-            trackListViewModel.testStageHeight -> {
+            BroadcastType.STAGE_HEIGHT -> {
                 trackOffsetY -= (new - old) / 2.0
                 trackRectangle.translateY = trackOffsetY
                 headerBar.translateY = trackOffsetY  - trackRectangle.height/2.0 - 6.0
@@ -65,6 +64,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
                 trackLabelNumber.translateY = trackOffsetY
                 trackListViewModel.masterOffsetY = trackOffsetY
             }
+            BroadcastType.INDEX -> {}
         }
     }
 

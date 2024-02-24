@@ -7,6 +7,7 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
@@ -37,12 +38,12 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
 
-    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
-        when (observable) {
-            trackListViewModel.currentDividerOffset -> {
+    override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
+        when (broadcastType) {
+            BroadcastType.DIVIDER -> {
                 trackDivider.translateX = new
             }
-            trackListViewModel.testStageWidth -> {
+            BroadcastType.STAGE_WIDTH -> {
                 val amtChange = (new - old) / 2.0
                 trackWidth = new
                 trackRectangle.width = new
@@ -54,7 +55,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
                 trackLabel.translateX -= amtChange
                 trackLabelNumber.translateX -= amtChange
             }
-            trackListViewModel.testStageHeight -> {
+            BroadcastType.STAGE_HEIGHT -> {
                 trackOffsetY -= (new - old) / 2.0
                 trackRectangle.translateY = trackOffsetY
                 trackDivider.translateY = trackOffsetY
@@ -63,6 +64,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
                 trackLabel.translateY = trackOffsetY
                 trackLabelNumber.translateY = trackOffsetY
             }
+            BroadcastType.INDEX -> {}
         }
     }
 
@@ -82,7 +84,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         val newIndex = new.indexOf(this)
         trackOffsetY = trackListViewModel.masterOffsetY + (newIndex+1)*initialTrackHeight
         name = (newIndex+1).toString()
-        index.setValueAndNotify(newIndex.toDouble())
+        index.setValueAndNotify(newIndex.toDouble(), BroadcastType.INDEX)
         (trackListViewModel.masterOffsetY + trackListViewModel.trackHeight*(newIndex+1)).let{
             trackRectangle.translateY = it
             trackDivider.translateY = it

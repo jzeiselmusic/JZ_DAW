@@ -10,6 +10,7 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
@@ -130,11 +131,12 @@ class VUMeter(override val parent: Widget)
         vuMeterRectangle.translateY = vuMeterOffsetY
     }
 
-    override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
-        when (observable) {
-            trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
-            trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
-            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
+    override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
+        when (broadcastType) {
+            BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
+            BroadcastType.STAGE_WIDTH -> respondToWidthChange(old, new)
+            BroadcastType.INDEX -> respondToIndexChange(old, new)
+            BroadcastType.DIVIDER -> {}
         }
     }
 

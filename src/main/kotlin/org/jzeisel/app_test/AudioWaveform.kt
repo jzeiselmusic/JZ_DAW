@@ -6,7 +6,7 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import org.jzeisel.app_test.logger.Logger
-import org.jzeisel.app_test.util.EventBroadcaster
+import org.jzeisel.app_test.util.MouseEventBroadcaster
 
 class AudioWaveform : Application() {
     companion object {
@@ -32,7 +32,7 @@ class AudioWaveform : Application() {
 
         trackListViewModel = TrackListViewModel(root, stage)
 
-        EventBroadcaster.initializeBroadcasts(root, scene, trackListViewModel)
+        MouseEventBroadcaster.initializeBroadcasts(root, scene, trackListViewModel)
 
         trackListViewModel.addMeToScene(root)
         stage.show()
