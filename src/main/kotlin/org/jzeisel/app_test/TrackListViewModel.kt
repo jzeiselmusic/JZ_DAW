@@ -17,10 +17,6 @@ import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
 
 class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
-    companion object {
-        const val TAG = "TrackList"
-        const val LEVEL = 0
-    }
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
 
@@ -79,11 +75,11 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     /* all TrackList children will be NormalTracks */
     override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) {
         _, old, new ->
-            for (child in children) {
-                val t = child as NormalTrack
-                t.respondToChangeInTrackList(old, new)
-            }
-            cursorFollower.updateFromTrackList(root)
+        for (child in children) {
+            val t = child as NormalTrack
+            t.respondToChangeInTrackList(old, new)
+        }
+        cursorFollower.updateFromTrackList(root)
     }
 
     val numChildren: Int
@@ -93,7 +89,6 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         children = children.toMutableList().apply {
             add((child as NormalTrack).index.getValue().toInt(), child)
         }
-        currentDividerOffset.addListener(child as ObservableListener<Double>)
     }
 
     override fun addMeToScene(root: StackPane) {
