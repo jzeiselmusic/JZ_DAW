@@ -10,7 +10,6 @@ class Observable<DataType>(initialValue: DataType) {
     }
 
     fun setValueAndNotify(newValue: DataType, broadcastType: BroadcastType) {
-        performOnChange()
         val prevValue = value
         if (newValue != value) {
             value = newValue
@@ -19,7 +18,6 @@ class Observable<DataType>(initialValue: DataType) {
     }
 
     fun setValue(newValue: DataType) {
-        performOnChange()
         if (newValue != value) {
             value = newValue
         }
@@ -37,9 +35,5 @@ class Observable<DataType>(initialValue: DataType) {
         for (listener in listeners) {
             listener.respondToChange(broadcastType, oldValue, newValue)
         }
-    }
-
-    fun setPerformOnChange(func: ()->Unit) {
-        performOnChange = func
     }
 }
