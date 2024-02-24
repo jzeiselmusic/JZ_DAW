@@ -6,6 +6,8 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
+import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
@@ -13,9 +15,11 @@ class VUBar(color: Color, private var barOffsetY: Double,
             override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
 
-    private val barWidth = (parent as VUMeter).vuMeterWidth - 4.0
-    private val barHeight = (parent as VUMeter).barHeight
-    private var barOffsetX = (parent as VUMeter).vuMeterOffsetX
+    private val parentVUMeter = parent as VUMeter
+    private val parentTrack = parentVUMeter.parent as Track
+    private val barWidth = parentVUMeter.vuMeterWidth - 4.0
+    private val barHeight = parentVUMeter.barHeight
+    private var barOffsetX = parentVUMeter.vuMeterOffsetX
     private val barRectangle = Rectangle(barWidth, barHeight, color)
 
     override val children = mutableListOf<Widget>()
@@ -62,20 +66,33 @@ class VUBar(color: Color, private var barOffsetY: Double,
         }
     }
 
+    override fun respondToIndexChange(old: Double, new: Double) {
+        val indexShift = new - old
+        barOffsetY += parentVUMeter.trackListViewModel.trackHeight * indexShift
+        barRectangle.translateY = barOffsetY
+    }
+
     override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
         when (observable) {
-            (parent as VUMeter).trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
-            parent.trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            parentVUMeter.trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            parentVUMeter.trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
     override fun registerForBroadcasts() {
-        (parent as VUMeter).trackListViewModel.registerForWidthChanges(this)
-        parent.trackListViewModel.registerForHeightChanges(this)
+        parentVUMeter.trackListViewModel.registerForWidthChanges(this)
+        parentVUMeter.trackListViewModel.registerForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
-        (parent as VUMeter).trackListViewModel.unregisterForWidthChanges(this)
-        parent.trackListViewModel.unregisterForHeightChanges(this)
+        parentVUMeter.trackListViewModel.unregisterForWidthChanges(this)
+        parentVUMeter.trackListViewModel.unregisterForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 }

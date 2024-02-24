@@ -9,6 +9,7 @@ import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
@@ -97,6 +98,7 @@ class WaveFormBox(override val parent: Widget) :
             trackListViewModel.currentDividerOffset -> respondToDividerShift(new)
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
             trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
@@ -104,12 +106,18 @@ class WaveFormBox(override val parent: Widget) :
         trackListViewModel.registerForDividerOffsetChanges(this)
         trackListViewModel.registerForWidthChanges(this)
         trackListViewModel.registerForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForHeightChanges(this)
         trackListViewModel.unregisterForDividerOffsetChanges(this)
         trackListViewModel.unregisterForWidthChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.unregisterForIndexChanges(this)
+        }
     }
 
     private fun color(): Color? = trackListViewModel.generalGray.darker()
@@ -173,6 +181,16 @@ class WaveFormBox(override val parent: Widget) :
             for (tick in ticksForMasterTrack) {
                 tick.translateX -= it
             }
+        }
+    }
+
+    override fun respondToIndexChange(old: Double, new: Double) {
+        trackRectangle.translateY = parentTrack.trackOffsetY
+        for (measureDivider in measureDividers) {
+            measureDivider.translateY = parentTrack.trackOffsetY
+        }
+        for (tickDivider in beatDividers) {
+            tickDivider.translateY = parentTrack.trackOffsetY
         }
     }
 

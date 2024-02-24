@@ -157,4 +157,8 @@ class TextField(private val parentRect: Rectangle,
             text.translateX -= it
         }
     }
+
+    override fun respondToIndexChange(old: Double, new: Double) {
+        /* not necessary for text field */
+    }
 }

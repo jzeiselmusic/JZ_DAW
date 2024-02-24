@@ -120,6 +120,10 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
         }
     }
 
+    override fun respondToIndexChange(old: Double, new: Double) {
+        /* not necessary for drop down box */
+    }
+
     override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
         when (observable) {
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)

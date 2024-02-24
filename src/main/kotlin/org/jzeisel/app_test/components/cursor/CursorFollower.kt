@@ -141,4 +141,8 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
             }
         }
     }
+
+    override fun respondToIndexChange(old: Double, new: Double) {
+        /* not necessary for cursor follower */
+    }
 }

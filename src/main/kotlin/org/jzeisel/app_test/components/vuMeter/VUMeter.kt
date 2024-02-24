@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.Observable
@@ -14,10 +15,7 @@ import org.jzeisel.app_test.util.ObservableListener
 
 class VUMeter(override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "VUMeter"
-        const val LEVEL = 3
-    }
+
     /* object that represents a single VUMeter */
     /* made of 2 rectangles and a set of numBars Bars */
     private val parentTrack = parent as Track
@@ -37,8 +35,6 @@ class VUMeter(override val parent: Widget)
     override val children = mutableListOf<Widget>()
 
     init {
-        Logger.debug(TAG, "instantiated: parent is ${parentTrack.name}", LEVEL)
-        Logger.debug(TAG, "\t y-offset is $vuMeterOffsetY", LEVEL)
         vuMeterRectangle.translateX = vuMeterOffsetX
         vuMeterRectangle.translateY = vuMeterOffsetY
         vuMeterRectangle.arcWidth = trackListViewModel.arcSize
@@ -129,20 +125,32 @@ class VUMeter(override val parent: Widget)
         }
     }
 
+    override fun respondToIndexChange(old: Double, new: Double) {
+        vuMeterOffsetY = parentTrack.trackOffsetY
+        vuMeterRectangle.translateY = vuMeterOffsetY
+    }
+
     override fun respondToChange(observable: Observable<*>, old: Double, new: Double) {
         when (observable) {
             trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
     override fun registerForBroadcasts() {
         trackListViewModel.registerForWidthChanges(this)
         trackListViewModel.registerForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 }

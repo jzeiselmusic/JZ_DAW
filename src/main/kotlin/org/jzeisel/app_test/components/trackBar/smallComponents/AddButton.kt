@@ -17,16 +17,14 @@ import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import java.util.*
 
-class AddButton(override val parent: Widget): Widget, TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "AddButton"
-        const val LEVEL = 3
-    }
+class AddButton(override val parent: Widget)
+    : Widget, TrackComponentWidget, ObservableListener<Double> {
+
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     private val buttonWidth = trackListViewModel.buttonSize
     private val buttonHeight = trackListViewModel.buttonSize
-    private val buttonOffsetY = parentTrack.trackOffsetY
+    private var buttonOffsetY = parentTrack.trackOffsetY
     private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.addButtonOffset
     override val children = mutableListOf<Widget>()
 
@@ -58,8 +56,6 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget, Obse
                                         }
 
     init {
-        Logger.debug(TAG, "instantiated: parent is ${parentTrack.name}", LEVEL)
-        Logger.debug(TAG, "\t y-offset is $buttonOffsetY", LEVEL)
         buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
         buttonRect.arcWidth = trackListViewModel.arcSize
@@ -86,6 +82,7 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget, Obse
         when(observable) {
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
             trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
@@ -150,13 +147,30 @@ class AddButton(override val parent: Widget): Widget, TrackComponentWidget, Obse
         }
     }
 
+    override fun respondToIndexChange(old: Double, new: Double) {
+        if (parentTrack is NormalTrack) {
+            Logger.debug(javaClass.simpleName, "${parentTrack.name} responding to index changes", 4)
+            buttonOffsetY = parentTrack.trackOffsetY
+            buttonRect.translateY = buttonOffsetY
+            verticalLine.translateY = buttonOffsetY
+            horizontalLine.translateY = buttonOffsetY
+        }
+    }
+
     override fun registerForBroadcasts() {
         trackListViewModel.registerForWidthChanges(this)
         trackListViewModel.registerForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            Logger.debug(javaClass.simpleName, "${parentTrack.name} registering for index changes", 4)
+            parentTrack.unregisterForIndexChanges(this)
+        }
     }
 }

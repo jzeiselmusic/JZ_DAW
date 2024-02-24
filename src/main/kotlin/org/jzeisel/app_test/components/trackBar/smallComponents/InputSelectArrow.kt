@@ -18,10 +18,7 @@ import org.jzeisel.app_test.util.ObservableListener
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
             : Widget, TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "InputSelectArrow"
-        const val LEVEL = 4
-    }
+
     override val children: MutableList<Widget> = mutableListOf()
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
@@ -68,17 +65,24 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         when (observable) {
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
             trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
     override fun registerForBroadcasts() {
         trackListViewModel.registerForHeightChanges(this)
         trackListViewModel.registerForWidthChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.unregisterForIndexChanges(this)
+        }
     }
 
     override fun addChild(child: Widget) {
@@ -110,7 +114,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     }
 
     private fun selectionChosen(index: Int) {
-        Logger.debug(TAG, "chose index $index", LEVEL)
+        Logger.debug(javaClass.simpleName, "chose index $index", 5)
         (parentTrack as NormalTrack).setAudioInputIndex(index)
     }
 
@@ -125,6 +129,13 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         ((new - old)/2.0).let {
             inputSelectRectangle.translateX -= it
             inputSelectArrow.translateX -= it
+        }
+    }
+
+    override fun respondToIndexChange(old: Double, new: Double) {
+        (parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets).let {
+            inputSelectRectangle.translateY = it
+            inputSelectArrow.translateY = it
         }
     }
 }

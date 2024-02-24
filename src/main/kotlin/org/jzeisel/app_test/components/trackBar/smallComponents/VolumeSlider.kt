@@ -8,6 +8,7 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.Observable
@@ -16,9 +17,7 @@ import org.jzeisel.app_test.util.animateObjectScale
 
 class VolumeSlider(override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "VolumeSlider"
-    }
+
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     override val children = mutableListOf<Widget>()
@@ -83,17 +82,24 @@ class VolumeSlider(override val parent: Widget)
         when (observable) {
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
             trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
     override fun registerForBroadcasts() {
         trackListViewModel.registerForHeightChanges(this)
         trackListViewModel.registerForWidthChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForHeightChanges(this)
         trackListViewModel.unregisterForWidthChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.unregisterForIndexChanges(this)
+        }
     }
 
     override fun addChild(child: Widget) {
@@ -124,6 +130,13 @@ class VolumeSlider(override val parent: Widget)
         ((new - old)/2.0).let {
             sliderCircle.translateX -= it
             sliderBar.translateX -= it
+        }
+    }
+
+    override fun respondToIndexChange(old: Double, new: Double) {
+        (parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets).let {
+            sliderBar.translateY = it
+            sliderCircle.translateY = it
         }
     }
 }

@@ -8,23 +8,20 @@ import org.jzeisel.app_test.components.trackBar.smallComponents.*
 import org.jzeisel.app_test.components.vuMeter.VUMeter
 import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.Observable
+import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,
                   initialIndex: Int, progenitor: Track)
     : Track(root, parent), Widget {
-    companion object {
-        const val TAG = "NormalTrack"
-        const val LEVEL = 1
-    }
+
     override var name: String by Delegates.observable ((initialIndex + 1).toString()) {
         _, _, new ->
         trackLabelNumber.text = new
         if (!inputNameBox.nameSetByUser) inputNameBox.name = "Track $new"
     }
 
-    var index = initialIndex
-
+    var index = Observable(initialIndex.toDouble())
     override var trackOffsetY: Double = progenitor.trackOffsetY + trackListViewModel.trackHeight
     var trackWidth: Double = initialTrackWidth
     override val children = mutableListOf<Widget>()
@@ -82,10 +79,17 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     fun respondToChangeInTrackList(old: List<Widget>, new: List<Widget>) {
-        index = new.indexOf(this)
-        trackOffsetY = trackListViewModel.masterOffsetY + (index+1)*initialTrackHeight
-        name = (index+1).toString()
-        Logger.debug(TAG, "track $name new index is $index", LEVEL)
+        val newIndex = new.indexOf(this)
+        trackOffsetY = trackListViewModel.masterOffsetY + (newIndex+1)*initialTrackHeight
+        name = (newIndex+1).toString()
+        index.setValueAndNotify(newIndex.toDouble())
+        (trackListViewModel.masterOffsetY + trackListViewModel.trackHeight*(newIndex+1)).let{
+            trackRectangle.translateY = it
+            trackDivider.translateY = it
+            trackLabel.translateY = it
+            labelDivider.translateY = it
+            trackLabelNumber.translateY = it
+        }
     }
 
     override fun addMeToScene(root: StackPane) {
@@ -143,6 +147,14 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     override fun characterText(character: KeyEvent) {
         inputNameBox.characterText(character)
+    }
+
+    fun registerForIndexChanges(listener: ObservableListener<Double>) {
+        index.addListener(listener)
+    }
+
+    fun unregisterForIndexChanges(listener: ObservableListener<Double>) {
+        index.removeListener(listener)
     }
 
     fun audioInputEnable(): Boolean {

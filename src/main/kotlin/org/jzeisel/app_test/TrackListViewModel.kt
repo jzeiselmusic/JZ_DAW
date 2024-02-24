@@ -23,6 +23,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
+
     var trackHeight: Double = 100.0
     var trackWidth: Double = stageWidthProperty.value
     /* sizes */
@@ -90,7 +91,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     override fun addChild(child: Widget) {
         children = children.toMutableList().apply {
-            add((child as NormalTrack).index, child)
+            add((child as NormalTrack).index.getValue().toInt(), child)
         }
         currentDividerOffset.addListener(child as ObservableListener<Double>)
     }
@@ -108,7 +109,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         /* tell this function which child called it */
         /* if called by index -1, then called by master */
         val newTrack = NormalTrack(root, this,
-                (child as NormalTrack).index + 1, child as Track)
+                (child as NormalTrack).index.getValue().toInt() + 1, child as Track)
         newTrack.addMeToScene(root)
         addChild(newTrack)
     }

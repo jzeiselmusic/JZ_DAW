@@ -13,14 +13,13 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.textfield.TextField
 import org.jzeisel.app_test.components.trackBar.tracks.Track
 import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
+import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 class InputNameBox(private val root: StackPane, override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "InputNameBox"
-    }
+
     override val children = mutableListOf<Widget>()
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
@@ -78,17 +77,24 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
         when (observable) {
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
             trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
     override fun registerForBroadcasts() {
         trackListViewModel.registerForHeightChanges(this)
         trackListViewModel.registerForWidthChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.unregisterForIndexChanges(this)
+        }
     }
 
     override fun addChild(child: Widget) {
@@ -118,6 +124,11 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
             generalBox.translateX -= it
             nameText.translateX -= it
         }
+    }
+
+    override fun respondToIndexChange(old: Double, new: Double) {
+        generalBox.translateY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
+        nameText.translateY = generalBox.translateY
     }
 
     fun backspaceText() {

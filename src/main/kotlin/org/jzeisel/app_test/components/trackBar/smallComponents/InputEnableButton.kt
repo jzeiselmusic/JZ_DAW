@@ -18,16 +18,13 @@ import org.jzeisel.app_test.util.ObservableListener
 
 class InputEnableButton(override val parent: Widget?)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "InputEnableButton"
-        const val LEVEL = 3
-    }
+
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     private var isEnabled: Boolean = false
     private val buttonWidth = trackListViewModel.buttonSize
     private val buttonHeight = trackListViewModel.buttonSize
-    private val buttonOffsetY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
+    private var buttonOffsetY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
     private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputButtonsOffset
     override val children = mutableListOf<Widget>()
 
@@ -62,17 +59,24 @@ class InputEnableButton(override val parent: Widget?)
         when(observable) {
             trackListViewModel.testStageWidth -> respondToWidthChange(old, new)
             trackListViewModel.testStageHeight -> respondToHeightChange(old, new)
+            (parentTrack as NormalTrack).index -> respondToIndexChange(old, new)
         }
     }
 
     override fun registerForBroadcasts() {
         trackListViewModel.registerForWidthChanges(this)
         trackListViewModel.registerForHeightChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.registerForIndexChanges(this)
+        }
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForHeightChanges(this)
         trackListViewModel.unregisterForWidthChanges(this)
+        if (parentTrack is NormalTrack) {
+            parentTrack.unregisterForIndexChanges(this)
+        }
     }
 
     private fun mouseReleaseLeft() {
@@ -120,6 +124,12 @@ class InputEnableButton(override val parent: Widget?)
             buttonRect.translateX -= it
             iImageView.translateX -= it
         }
+    }
+
+    override fun respondToIndexChange(old: Double, new: Double) {
+        buttonOffsetY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
+        iImageView.translateY = buttonOffsetY
+        buttonRect.translateY = buttonOffsetY
     }
 
 }

@@ -4,4 +4,6 @@ interface TrackComponentWidget {
     fun respondToHeightChange(old: Double, new: Double)
 
     fun respondToWidthChange(old: Double, new: Double)
+
+    fun respondToIndexChange(old: Double, new: Double)
 }
