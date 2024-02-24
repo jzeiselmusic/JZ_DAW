@@ -1,14 +1,12 @@
-package org.jzeisel.app_test.components.trackBar.tracks
+package org.jzeisel.app_test.components
 
 import javafx.application.Platform
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.smallComponents.*
-import org.jzeisel.app_test.components.vuMeter.VUMeter
+import org.jzeisel.app_test.components.trackComponents.*
+import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 
 class MasterTrack(root: StackPane, override val parent: Widget)
     : Track(root, parent), Widget {

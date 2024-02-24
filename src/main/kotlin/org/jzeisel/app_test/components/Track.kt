@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.trackBar.tracks
+package org.jzeisel.app_test.components
 
 import javafx.event.EventHandler
 import javafx.scene.Cursor
@@ -9,9 +9,8 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import javafx.scene.text.Text
 import org.jzeisel.app_test.TrackListViewModel
-import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.smallComponents.*
-import org.jzeisel.app_test.components.vuMeter.VUMeter
+import org.jzeisel.app_test.components.trackComponents.*
+import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.math.abs

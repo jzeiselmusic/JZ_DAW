@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.trackBar.smallComponents
+package org.jzeisel.app_test.components.trackComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -8,11 +8,10 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
-import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.components.trackBar.tracks.Track
+import org.jzeisel.app_test.components.MasterTrack
+import org.jzeisel.app_test.components.NormalTrack
+import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 class WaveFormBox(override val parent: Widget) :

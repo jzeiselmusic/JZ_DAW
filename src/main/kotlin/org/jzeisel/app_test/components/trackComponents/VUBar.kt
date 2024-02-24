@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.vuMeter
+package org.jzeisel.app_test.components.trackComponents
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
@@ -6,10 +6,9 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.components.trackBar.tracks.Track
+import org.jzeisel.app_test.components.NormalTrack
+import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 class VUBar(color: Color, private var barOffsetY: Double,

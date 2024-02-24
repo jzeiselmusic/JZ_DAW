@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.vuMeter
+package org.jzeisel.app_test.components.trackComponents
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
@@ -7,11 +7,9 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.components.trackBar.tracks.Track
-import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.components.NormalTrack
+import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 class VUMeter(override val parent: Widget)
@@ -71,8 +69,10 @@ class VUMeter(override val parent: Widget)
                 color = Color.YELLOW.brighter()
             }
             else color = Color.RED.brighter()
-            addChild(VUBar(color, vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
-                                - (bar * (barHeight + barSep)), this))
+            addChild(
+                VUBar(color, vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
+                                - (bar * (barHeight + barSep)), this)
+            )
         }
         Platform.runLater {
             for (bar in children) {

@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.dropdownbox
+package org.jzeisel.app_test.components.ephemeral
 
 import javafx.animation.PauseTransition
 import javafx.application.Platform
@@ -11,7 +11,6 @@ import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 class DropDownBox(stringList: List<String>, parent: Rectangle,

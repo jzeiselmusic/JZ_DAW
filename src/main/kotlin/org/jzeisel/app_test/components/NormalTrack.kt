@@ -1,19 +1,18 @@
-package org.jzeisel.app_test.components.trackBar.tracks
+package org.jzeisel.app_test.components
 
 import javafx.application.Platform
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
-import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.smallComponents.*
-import org.jzeisel.app_test.components.vuMeter.VUMeter
-import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.components.trackComponents.*
+import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,
-                  initialIndex: Int, progenitor: Track)
+                  initialIndex: Int, progenitor: Track
+)
     : Track(root, parent), Widget {
 
     override var name: String by Delegates.observable ((initialIndex + 1).toString()) {

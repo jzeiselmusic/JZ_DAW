@@ -8,10 +8,10 @@ import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.cursor.CursorFollower
-import org.jzeisel.app_test.components.trackBar.tracks.MasterTrack
-import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.components.trackBar.tracks.Track
+import org.jzeisel.app_test.components.singletons.CursorFollower
+import org.jzeisel.app_test.components.MasterTrack
+import org.jzeisel.app_test.components.NormalTrack
+import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
@@ -105,7 +105,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         /* tell this function which child called it */
         /* if called by index -1, then called by master */
         val newTrack = NormalTrack(root, this,
-                (child as NormalTrack).index.getValue().toInt() + 1, child as Track)
+                (child as NormalTrack).index.getValue().toInt() + 1, child as Track
+        )
         newTrack.addMeToScene(root)
         addChild(newTrack)
     }

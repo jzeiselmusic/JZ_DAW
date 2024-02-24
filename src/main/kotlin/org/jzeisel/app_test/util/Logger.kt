@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.logger
+package org.jzeisel.app_test.util
 
 import com.andreapivetta.kolor.*
 

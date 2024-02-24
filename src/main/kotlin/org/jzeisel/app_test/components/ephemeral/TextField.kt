@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.textfield
+package org.jzeisel.app_test.components.ephemeral
 
 import javafx.animation.KeyFrame
 import javafx.animation.PauseTransition
@@ -14,9 +14,7 @@ import javafx.scene.text.Text
 import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
-import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 

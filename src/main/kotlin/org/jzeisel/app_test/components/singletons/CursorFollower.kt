@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.cursor
+package org.jzeisel.app_test.components.singletons
 
 import javafx.application.Platform
 import javafx.scene.layout.StackPane
@@ -7,9 +7,7 @@ import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
-import org.jzeisel.app_test.logger.Logger
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 
 object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
@@ -25,7 +23,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         get() { return (trackListViewModel.numChildren + 1) * trackListViewModel.trackHeight }
 
     private val rectangleTranslateY: Double
-        get() { return trackListViewModel.masterOffsetY - trackListViewModel.trackHeight/2.0 + rectangleHeight/2.0 }
+        get() { return trackListViewModel.masterOffsetY - trackListViewModel.trackHeight/2.0 + rectangleHeight /2.0 }
 
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
@@ -123,7 +121,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     }
 
     fun initialize(trackListViewModel: TrackListViewModel){
-        this.trackListViewModel = trackListViewModel
+        CursorFollower.trackListViewModel = trackListViewModel
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {

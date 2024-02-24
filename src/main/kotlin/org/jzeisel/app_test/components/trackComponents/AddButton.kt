@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.components.trackBar.smallComponents
+package org.jzeisel.app_test.components.trackComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -10,11 +10,10 @@ import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.trackBar.tracks.NormalTrack
-import org.jzeisel.app_test.components.trackBar.tracks.Track
-import org.jzeisel.app_test.logger.Logger
+import org.jzeisel.app_test.components.NormalTrack
+import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import java.util.*
 
