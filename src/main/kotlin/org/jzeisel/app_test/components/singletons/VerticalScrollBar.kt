@@ -12,7 +12,7 @@ import org.jzeisel.app_test.util.ObservableListener
 object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var scrollRectangle: Rectangle
-    private var isShowing = false
+    var isShowing = false
 
     private val stageHeight: Double get() { return trackListViewModel.testStageHeight.getValue() }
     private val stageWidth: Double get() { return trackListViewModel.testStageWidth.getValue() }
@@ -34,7 +34,7 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     }
 
     fun removeMeFromScene(root: StackPane) {
-        if (CursorFollower.isShowing) {
+        if (isShowing) {
             Platform.runLater {
                 unregisterForBroadcasts()
                 root.children.remove(scrollRectangle)

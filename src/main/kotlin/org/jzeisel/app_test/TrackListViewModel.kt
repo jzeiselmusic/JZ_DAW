@@ -1,11 +1,13 @@
 package org.jzeisel.app_test
 
+import javafx.animation.PauseTransition
 import javafx.scene.paint.Color
 import javafx.application.Platform
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
+import javafx.util.Duration
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
@@ -135,7 +137,6 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
             track.inputNameBox.exitTextField(root)
         }
         masterTrack.inputNameBox.exitTextField(root)
-        showVerticalScrollBar()
     }
 
     fun broadcastBackSpace() {
@@ -169,7 +170,14 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
 
     fun showVerticalScrollBar() {
-        verticalScrollBar.addMeToScene(root)
+        if (!verticalScrollBar.isShowing) {
+            verticalScrollBar.addMeToScene(root)
+            val delay = PauseTransition(Duration.millis(1000.0));
+            delay.setOnFinished {
+                verticalScrollBar.removeMeFromScene(root)
+            }
+            delay.play()
+        }
     }
 
     fun registerForWidthChanges(listener: ObservableListener<Double>) {

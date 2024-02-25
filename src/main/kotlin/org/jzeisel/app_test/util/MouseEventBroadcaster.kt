@@ -4,6 +4,7 @@ import javafx.scene.Scene
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
+import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.StackPane
 import org.jzeisel.app_test.TrackListViewModel
 
@@ -21,6 +22,9 @@ object MouseEventBroadcaster {
         }
         scene.addEventFilter(KeyEvent.KEY_PRESSED) {
             broadcastKeyPressForTyping(it)
+        }
+        scene.addEventFilter(ScrollEvent.SCROLL) {
+            trackListViewModel.showVerticalScrollBar()
         }
     }
 
