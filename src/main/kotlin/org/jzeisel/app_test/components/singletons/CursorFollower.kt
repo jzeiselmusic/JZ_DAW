@@ -11,11 +11,7 @@ import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 
 object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
-    const val TAG = "CursorFollower"
-    /* the cursor follower should appear when the user hovers over the waveform box
-       then it follows the mouse until the mouse exits the waveform box.
 
-       The cursor follower should be the height of all the tracks in the scene together */
     private lateinit var trackListViewModel: TrackListViewModel
     var isShowing = false
     private var rectangleWidth = 1.8

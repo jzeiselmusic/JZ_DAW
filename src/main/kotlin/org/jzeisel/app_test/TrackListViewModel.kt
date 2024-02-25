@@ -12,6 +12,7 @@ import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
@@ -55,14 +56,14 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     private val masterTrack: MasterTrack = MasterTrack(root,this)
 
-    private val cursorFollower: CursorFollower = CursorFollower
+    private val cursorFollower = CursorFollower
+    private val verticalScrollBar = VerticalScrollBar
 
     private var trackSelected: Track? = null
 
     init {
         cursorFollower.initialize(this)
-        currentDividerOffset.addListener(cursorFollower)
-        currentDividerOffset.addListener(masterTrack as ObservableListener<Double>)
+        verticalScrollBar.initialize(this)
         stageWidthProperty.addListener { _, _, new ->
             testStageWidth.setValueAndNotify(new as Double, BroadcastType.STAGE_WIDTH)
             trackWidth = new
@@ -134,6 +135,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
             track.inputNameBox.exitTextField(root)
         }
         masterTrack.inputNameBox.exitTextField(root)
+        showVerticalScrollBar()
     }
 
     fun broadcastBackSpace() {
@@ -164,6 +166,10 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     fun setTrackSelected(track: Track) {
         trackSelected = track
         track.setSelected()
+    }
+
+    fun showVerticalScrollBar() {
+        verticalScrollBar.addMeToScene(root)
     }
 
     fun registerForWidthChanges(listener: ObservableListener<Double>) {
