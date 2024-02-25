@@ -14,16 +14,24 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var scrollRectangle: Rectangle
     var isShowing = false
 
-    private val stageHeight: Double get() { return trackListViewModel.testStageHeight.getValue() }
-    private val stageWidth: Double get() { return trackListViewModel.testStageWidth.getValue() }
+    private val stageHeight: Double get() { return trackListViewModel.observableStageHeight.getValue() }
+    private val stageWidth: Double get() { return trackListViewModel.observableStageWidth.getValue() }
     fun initialize(trackListViewModel: TrackListViewModel){
         this.trackListViewModel = trackListViewModel
     }
 
+    private fun Double.saturateAt(max: Double, min: Double): Double {
+        if (this > max) return max
+        else if (this < min) return min
+        else return this
+    }
+
     fun addMeToScene(root: StackPane) {
-        scrollRectangle = Rectangle(8.0, stageHeight - 20.0 , Color.DARKGRAY.darker())
+        var percentVisible = (stageHeight / trackListViewModel.totalHeightOfAllTracks).saturateAt(1.0, 0.0)
+        val barHeight = percentVisible * (stageHeight - 20.0)
+        scrollRectangle = Rectangle(8.0, barHeight, Color.DARKGRAY.darker())
         scrollRectangle.translateX = stageWidth / 2.0 - 10.0
-        scrollRectangle.translateY = 10.0
+        scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 10.0
         scrollRectangle.opacity = 0.8
         scrollRectangle.arcWidth = 5.0
         scrollRectangle.arcHeight = 5.0

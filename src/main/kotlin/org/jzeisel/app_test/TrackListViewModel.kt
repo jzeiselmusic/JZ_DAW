@@ -23,9 +23,24 @@ import kotlin.properties.Delegates
 class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
-
     var trackHeight: Double = 100.0
     var trackWidth: Double = stageWidthProperty.value
+    val topOfTracks: Double get() { return masterOffsetY - trackHeight/2.0 }
+    val bottomOfTracks: Double get() { return topOfTracks + trackHeight*numTracks }
+    val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
+
+    val numChildren: Int get() { return children.size }
+    val numTracks: Int get() { return numChildren + 1 }
+
+    override val parent: Widget? = null
+    /* all TrackList children will be NormalTracks */
+    override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) {_, old, new ->
+        for (child in children) {
+            val t = child as NormalTrack
+            t.respondToChangeInTrackList(old, new)
+        }
+        cursorFollower.updateFromTrackList(root)
+    }
     /* sizes */
     val separationDistance = 45.0
     val inputNameBoxWidth = separationDistance*2.0
@@ -51,8 +66,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     /* observable variables */
     var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + 310.0)
-    var testStageWidth = Observable<Double>(stageWidthProperty.value)
-    var testStageHeight = Observable<Double>(stageHeightProperty.value)
+    var observableStageWidth = Observable<Double>(stageWidthProperty.value)
+    var observableStageHeight = Observable<Double>(stageHeightProperty.value)
     /*      *****      */
     val audioInputManager = AudioInputManager(this)
 
@@ -67,27 +82,13 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         cursorFollower.initialize(this)
         verticalScrollBar.initialize(this)
         stageWidthProperty.addListener { _, _, new ->
-            testStageWidth.setValueAndNotify(new as Double, BroadcastType.STAGE_WIDTH)
+            observableStageWidth.setValueAndNotify(new as Double, BroadcastType.STAGE_WIDTH)
             trackWidth = new
         }
         stageHeightProperty.addListener {_, _, new ->
-            testStageHeight.setValueAndNotify(new as Double, BroadcastType.STAGE_HEIGHT)
+            observableStageHeight.setValueAndNotify(new as Double, BroadcastType.STAGE_HEIGHT)
         }
     }
-
-    override val parent: Widget? = null
-    /* all TrackList children will be NormalTracks */
-    override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) {
-        _, old, new ->
-        for (child in children) {
-            val t = child as NormalTrack
-            t.respondToChangeInTrackList(old, new)
-        }
-        cursorFollower.updateFromTrackList(root)
-    }
-
-    val numChildren: Int
-        get() = children.size
 
     override fun addChild(child: Widget) {
         children = children.toMutableList().apply {
@@ -181,19 +182,19 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     }
 
     fun registerForWidthChanges(listener: ObservableListener<Double>) {
-        testStageWidth.addListener(listener)
+        observableStageWidth.addListener(listener)
     }
 
     fun unregisterForWidthChanges(listener: ObservableListener<Double>) {
-        testStageWidth.removeListener(listener)
+        observableStageWidth.removeListener(listener)
     }
 
     fun registerForHeightChanges(listener: ObservableListener<Double>) {
-        testStageHeight.addListener(listener)
+        observableStageHeight.addListener(listener)
     }
 
     fun unregisterForHeightChanges(listener: ObservableListener<Double>) {
-        testStageHeight.removeListener(listener)
+        observableStageHeight.removeListener(listener)
     }
 
     fun registerForDividerOffsetChanges(listener: ObservableListener<Double>) {

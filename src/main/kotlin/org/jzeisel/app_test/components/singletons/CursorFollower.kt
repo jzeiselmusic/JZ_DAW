@@ -16,7 +16,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     var isShowing = false
     private var rectangleWidth = 1.8
     private val rectangleHeight: Double
-        get() { return (trackListViewModel.numChildren + 1) * trackListViewModel.trackHeight }
+        get() { return trackListViewModel.numTracks * trackListViewModel.trackHeight }
 
     private val rectangleTranslateY: Double
         get() { return trackListViewModel.masterOffsetY - trackListViewModel.trackHeight/2.0 + rectangleHeight /2.0 }
