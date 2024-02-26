@@ -173,7 +173,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     fun showVerticalScrollBar() {
         if (!verticalScrollBar.isShowing) {
             verticalScrollBar.addMeToScene(root)
-            val delay = PauseTransition(Duration.millis(1000.0));
+            val delay = PauseTransition(Duration.millis(100.0));
             delay.setOnFinished {
                 verticalScrollBar.removeMeFromScene(root)
             }

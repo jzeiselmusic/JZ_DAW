@@ -28,11 +28,11 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
 
     fun addMeToScene(root: StackPane) {
         var percentVisible = (stageHeight / trackListViewModel.totalHeightOfAllTracks).saturateAt(1.0, 0.0)
-        val barHeight = percentVisible * (stageHeight - 20.0)
+        val barHeight = percentVisible * (stageHeight - 45.0)
         scrollRectangle = Rectangle(8.0, barHeight, Color.DARKGRAY.darker())
-        scrollRectangle.translateX = stageWidth / 2.0 - 10.0
-        scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 10.0
-        scrollRectangle.opacity = 0.8
+        scrollRectangle.translateX = stageWidth / 2.0 - 12.0
+        scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 23.0
+        scrollRectangle.opacity = 0.85
         scrollRectangle.arcWidth = 5.0
         scrollRectangle.arcHeight = 5.0
         scrollRectangle.toFront()
