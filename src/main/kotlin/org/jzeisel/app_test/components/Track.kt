@@ -68,7 +68,6 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         }
         trackRectangle.onMouseReleased = EventHandler {
             trackRectangle.opacity = 1.0
-            trackListViewModel.setTrackSelected(this)
         }
 
         trackDivider.translateY = trackOffsetY

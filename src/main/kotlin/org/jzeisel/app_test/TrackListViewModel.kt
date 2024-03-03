@@ -181,6 +181,10 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         }
     }
 
+    fun scroll(deltaY: Double) {
+        root.translateY -= deltaY
+    }
+
     fun registerForWidthChanges(listener: ObservableListener<Double>) {
         observableStageWidth.addListener(listener)
     }
