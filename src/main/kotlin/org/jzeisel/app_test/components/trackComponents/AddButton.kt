@@ -150,7 +150,6 @@ class AddButton(override val parent: Widget)
 
     override fun respondToIndexChange(old: Double, new: Double) {
         if (parentTrack is NormalTrack) {
-            Logger.debug(javaClass.simpleName, "${parentTrack.name} responding to index changes", 4)
             buttonOffsetY = parentTrack.trackOffsetY
             buttonRect.translateY = buttonOffsetY
             verticalLine.translateY = buttonOffsetY
@@ -170,7 +169,6 @@ class AddButton(override val parent: Widget)
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
         if (parentTrack is NormalTrack) {
-            Logger.debug(javaClass.simpleName, "${parentTrack.name} registering for index changes", 4)
             parentTrack.unregisterForIndexChanges(this)
         }
     }

@@ -15,6 +15,7 @@ import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar
+import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.Observable
@@ -112,7 +113,6 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         val newTrack = NormalTrack(root, this,
                 (child as NormalTrack).index.getValue().toInt() + 1, child as Track
         )
-        Logger.debug("actual", "${newTrack.trackOffsetY + trackHeight/2.0}", 3)
         newTrack.addMeToScene(root)
         addChild(newTrack)
     }
@@ -120,7 +120,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     fun addTrackFromMaster() {
         val newTrack = NormalTrack(root, this, 0, masterTrack)
         newTrack.addMeToScene(root)
-        Logger.debug("actual", "${newTrack.trackOffsetY + trackHeight/2.0}", 3)
+        Logger.debug("", "${verticalScrollBar.percentVisible}", 3)
         addChild(newTrack)
     }
 
@@ -173,7 +173,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         track.setSelected()
     }
 
-    fun showVerticalScrollBar() {
+    private fun showVerticalScrollBar() {
         if (!verticalScrollBar.isShowing) {
             verticalScrollBar.addMeToScene()
             val delay = PauseTransition(Duration.millis(200.0));
@@ -184,12 +184,17 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         }
     }
 
-    fun moveVerticalScrollBar(deltaY: Double) {
-        verticalScrollBar.moveScrollBar(deltaY)
+    private fun moveVerticalScrollBar(deltaY: Double, amountOfRoom: Double) {
+        showVerticalScrollBar()
+        verticalScrollBar.moveScrollBar(deltaY, amountOfRoom)
     }
 
     fun scrollSceneVertically(deltaY: Double) {
-        root.translateY -= deltaY
+        val newTranslate = (root.translateY + deltaY)
+        val amountOfRoom = (totalHeightOfAllTracks - observableStageHeight.getValue()).saturateAt(0.0, null)
+        if (amountOfRoom < 1.0) root.translateY = newTranslate.saturateAt(-amountOfRoom, 0.0)
+        else root.translateY = newTranslate.saturateAt(-amountOfRoom - 30.0, 0.0)
+        moveVerticalScrollBar(deltaY, amountOfRoom)
     }
 
     fun registerForWidthChanges(listener: ObservableListener<Double>) {

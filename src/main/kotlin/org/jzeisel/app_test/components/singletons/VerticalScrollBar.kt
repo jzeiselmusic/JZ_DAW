@@ -9,6 +9,7 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import kotlin.math.pow
 
 object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var trackListViewModel: TrackListViewModel
@@ -17,21 +18,26 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     var isShowing = false
     private val stageHeight: Double get() { return trackListViewModel.observableStageHeight.getValue() }
     private val stageWidth: Double get() { return trackListViewModel.observableStageWidth.getValue() }
-    private val percentVisible: Double get() {
-        return (stageHeight / trackListViewModel.totalHeightOfAllTracks).saturateAt(0.0, 1.0)
+    val percentVisible: Double get() {
+        return (stageHeight/ trackListViewModel.totalHeightOfAllTracks).saturateAt(0.0, 1.0)
     }
-    private val barHeight: Double get() { return percentVisible * (stageHeight - 45.0) }
+    private val barHeight: Double get() { return percentVisible * stageHeight - 45.0 }
     private var currentOffsetFromTop: Double = 0.0
-    private val roomAtBottom: Double get() { return stageHeight - barHeight - 45.0}
+    private val roomAtBottom: Double get() { return stageHeight - barHeight - 45.0 }
     fun initialize(trackListViewModel: TrackListViewModel, pane: StackPane){
         this.trackListViewModel = trackListViewModel
         scrollRectangleStackPane = pane
     }
 
-    private fun Double.saturateAt(min: Double, max: Double): Double {
-        if (this > max) return max
-        else if (this < min) return min
-        else return this
+    fun Double.saturateAt(min: Double, max: Double?): Double {
+        if (max != null) {
+            if (this > max) return max
+            else if (this < min) return min
+        } else {
+            if (this < min) return min
+            else return this
+        }
+        return this
     }
 
     fun addMeToScene() {
@@ -94,10 +100,11 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
         trackListViewModel.unregisterForHeightChanges(this)
     }
 
-    fun moveScrollBar(deltaY: Double) {
-        currentOffsetFromTop = (currentOffsetFromTop - deltaY).saturateAt(0.0, roomAtBottom)
-        val old = scrollRectangle.translateY
+    fun moveScrollBar(deltaY: Double, amountOfRoom: Double) {
+        val myDeltaY: Double
+        if (amountOfRoom < 1.0) myDeltaY = deltaY
+        else myDeltaY = roomAtBottom * (deltaY/amountOfRoom)
+        currentOffsetFromTop = (currentOffsetFromTop - myDeltaY).saturateAt(0.0, roomAtBottom)
         scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 23.0 + currentOffsetFromTop
-        trackListViewModel.scrollSceneVertically(scrollRectangle.translateY - old)
     }
 }

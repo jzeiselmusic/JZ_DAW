@@ -24,8 +24,7 @@ object MouseEventBroadcaster {
             broadcastKeyPressForTyping(it)
         }
         scene.addEventFilter(ScrollEvent.SCROLL) {
-            trackListViewModel.showVerticalScrollBar()
-            trackListViewModel.moveVerticalScrollBar(it.deltaY)
+            trackListViewModel.scrollSceneVertically(it.deltaY)
         }
     }
 
