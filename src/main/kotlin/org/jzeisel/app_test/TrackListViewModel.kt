@@ -16,11 +16,12 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
 
-class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
+class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: StackPane): Widget {
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
     var trackHeight: Double = 100.0
@@ -80,7 +81,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     init {
         cursorFollower.initialize(this)
-        verticalScrollBar.initialize(this)
+        verticalScrollBar.initialize(this, extraPane)
         stageWidthProperty.addListener { _, _, new ->
             observableStageWidth.setValueAndNotify(new as Double, BroadcastType.STAGE_WIDTH)
             trackWidth = new
@@ -111,6 +112,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
         val newTrack = NormalTrack(root, this,
                 (child as NormalTrack).index.getValue().toInt() + 1, child as Track
         )
+        Logger.debug("actual", "${newTrack.trackOffsetY + trackHeight/2.0}", 3)
         newTrack.addMeToScene(root)
         addChild(newTrack)
     }
@@ -118,6 +120,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
     fun addTrackFromMaster() {
         val newTrack = NormalTrack(root, this, 0, masterTrack)
         newTrack.addMeToScene(root)
+        Logger.debug("actual", "${newTrack.trackOffsetY + trackHeight/2.0}", 3)
         addChild(newTrack)
     }
 
@@ -172,16 +175,20 @@ class TrackListViewModel(val root: StackPane, val stage: Stage): Widget {
 
     fun showVerticalScrollBar() {
         if (!verticalScrollBar.isShowing) {
-            verticalScrollBar.addMeToScene(root)
-            val delay = PauseTransition(Duration.millis(100.0));
+            verticalScrollBar.addMeToScene()
+            val delay = PauseTransition(Duration.millis(200.0));
             delay.setOnFinished {
-                verticalScrollBar.removeMeFromScene(root)
+                verticalScrollBar.removeMeFromScene()
             }
             delay.play()
         }
     }
 
-    fun scroll(deltaY: Double) {
+    fun moveVerticalScrollBar(deltaY: Double) {
+        verticalScrollBar.moveScrollBar(deltaY)
+    }
+
+    fun scrollSceneVertically(deltaY: Double) {
         root.translateY -= deltaY
     }
 

@@ -25,7 +25,7 @@ object MouseEventBroadcaster {
         }
         scene.addEventFilter(ScrollEvent.SCROLL) {
             trackListViewModel.showVerticalScrollBar()
-            trackListViewModel.scroll(it.deltaY)
+            trackListViewModel.moveVerticalScrollBar(it.deltaY)
         }
     }
 

@@ -1,6 +1,7 @@
 package org.jzeisel.app_test.components.singletons
 
 import javafx.application.Platform
+import javafx.scene.layout.Pane
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -12,40 +13,45 @@ import org.jzeisel.app_test.util.ObservableListener
 object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var scrollRectangle: Rectangle
+    private lateinit var scrollRectangleStackPane : StackPane
     var isShowing = false
-
     private val stageHeight: Double get() { return trackListViewModel.observableStageHeight.getValue() }
     private val stageWidth: Double get() { return trackListViewModel.observableStageWidth.getValue() }
-    fun initialize(trackListViewModel: TrackListViewModel){
+    private val percentVisible: Double get() {
+        return (stageHeight / trackListViewModel.totalHeightOfAllTracks).saturateAt(0.0, 1.0)
+    }
+    private val barHeight: Double get() { return percentVisible * (stageHeight - 45.0) }
+    private var currentOffsetFromTop: Double = 0.0
+    private val roomAtBottom: Double get() { return stageHeight - barHeight - 45.0}
+    fun initialize(trackListViewModel: TrackListViewModel, pane: StackPane){
         this.trackListViewModel = trackListViewModel
+        scrollRectangleStackPane = pane
     }
 
-    private fun Double.saturateAt(max: Double, min: Double): Double {
+    private fun Double.saturateAt(min: Double, max: Double): Double {
         if (this > max) return max
         else if (this < min) return min
         else return this
     }
 
-    fun addMeToScene(root: StackPane) {
-        var percentVisible = (stageHeight / trackListViewModel.totalHeightOfAllTracks).saturateAt(1.0, 0.0)
-        val barHeight = percentVisible * (stageHeight - 45.0)
+    fun addMeToScene() {
         scrollRectangle = Rectangle(8.0, barHeight, Color.DARKGRAY.darker())
         scrollRectangle.translateX = stageWidth / 2.0 - 12.0
-        scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 23.0
+        scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 23.0 + currentOffsetFromTop
         scrollRectangle.opacity = 0.85
         scrollRectangle.arcWidth = 5.0
         scrollRectangle.arcHeight = 5.0
         scrollRectangle.toFront()
-        root.children.add(scrollRectangle)
+        scrollRectangleStackPane.children.add(scrollRectangle)
         registerForBroadcasts()
         isShowing = true
     }
 
-    fun removeMeFromScene(root: StackPane) {
+    fun removeMeFromScene() {
         if (isShowing) {
             Platform.runLater {
                 unregisterForBroadcasts()
-                root.children.remove(scrollRectangle)
+                scrollRectangleStackPane.children.remove(scrollRectangle)
                 isShowing = false
             }
         }
@@ -86,5 +92,12 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
+    }
+
+    fun moveScrollBar(deltaY: Double) {
+        currentOffsetFromTop = (currentOffsetFromTop - deltaY).saturateAt(0.0, roomAtBottom)
+        val old = scrollRectangle.translateY
+        scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 23.0 + currentOffsetFromTop
+        trackListViewModel.scrollSceneVertically(scrollRectangle.translateY - old)
     }
 }

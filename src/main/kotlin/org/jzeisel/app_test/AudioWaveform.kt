@@ -14,6 +14,8 @@ class AudioWaveform : Application() {
         private const val INIT_STAGE_WIDTH = 950.0
     }
     private lateinit var root: StackPane
+    private lateinit var everythingPane: StackPane
+    private lateinit var verticalScrollBarPane: StackPane
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
 
@@ -27,14 +29,18 @@ class AudioWaveform : Application() {
 
         root = StackPane()
         scene = Scene(root, null)
+        everythingPane = StackPane()
+        verticalScrollBarPane = StackPane()
+        verticalScrollBarPane.isMouseTransparent = true
+        root.children.addAll(everythingPane, verticalScrollBarPane)
         scene.fill = Color.DIMGREY.darker().darker()
         stage.scene = scene
 
-        trackListViewModel = TrackListViewModel(root, stage)
+        trackListViewModel = TrackListViewModel(everythingPane, stage, verticalScrollBarPane)
 
-        MouseEventBroadcaster.initializeBroadcasts(root, scene, trackListViewModel)
+        MouseEventBroadcaster.initializeBroadcasts(everythingPane, scene, trackListViewModel)
 
-        trackListViewModel.addMeToScene(root)
+        trackListViewModel.addMeToScene(everythingPane)
         stage.show()
     }
 }
