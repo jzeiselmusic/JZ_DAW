@@ -11,6 +11,7 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 class VUMeter(override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -40,6 +41,7 @@ class VUMeter(override val parent: Widget)
         vuMeterRectangle.arcHeight = trackListViewModel.arcSize
         vuMeterRectangle.stroke = trackListViewModel.strokeColor
         vuMeterRectangle.strokeWidth = trackListViewModel.strokeSize
+        vuMeterRectangle.viewOrder = viewOrderFlip - 0.31
     }
 
     override fun addMeToScene(root: StackPane) {
@@ -95,7 +97,6 @@ class VUMeter(override val parent: Widget)
 
     private fun makeBarVisible(bar: VUBar) {
         bar.isVisible(true)
-        bar.bringToFront()
     }
 
     fun setBarsBasedOnAudio(audioInputManager: AudioInputManager, index: Int) {

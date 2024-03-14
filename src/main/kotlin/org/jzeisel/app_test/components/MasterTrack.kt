@@ -41,8 +41,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
             BroadcastType.STAGE_WIDTH -> {
                 val amtChange = (new - old) / 2.0
                 trackWidth = new
-                trackRectangle.width = new
-                trackRectangle.width = new
+                trackRectangle.translateX -= amtChange
                 headerBar.width = new
                 trackDivider.translateX -= amtChange
                 trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)

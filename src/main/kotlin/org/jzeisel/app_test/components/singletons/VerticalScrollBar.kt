@@ -9,6 +9,7 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 import kotlin.math.pow
 
 object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
@@ -47,7 +48,7 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
         scrollRectangle.opacity = 0.85
         scrollRectangle.arcWidth = 5.0
         scrollRectangle.arcHeight = 5.0
-        scrollRectangle.toFront()
+        scrollRectangle.viewOrder = viewOrderFlip - 0.55
         scrollRectangleStackPane.children.add(scrollRectangle)
         registerForBroadcasts()
         isShowing = true

@@ -15,6 +15,7 @@ import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 import java.util.*
 
 class AddButton(override val parent: Widget)
@@ -62,14 +63,15 @@ class AddButton(override val parent: Widget)
         buttonRect.arcHeight = trackListViewModel.arcSize
         buttonRect.stroke = trackListViewModel.strokeColor
         buttonRect.strokeWidth = trackListViewModel.strokeSize
-
+        buttonRect.viewOrder = viewOrderFlip - 0.31
         horizontalLine.translateX = buttonOffsetX
         horizontalLine.translateY = buttonOffsetY
         verticalLine.translateX = buttonOffsetX
         verticalLine.translateY = buttonOffsetY
         horizontalLine.strokeWidth = 2.2
         verticalLine.strokeWidth = 2.2
-
+        verticalLine.viewOrder = viewOrderFlip - 0.32
+        horizontalLine.viewOrder = viewOrderFlip - 0.32
         buttonRect.onMousePressed = mousePressEvent
         buttonRect.onMouseReleased = mouseReleaseEvent
         horizontalLine.onMousePressed = mousePressEvent

@@ -10,6 +10,7 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 class VUBar(color: Color, private var barOffsetY: Double,
             override val parent: Widget)
@@ -28,10 +29,6 @@ class VUBar(color: Color, private var barOffsetY: Double,
         /* VUBar will not have any children */
     }
 
-    fun bringToFront() {
-        barRectangle.toFront()
-    }
-
     fun isVisible(t: Boolean) {
         barRectangle.isVisible = t
     }
@@ -42,6 +39,7 @@ class VUBar(color: Color, private var barOffsetY: Double,
         barRectangle.translateY = barOffsetY
         barRectangle.arcWidth = 0.5
         barRectangle.arcHeight = 0.5
+        barRectangle.viewOrder = viewOrderFlip - 0.32
         root.children.add(barRectangle)
     }
 

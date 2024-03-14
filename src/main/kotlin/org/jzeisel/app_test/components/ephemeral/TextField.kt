@@ -16,6 +16,7 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 
 class TextField(private val parentRect: Rectangle,
@@ -57,12 +58,12 @@ class TextField(private val parentRect: Rectangle,
         rectangle.fill = Color.WHITESMOKE.brighter()
         rectangle.stroke = trackListViewModel.strokeColor
         rectangle.strokeWidth = 2.3
-
+        rectangle.viewOrder = viewOrderFlip - 0.61
         text.text = textString
         text.fill = textFill
         text.translateX = rectangleTranslateX
         text.translateY = rectangleTranslateY
-
+        text.viewOrder = viewOrderFlip - 0.62
         cursor.width = 1.2
         cursor.height = text.boundsInLocal.height - 1.0
         cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + cursorDistanceFromEndOfText
@@ -70,11 +71,7 @@ class TextField(private val parentRect: Rectangle,
         cursor.fill = trackListViewModel.backgroundGray.brighter()
         cursor.stroke = trackListViewModel.backgroundGray.brighter()
         cursor.isVisible = true
-
-        rectangle.toFront()
-        text.toFront()
-        cursor.toFront()
-
+        cursor.viewOrder = viewOrderFlip - 0.62
         val delay = PauseTransition(Duration.millis(100.0));
         Platform.runLater {
             delay.setOnFinished {

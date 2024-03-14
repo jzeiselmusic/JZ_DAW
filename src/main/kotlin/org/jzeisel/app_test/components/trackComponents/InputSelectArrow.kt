@@ -15,6 +15,7 @@ import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
             : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -36,6 +37,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectRectangle.arcHeight = trackListViewModel.arcSize
         inputSelectRectangle.stroke = trackListViewModel.strokeColor
         inputSelectRectangle.strokeWidth = trackListViewModel.strokeSize
+        inputSelectRectangle.viewOrder = viewOrderFlip - 0.31
 
         inputSelectArrow.fill = Color.BLACK
         inputSelectArrow.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListViewModel.inputButtonsOffset - 0.5
@@ -44,6 +46,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectArrow.stroke = trackListViewModel.strokeColor
         inputSelectArrow.strokeWidth = 1.5
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
+        inputSelectRectangle.viewOrder = viewOrderFlip - 0.32
     }
 
     private val dropDownBox = DropDownBox(trackListViewModel.audioInputManager.allMixerNames,

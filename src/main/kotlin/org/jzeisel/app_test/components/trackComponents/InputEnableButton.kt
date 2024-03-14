@@ -14,6 +14,7 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 class InputEnableButton(override val parent: Widget?)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -51,7 +52,9 @@ class InputEnableButton(override val parent: Widget?)
         buttonRect.stroke = trackListViewModel.strokeColor
         buttonRect.strokeWidth = trackListViewModel.strokeSize
         buttonRect.onMouseReleased = mouseReleaseEvent
+        buttonRect.viewOrder = viewOrderFlip - 0.31
         iImageView.onMouseReleased = mouseReleaseEvent
+        iImageView.viewOrder = viewOrderFlip - 0.32
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {

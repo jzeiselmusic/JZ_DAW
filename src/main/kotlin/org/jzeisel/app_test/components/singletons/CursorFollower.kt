@@ -9,12 +9,15 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     private lateinit var trackListViewModel: TrackListViewModel
     var isShowing = false
     private var rectangleWidth = 1.8
+    private const val zValCursor = viewOrderFlip - 0.13
+    private const val zValCursorTriangle = viewOrderFlip - 0.14
     private val rectangleHeight: Double
         get() { return trackListViewModel.numTracks * trackListViewModel.trackHeight }
 
@@ -26,7 +29,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     private var currentOffsetX = 0.0
 
     fun addMeToScene(root: StackPane, offsetX: Double) {
-        /* offset x is distance to the right from trac divider offset */
+        /* offset x is distance to the right from track divider offset */
         registerForBroadcasts()
         isShowing = true
         currentOffsetX = offsetX
@@ -34,7 +37,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         cursorRectangle.opacity = 0.9
         cursorRectangle.translateY = rectangleTranslateY
         cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + offsetX
-        cursorRectangle.toFront()
+        cursorRectangle.viewOrder = zValCursor
         root.children.add(cursorRectangle)
 
         cursorPointer = Polygon(0.0, 0.0,
@@ -48,7 +51,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
                                     cursorPointer.layoutBounds.height/2.0 - 1.0
         cursorPointer.translateX = cursorRectangle.translateX
         cursorPointer.rotate = 180.0
-        cursorPointer.toFront()
+        cursorPointer.viewOrder = zValCursorTriangle
         root.children.add(cursorPointer)
     }
 
@@ -109,9 +112,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
                 cursorRectangle.height = rectangleHeight
                 cursorRectangle.translateY = rectangleTranslateY
                 cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
-                cursorRectangle.toFront()
                 cursorPointer.translateX = cursorRectangle.translateX
-                cursorPointer.toFront()
             }
         }
     }

@@ -13,6 +13,7 @@ import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 import kotlin.math.abs
 
 abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<Double> {
@@ -33,7 +34,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
     val initialTrackHeight = trackListViewModel.trackHeight
     val trackColorNormal = Color.WHITESMOKE.darker().darker()
     val trackColorHL = Color.WHITESMOKE.darker()
-    val trackRectangle = Rectangle(initialTrackWidth, initialTrackHeight, trackColorNormal)
+    val trackRectangle = Rectangle(trackListViewModel.initialTrackDividerWidth, initialTrackHeight, trackColorNormal)
     val trackDivider = Rectangle(3.0, initialTrackHeight, trackListViewModel.strokeColor)
     val labelDivider = Rectangle(1.5, initialTrackHeight, trackListViewModel.strokeColor)
     val trackLabel = Rectangle()
@@ -51,9 +52,11 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
 
     fun setTrackRectangleProperties() {
         trackRectangle.translateY = trackOffsetY
+        trackRectangle.translateX = -trackListViewModel.observableStageWidth.getValue() / 2.0 + trackListViewModel.initialTrackDividerWidth / 2.0
         trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 0.4
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
+        trackRectangle.viewOrder = viewOrderFlip - 0.3
 
         trackRectangle.onMouseEntered = EventHandler {
             if (!isSelected)
@@ -73,7 +76,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         trackDivider.translateY = trackOffsetY
         trackDivider.translateX = trackListViewModel.currentDividerOffset.getValue()
         trackDivider.cursor = Cursor.H_RESIZE
-
+        trackDivider.viewOrder = viewOrderFlip - 0.41
         trackDivider.onMouseDragged = EventHandler {
             trackDivider.translateX += it.x
             trackListViewModel.currentDividerOffset.setValueAndNotify(trackDivider.translateX, BroadcastType.DIVIDER)
@@ -81,7 +84,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
 
         labelDivider.translateY = trackOffsetY
         labelDivider.translateX = trackListViewModel.labelDividerOffset
-
+        labelDivider.viewOrder = viewOrderFlip - 0.44
         trackLabel.width = trackListViewModel.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
         trackLabel.height = initialTrackHeight
         trackLabel.fill = trackListViewModel.generalGray
@@ -89,8 +92,10 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         trackLabel.translateX = -trackListViewModel.stageWidthProperty.value / 2.0 + trackLabel.width / 2.0
         trackLabel.stroke = trackListViewModel.strokeColor
         trackLabel.strokeWidth = 0.4
+        trackLabel.viewOrder = viewOrderFlip - 0.42
         trackLabelNumber.translateY = trackOffsetY
         trackLabelNumber.translateX = trackLabel.translateX
+        trackLabelNumber.viewOrder = viewOrderFlip - 0.43
     }
 
     abstract fun addTrack()

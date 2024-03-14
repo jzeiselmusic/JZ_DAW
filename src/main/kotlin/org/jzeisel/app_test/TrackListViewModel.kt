@@ -67,7 +67,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
 
     /* observable variables */
-    var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + 310.0)
+    val initialTrackDividerWidth = 310.0
+    var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + initialTrackDividerWidth)
     var observableStageWidth = Observable<Double>(stageWidthProperty.value)
     var observableStageHeight = Observable<Double>(stageHeightProperty.value)
     /*      *****      */

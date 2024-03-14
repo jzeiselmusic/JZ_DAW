@@ -13,6 +13,7 @@ import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.animateObjectScale
+import org.jzeisel.app_test.util.viewOrderFlip
 
 class VolumeSlider(override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -35,6 +36,8 @@ class VolumeSlider(override val parent: Widget)
         sliderBar.strokeLineJoin = StrokeLineJoin.MITER
         sliderBar.arcWidth = 7.0
         sliderBar.arcHeight = 7.0
+        sliderBar.viewOrder = viewOrderFlip - 0.31
+        sliderCircle.viewOrder = viewOrderFlip - 0.32
 
         sliderCircle.onMousePressed = EventHandler {
             sliderCircle.fill = trackListViewModel.generalPurple.brighter()

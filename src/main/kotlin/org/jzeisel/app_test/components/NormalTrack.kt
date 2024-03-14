@@ -45,8 +45,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
             BroadcastType.STAGE_WIDTH -> {
                 val amtChange = (new - old) / 2.0
                 trackWidth = new
-                trackRectangle.width = new
-                trackRectangle.width = new
+                trackRectangle.translateX -= amtChange
                 trackDivider.translateX -= amtChange
                 trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
                 labelDivider.translateX -= amtChange

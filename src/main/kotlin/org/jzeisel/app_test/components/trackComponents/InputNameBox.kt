@@ -16,6 +16,7 @@ import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 class InputNameBox(private val root: StackPane, override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -53,6 +54,7 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
         generalBox.arcWidth = trackListViewModel.arcSize
         generalBox.arcHeight = trackListViewModel.arcSize
         generalBox.opacity = 0.8
+        generalBox.viewOrder = viewOrderFlip - 0.31
         nameText.text = name
         nameText.translateY = generalBox.translateY
         nameText.translateX = generalBox.translateX
@@ -60,6 +62,7 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
         nameText.fill = trackListViewModel.strokeColor
         nameText.isVisible = true
         nameText.opacity = 0.95
+        nameText.viewOrder = viewOrderFlip - 0.32
 
         val doubleClickHandler = EventHandler<MouseEvent>{
             if (it.button.equals(MouseButton.PRIMARY)) {
@@ -142,10 +145,6 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
 
     fun exitTextField(root: StackPane) {
         textField.removeMeFromScene(root)
-        generalBox.toBack()
-        nameText.toBack()
-        generalBox.toFront()
-        nameText.toFront()
     }
 
     private fun returnValueFromTextField(userName: String) {

@@ -13,3 +13,5 @@ fun animateObjectScale(from: Double, to: Double, obj: Shape) {
     animate.cycleCount = 1
     animate.play()
 }
+
+const val viewOrderFlip = 5.0

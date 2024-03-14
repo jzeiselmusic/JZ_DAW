@@ -12,6 +12,7 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.viewOrderFlip
 
 class DropDownBox(stringList: List<String>, parent: Rectangle,
                   private val trackListViewModel: TrackListViewModel,
@@ -42,6 +43,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
             text.fill = trackListViewModel.strokeColor
             text.textAlignment = TextAlignment.CENTER
             text.isVisible = true
+            text.viewOrder = viewOrderFlip - 0.65
             /*********************/
             val rect = Rectangle(rectangleWidth, rectangleHeight, trackListViewModel.generalPurple)
             rect.translateX = buttonOffsetX + rectangleWidth / 2.0
@@ -51,6 +53,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
             rect.arcWidth = 3.0
             rect.arcHeight = 3.0
             rect.isVisible = true
+            rect.viewOrder = viewOrderFlip - 0.64
             /*********************/
             text.onMouseEntered = EventHandler {
                 rect.fill = trackListViewModel.generalPurple.darker()
