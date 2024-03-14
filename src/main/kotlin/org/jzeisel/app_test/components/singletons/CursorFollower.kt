@@ -83,13 +83,10 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
                     cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
                     cursorPointer.translateX = cursorRectangle.translateX
                 }
-                BroadcastType.STAGE_WIDTH -> {
-                    respondToWidthChange(old, new)
-                }
-                BroadcastType.STAGE_HEIGHT -> {
-                    respondToHeightChange(old, new)
-                }
+                BroadcastType.STAGE_WIDTH -> { respondToWidthChange(old, new) }
+                BroadcastType.STAGE_HEIGHT -> { respondToHeightChange(old, new) }
                 BroadcastType.INDEX -> {}
+                BroadcastType.SCROLL -> { respondToScrollChange(new) }
             }
         }
     }
@@ -98,12 +95,14 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         trackListViewModel.registerForDividerOffsetChanges(this)
         trackListViewModel.registerForWidthChanges(this)
         trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForScrollChanges(this)
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
         trackListViewModel.unregisterForDividerOffsetChanges(this)
+        trackListViewModel.unregisterForScrollChanges(this)
     }
 
     fun updateFromTrackList(root: StackPane) {
@@ -141,5 +140,12 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     override fun respondToIndexChange(old: Double, new: Double) {
         /* not necessary for cursor follower */
+    }
+
+    fun respondToScrollChange(deltaX: Double) {
+        if (isShowing) {
+            cursorRectangle.translateX -= deltaX
+            cursorPointer.translateX -= deltaX
+        }
     }
 }

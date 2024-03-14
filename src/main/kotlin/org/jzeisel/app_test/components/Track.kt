@@ -75,12 +75,7 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
 
         trackDivider.translateY = trackOffsetY
         trackDivider.translateX = trackListViewModel.currentDividerOffset.getValue()
-        trackDivider.cursor = Cursor.H_RESIZE
         trackDivider.viewOrder = viewOrderFlip - 0.41
-        trackDivider.onMouseDragged = EventHandler {
-            trackDivider.translateX += it.x
-            trackListViewModel.currentDividerOffset.setValueAndNotify(trackDivider.translateX, BroadcastType.DIVIDER)
-        }
 
         labelDivider.translateY = trackOffsetY
         labelDivider.translateX = trackListViewModel.labelDividerOffset

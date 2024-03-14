@@ -76,6 +76,7 @@ class VUBar(color: Color, private var barOffsetY: Double,
             BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
             BroadcastType.INDEX -> respondToIndexChange(old, new)
             BroadcastType.DIVIDER -> {}
+            BroadcastType.SCROLL -> {}
         }
     }
 

@@ -138,6 +138,7 @@ class VUMeter(override val parent: Widget)
             BroadcastType.STAGE_WIDTH -> respondToWidthChange(old, new)
             BroadcastType.INDEX -> respondToIndexChange(old, new)
             BroadcastType.DIVIDER -> {}
+            BroadcastType.SCROLL -> {}
         }
     }
 

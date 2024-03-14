@@ -2,6 +2,7 @@ package org.jzeisel.app_test.components.trackComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
+import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -24,7 +25,7 @@ class WaveFormBox(override val parent: Widget) :
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
     val trackListViewModel = parentTrack.trackListViewModel
-    val waveFormWidth = 5000.0
+    val waveFormWidth = trackListViewModel.waveFormWidth
     val trackRectangle = Rectangle(waveFormWidth,
                                    parentTrack.initialTrackHeight,
                                    trackListViewModel.generalPurple)
@@ -34,8 +35,14 @@ class WaveFormBox(override val parent: Widget) :
     val ticksForMasterTrack = mutableListOf<Rectangle>()
 
     init {
+        trackRectangle.onScroll = EventHandler {
+            if ((trackRectangle.translateX + it.deltaX) > trackListViewModel.waveFormInitialTranslateX) {
+                return@EventHandler
+            }
+            trackListViewModel.onWaveFormBoxScroll(-it.deltaX)
+        }
         trackRectangle.translateY = parentTrack.trackOffsetY
-        trackRectangle.translateX = waveFormWidth / 2.0 + trackListViewModel.currentDividerOffset.getValue()
+        trackRectangle.translateX = trackListViewModel.waveFormInitialTranslateX
         trackRectangle.opacity = 0.8
         trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 0.5
@@ -103,6 +110,7 @@ class WaveFormBox(override val parent: Widget) :
             BroadcastType.STAGE_WIDTH -> respondToWidthChange(old, new)
             BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
             BroadcastType.INDEX -> respondToIndexChange(old, new)
+            BroadcastType.SCROLL -> respondToScrollChanges(new)
         }
     }
 
@@ -110,6 +118,7 @@ class WaveFormBox(override val parent: Widget) :
         trackListViewModel.registerForDividerOffsetChanges(this)
         trackListViewModel.registerForWidthChanges(this)
         trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForScrollChanges(this)
         if (parentTrack is NormalTrack) {
             parentTrack.registerForIndexChanges(this)
         }
@@ -119,6 +128,7 @@ class WaveFormBox(override val parent: Widget) :
         trackListViewModel.unregisterForHeightChanges(this)
         trackListViewModel.unregisterForDividerOffsetChanges(this)
         trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForScrollChanges(this)
         if (parentTrack is NormalTrack) {
             parentTrack.unregisterForIndexChanges(this)
         }
@@ -210,6 +220,19 @@ class WaveFormBox(override val parent: Widget) :
         }
         for (tick in ticksForMasterTrack) {
             tick.translateX += change
+        }
+    }
+
+    fun respondToScrollChanges(deltaX: Double) {
+        trackRectangle.translateX -= deltaX
+        for (measureDivider in measureDividers) {
+            measureDivider.translateX -= deltaX
+        }
+        for (beat in beatDividers) {
+            beat.translateX -= deltaX
+        }
+        for (tick in ticksForMasterTrack) {
+            tick.translateX -= deltaX
         }
     }
 }

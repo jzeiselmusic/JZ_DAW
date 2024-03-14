@@ -70,6 +70,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
             BroadcastType.INDEX -> respondToIndexChange(old, new)
             BroadcastType.DIVIDER -> {}
+            BroadcastType.SCROLL -> {}
         }
     }
 

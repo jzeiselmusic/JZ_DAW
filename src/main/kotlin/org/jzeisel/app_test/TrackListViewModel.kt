@@ -65,12 +65,15 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     val inputNameBoxOffset = inputButtonsOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
     val vuMeterOffset = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
     var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
+    val waveFormWidth = 5000.0
+    val waveFormInitialTranslateX: Double get() { return waveFormWidth / 2.0 + currentDividerOffset.getValue() }
 
     /* observable variables */
     val initialTrackDividerWidth = 310.0
     var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + initialTrackDividerWidth)
     var observableStageWidth = Observable<Double>(stageWidthProperty.value)
     var observableStageHeight = Observable<Double>(stageHeightProperty.value)
+    var waveFormScrollDeltaX = Observable<Double>(0.0)
     /*      *****      */
     val audioInputManager = AudioInputManager(this)
 
@@ -133,6 +136,10 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
                 remove(child)
             }
         }
+    }
+
+    fun onWaveFormBoxScroll(deltaX: Double) {
+        waveFormScrollDeltaX.setValueAndNotify(deltaX, BroadcastType.SCROLL)
     }
 
     fun broadcastMouseClick(root: StackPane) {
@@ -220,6 +227,14 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
 
     fun unregisterForDividerOffsetChanges(listener: ObservableListener<Double>) {
         currentDividerOffset.removeListener(listener)
+    }
+
+    fun registerForScrollChanges(listener: ObservableListener<Double>) {
+        waveFormScrollDeltaX.addListener(listener)
+    }
+
+    fun unregisterForScrollChanges(listener: ObservableListener<Double>) {
+        waveFormScrollDeltaX.removeListener(listener)
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {

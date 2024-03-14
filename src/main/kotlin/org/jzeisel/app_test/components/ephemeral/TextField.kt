@@ -110,6 +110,7 @@ class TextField(private val parentRect: Rectangle,
             BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
             BroadcastType.DIVIDER -> {}
             BroadcastType.INDEX -> {}
+            BroadcastType.SCROLL -> {}
         }
     }
 

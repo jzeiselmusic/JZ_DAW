@@ -62,6 +62,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
                 trackListViewModel.masterOffsetY = trackOffsetY
             }
             BroadcastType.INDEX -> {}
+            BroadcastType.SCROLL -> {}
         }
     }
 

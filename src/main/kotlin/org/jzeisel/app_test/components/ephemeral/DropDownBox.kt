@@ -133,6 +133,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
             BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
             BroadcastType.INDEX -> {}
             BroadcastType.DIVIDER -> {}
+            BroadcastType.SCROLL -> {}
         }
     }
 

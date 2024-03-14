@@ -63,6 +63,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
                 trackLabelNumber.translateY = trackOffsetY
             }
             BroadcastType.INDEX -> {}
+            BroadcastType.SCROLL -> {}
         }
     }
 
