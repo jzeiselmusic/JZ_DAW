@@ -1,7 +1,6 @@
 package org.jzeisel.app_test
 
 import javafx.animation.PauseTransition
-import javafx.scene.paint.Color
 import javafx.application.Platform
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.input.KeyEvent
@@ -18,7 +17,6 @@ import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
 
@@ -46,9 +44,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         CursorFollower.initialize(this)
         VerticalScrollBar.initialize(this, extraPane)
         stageWidthProperty.addListener { _, _, new ->
-            _trackListStateFlow.state = _trackListStateFlow.state.copy(
-                trackWidth = new as Double
-            )
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(trackWidth = new as Double)
             _trackListStateFlow.state.observableStageWidth.setValueAndNotify(new, BroadcastType.STAGE_WIDTH)
         }
         stageHeightProperty.addListener {_, _, new ->

@@ -10,6 +10,7 @@ import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 
@@ -18,6 +19,8 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var trackListState: TrackListState
     private lateinit var trackListFlow: TrackListStateFlow
+    private val waveFormOffset: Double
+        get() { return trackListViewModel._trackListStateFlow.state.waveFormOffset }
     var isShowing = false
     private var rectangleWidth = 1.8
     private const val zValCursor = viewOrderFlip - 0.13
@@ -39,7 +42,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         cursorRectangle = Rectangle(rectangleWidth, rectangleHeight, trackListState.generalGray)
         cursorRectangle.opacity = 0.9
         cursorRectangle.translateY = rectangleTranslateY
-        cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + offsetX - trackListState.waveFormOffset
+        cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + offsetX - waveFormOffset
         cursorRectangle.viewOrder = zValCursor
         cursorRectangle.isMouseTransparent = true
         root.children.add(cursorRectangle)
@@ -74,7 +77,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         if (isShowing) {
             Platform.runLater {
                 currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
-                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - trackListState.waveFormOffset
+                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
         }
@@ -84,7 +87,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         if (isShowing) {
             when (broadcastType) {
                 BroadcastType.DIVIDER -> {
-                    cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - trackListState.waveFormOffset
+                    cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
                     cursorPointer.translateX = cursorRectangle.translateX
                 }
                 BroadcastType.STAGE_WIDTH -> { respondToWidthChange(old, new) }
@@ -114,7 +117,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
             Platform.runLater {
                 cursorRectangle.height = rectangleHeight
                 cursorRectangle.translateY = rectangleTranslateY
-                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - trackListState.waveFormOffset
+                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
         }

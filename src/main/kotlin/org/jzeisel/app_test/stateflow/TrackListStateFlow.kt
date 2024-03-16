@@ -47,9 +47,7 @@ class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeight
     var state = TrackListState(stageWidthProperty, stageHeightProperty) // read only state
     /* state can be updated by using the "copy" method */
 
-    val numTracks: Int get() {
-        return state.numChildren + 1
-    }
+    val numTracks: Int get() { return state.numChildren + 1 }
     val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
     val topOfTracks: Double get() { return state.masterOffsetY - state.trackHeight / 2.0 }
     val bottomOfTracks: Double get() { return topOfTracks + state.trackHeight*numTracks }
