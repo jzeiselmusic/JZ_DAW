@@ -41,15 +41,17 @@ data class TrackListState(
     val waveFormScrollDeltaX: Observable<Double> = Observable(0.0),
     val numChildren: Int = 0,
     val trackSelected: Track? = null
-) {
-    val numTracks: Int get() { return numChildren + 1 }
-    val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
-    val topOfTracks: Double get() { return masterOffsetY - trackHeight / 2.0 }
-    val bottomOfTracks: Double get() { return topOfTracks + trackHeight*numTracks }
-    val waveFormTranslateX: Double get() { return waveFormWidth / 2.0 + currentDividerOffset.getValue() }
-}
+)
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {
     var state = TrackListState(stageWidthProperty, stageHeightProperty) // read only state
     /* state can be updated by using the "copy" method */
+
+    val numTracks: Int get() {
+        return state.numChildren + 1
+    }
+    val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
+    val topOfTracks: Double get() { return state.masterOffsetY - state.trackHeight / 2.0 }
+    val bottomOfTracks: Double get() { return topOfTracks + state.trackHeight*numTracks }
+    val waveFormTranslateX: Double get() { return state.waveFormWidth / 2.0 + state.currentDividerOffset.getValue() }
 }

@@ -24,6 +24,7 @@ class WaveFormBox(override val parent: Widget) :
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListFlow = trackListViewModel._trackListStateFlow
     private val trackListState = trackListViewModel._trackListStateFlow.state
     val waveFormWidth = trackListState.waveFormWidth
     val trackRectangle = Rectangle(waveFormWidth,
@@ -36,14 +37,14 @@ class WaveFormBox(override val parent: Widget) :
 
     init {
         trackRectangle.onScroll = EventHandler {
-            if (!((trackRectangle.translateX + it.deltaX) > trackListState.waveFormTranslateX)) {
+            if (!((trackRectangle.translateX + it.deltaX) > trackListFlow.waveFormTranslateX)) {
                 trackListViewModel.onWaveFormBoxScroll(-it.deltaX / 4.0)
             } else {
-                trackListViewModel.onWaveFormBoxScroll((- trackListState.waveFormTranslateX + trackRectangle.translateX)/4.0)
+                trackListViewModel.onWaveFormBoxScroll((- trackListFlow.waveFormTranslateX + trackRectangle.translateX)/4.0)
             }
         }
         trackRectangle.translateY = parentTrack.trackOffsetY
-        trackRectangle.translateX = trackListState.waveFormTranslateX - trackListState.waveFormOffset
+        trackRectangle.translateX = trackListFlow.waveFormTranslateX - trackListState.waveFormOffset
         trackRectangle.opacity = 0.8
         trackRectangle.stroke = trackListState.strokeColor
         trackRectangle.strokeWidth = 0.5
@@ -226,7 +227,7 @@ class WaveFormBox(override val parent: Widget) :
 
     fun respondToScrollChanges(deltaX: Double) {
         trackRectangle.translateX -= deltaX
-        trackListViewModel.updateWaveFormOffset(trackListState.waveFormTranslateX - trackRectangle.translateX)
+        trackListViewModel.updateWaveFormOffset(trackListFlow.waveFormTranslateX - trackRectangle.translateX)
         for (measureDivider in measureDividers) {
             measureDivider.translateX -= deltaX
         }

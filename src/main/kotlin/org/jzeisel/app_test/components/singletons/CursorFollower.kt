@@ -8,6 +8,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.stateflow.TrackListState
+import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
@@ -16,13 +17,13 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var trackListState: TrackListState
+    private lateinit var trackListFlow: TrackListStateFlow
     var isShowing = false
     private var rectangleWidth = 1.8
     private const val zValCursor = viewOrderFlip - 0.13
     private const val zValCursorTriangle = viewOrderFlip - 0.14
     private val rectangleHeight: Double
-        get() { return trackListState.numTracks * trackListState.trackHeight }
-
+        get() { return trackListFlow.numTracks * trackListState.trackHeight }
     private val rectangleTranslateY: Double
         get() { return trackListState.masterOffsetY - trackListState.trackHeight/2.0 + rectangleHeight /2.0 }
 
@@ -122,6 +123,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
     fun initialize(trackListViewModel: TrackListViewModel){
         CursorFollower.trackListViewModel = trackListViewModel
         trackListState = trackListViewModel._trackListStateFlow.state
+        trackListFlow = trackListViewModel._trackListStateFlow
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {

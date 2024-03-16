@@ -9,6 +9,7 @@ import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.stateflow.TrackListState
+import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
@@ -17,13 +18,14 @@ import kotlin.math.pow
 object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var trackListState: TrackListState
+    private lateinit var trackListFlow: TrackListStateFlow
     private lateinit var scrollRectangle: Rectangle
     private lateinit var scrollRectangleStackPane : StackPane
     var isShowing = false
     private val stageHeight: Double get() { return trackListState.observableStageHeight.getValue() }
     private val stageWidth: Double get() { return trackListState.observableStageWidth.getValue() }
     val percentVisible: Double get() {
-        return (stageHeight/ trackListState.totalHeightOfAllTracks).saturateAt(0.0, 1.0)
+        return (stageHeight/ trackListFlow.totalHeightOfAllTracks).saturateAt(0.0, 1.0)
     }
     private val barHeight: Double get() { return percentVisible * stageHeight - 45.0 }
     private var currentOffsetFromTop: Double = 0.0
@@ -31,6 +33,7 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
     fun initialize(trackListViewModel: TrackListViewModel, pane: StackPane){
         this.trackListViewModel = trackListViewModel
         trackListState = trackListViewModel._trackListStateFlow.state
+        trackListFlow = trackListViewModel._trackListStateFlow
         scrollRectangleStackPane = pane
     }
 

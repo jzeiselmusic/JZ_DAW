@@ -18,6 +18,7 @@ import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
 
@@ -28,6 +29,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     override val parent: Widget? = null
     /* all TrackList children will be NormalTracks */
     override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) {_, old, new ->
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(numChildren = new.size)
         for (child in children) {
             val t = child as NormalTrack
             t.respondToChangeInTrackList(old, new)
@@ -37,7 +39,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     /*      *****      */
     val audioInputManager = AudioInputManager(this)
 
-    var _trackListStateFlow = TrackListStateFlow(stageWidthProperty, stageHeightProperty)
+    val _trackListStateFlow = TrackListStateFlow(stageWidthProperty, stageHeightProperty)
 
     private val masterTrack: MasterTrack = MasterTrack(root,this)
     init {
@@ -163,7 +165,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
 
     fun scrollSceneVertically(deltaY: Double) {
         val newTranslate = (root.translateY + deltaY)
-        val amountOfRoom = (_trackListStateFlow.state.totalHeightOfAllTracks - _trackListStateFlow.state.observableStageHeight.getValue()).saturateAt(0.0, null)
+        val amountOfRoom = (_trackListStateFlow.totalHeightOfAllTracks - _trackListStateFlow.state.observableStageHeight.getValue()).saturateAt(0.0, null)
         if (amountOfRoom < 1.0) root.translateY = newTranslate.saturateAt(-amountOfRoom, 0.0)
         else root.translateY = newTranslate.saturateAt(-amountOfRoom - 30.0, 0.0)
         moveVerticalScrollBar(deltaY, amountOfRoom)
