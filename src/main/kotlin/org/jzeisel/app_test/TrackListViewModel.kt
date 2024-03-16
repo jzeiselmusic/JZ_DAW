@@ -8,6 +8,7 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
@@ -20,12 +21,61 @@ import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
-import kotlin.math.abs
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
+
+data class TrackListState(val stageWidthProperty: ReadOnlyDoubleProperty,
+                          val stageHeightProperty: ReadOnlyDoubleProperty) {
+    var trackHeight: Double = 100.0
+    var trackWidth: Double = stageWidthProperty.value
+
+    /* sizes */
+    val separationDistance = 45.0
+    val inputNameBoxWidth = separationDistance*2.0
+    val widgetSize = 20.0
+    val vuMeterWidth = widgetSize
+    val buttonSize = widgetSize
+    val arcSize = 5.0
+    val strokeSize = 1.2
+    var verticalDistancesBetweenWidgets = 15.0
+    /* colors */
+    val strokeColor = Color.BLACK
+    val generalPurple = Color.MEDIUMPURPLE.darker()
+    val generalGray = Color.GRAY.brighter()
+    val backgroundGray = Color.DIMGREY.darker().darker()
+    /* initial offsets */
+    var masterOffsetY = -(stageHeightProperty.value / 2.0) + (trackHeight / 2.0) + 12.0
+
+    val addButtonOffset = separationDistance
+    val inputButtonsOffset = addButtonOffset + 30.0
+    val inputNameBoxOffset = inputButtonsOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
+    val vuMeterOffset = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
+    var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
+    val waveFormWidth = 5000.0
+    val waveFormTranslateX: Double get() { return waveFormWidth / 2.0 + currentDividerOffset.getValue() }
+    var waveFormOffset = 0.0
+
+    /* observable variables */
+    val initialTrackDividerWidth = 310.0
+    var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + initialTrackDividerWidth)
+    var observableStageWidth = Observable<Double>(stageWidthProperty.value)
+    var observableStageHeight = Observable<Double>(stageHeightProperty.value)
+    var waveFormScrollDeltaX = Observable<Double>(0.0)
+
+    val topOfTracks: Double get() { return masterOffsetY - trackHeight/2.0 }
+    val bottomOfTracks: Double get() { return topOfTracks + trackHeight*numTracks }
+    val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
+
+    val numChildren: Int = 0
+    val numTracks: Int get() { return numChildren + 1 }
+}
 
 class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: StackPane): Widget {
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _trackListState = MutableStateFlow(TrackListState(stageWidthProperty, stageHeightProperty))
     var trackHeight: Double = 100.0
     var trackWidth: Double = stageWidthProperty.value
     val topOfTracks: Double get() { return masterOffsetY - trackHeight/2.0 }

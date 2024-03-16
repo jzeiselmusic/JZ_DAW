@@ -8,6 +8,7 @@ module org.jzeisel.app_test {
     requires org.kordamp.bootstrapfx.core;
     requires java.desktop;
     requires kolor;
+    requires kotlinx.coroutines.core.jvm;
 
     opens org.jzeisel.app_test to javafx.fxml;
     exports org.jzeisel.app_test;

@@ -35,10 +35,11 @@ class WaveFormBox(override val parent: Widget) :
 
     init {
         trackRectangle.onScroll = EventHandler {
-            if ((trackRectangle.translateX + it.deltaX) > trackListViewModel.waveFormTranslateX) {
-                return@EventHandler
+            if (!((trackRectangle.translateX + it.deltaX) > trackListViewModel.waveFormTranslateX)) {
+                trackListViewModel.onWaveFormBoxScroll(-it.deltaX / 4.0)
+            } else {
+                trackListViewModel.onWaveFormBoxScroll((- trackListViewModel.waveFormTranslateX + trackRectangle.translateX)/4.0)
             }
-            trackListViewModel.onWaveFormBoxScroll(-it.deltaX)
         }
         trackRectangle.translateY = parentTrack.trackOffsetY
         trackRectangle.translateX = trackListViewModel.waveFormTranslateX - trackListViewModel.waveFormOffset
