@@ -36,8 +36,9 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         cursorRectangle = Rectangle(rectangleWidth, rectangleHeight, trackListViewModel.generalGray)
         cursorRectangle.opacity = 0.9
         cursorRectangle.translateY = rectangleTranslateY
-        cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + offsetX
+        cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + offsetX - trackListViewModel.waveFormOffset
         cursorRectangle.viewOrder = zValCursor
+        cursorRectangle.isMouseTransparent = true
         root.children.add(cursorRectangle)
 
         cursorPointer = Polygon(0.0, 0.0,
@@ -70,7 +71,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         if (isShowing) {
             Platform.runLater {
                 currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
-                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
+                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX - trackListViewModel.waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
         }
@@ -80,7 +81,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         if (isShowing) {
             when (broadcastType) {
                 BroadcastType.DIVIDER -> {
-                    cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
+                    cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX - trackListViewModel.waveFormOffset
                     cursorPointer.translateX = cursorRectangle.translateX
                 }
                 BroadcastType.STAGE_WIDTH -> { respondToWidthChange(old, new) }
@@ -110,7 +111,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
             Platform.runLater {
                 cursorRectangle.height = rectangleHeight
                 cursorRectangle.translateY = rectangleTranslateY
-                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX
+                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX - trackListViewModel.waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
         }
