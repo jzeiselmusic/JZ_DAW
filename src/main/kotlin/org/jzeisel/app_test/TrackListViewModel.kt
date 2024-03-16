@@ -20,6 +20,7 @@ import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
+import kotlin.math.abs
 import kotlin.properties.Delegates
 
 class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: StackPane): Widget {
@@ -66,7 +67,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     val vuMeterOffset = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
     var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
     val waveFormWidth = 5000.0
-    val waveFormInitialTranslateX: Double get() { return waveFormWidth / 2.0 + currentDividerOffset.getValue() }
+    val waveFormTranslateX: Double get() { return waveFormWidth / 2.0 + currentDividerOffset.getValue() }
+    var waveFormOffset = 0.0
 
     /* observable variables */
     val initialTrackDividerWidth = 310.0

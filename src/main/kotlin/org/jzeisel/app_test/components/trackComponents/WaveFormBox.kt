@@ -2,7 +2,6 @@ package org.jzeisel.app_test.components.trackComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
-import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -36,13 +35,13 @@ class WaveFormBox(override val parent: Widget) :
 
     init {
         trackRectangle.onScroll = EventHandler {
-            if ((trackRectangle.translateX + it.deltaX) > trackListViewModel.waveFormInitialTranslateX) {
+            if ((trackRectangle.translateX + it.deltaX) > trackListViewModel.waveFormTranslateX) {
                 return@EventHandler
             }
             trackListViewModel.onWaveFormBoxScroll(-it.deltaX)
         }
         trackRectangle.translateY = parentTrack.trackOffsetY
-        trackRectangle.translateX = trackListViewModel.waveFormInitialTranslateX
+        trackRectangle.translateX = trackListViewModel.waveFormTranslateX - trackListViewModel.waveFormOffset
         trackRectangle.opacity = 0.8
         trackRectangle.stroke = trackListViewModel.strokeColor
         trackRectangle.strokeWidth = 0.5
@@ -225,6 +224,7 @@ class WaveFormBox(override val parent: Widget) :
 
     fun respondToScrollChanges(deltaX: Double) {
         trackRectangle.translateX -= deltaX
+        trackListViewModel.waveFormOffset = trackListViewModel.waveFormTranslateX - trackRectangle.translateX
         for (measureDivider in measureDividers) {
             measureDivider.translateX -= deltaX
         }
