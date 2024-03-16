@@ -11,32 +11,23 @@ import javafx.scene.text.Text
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
+import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 import kotlin.math.abs
+import kotlin.math.ulp
 
 abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<Double> {
-    val TAG = "TrackInterface"
-    /* a track component has the following elements:
-        1. a vuMeter
-        2. a waveform box
-        3. a panning component
-        4. a volume component
-        5. mute and solo buttons
-        5. an input selector dropbox
-        6. a button to add a new track
-        7. a recorder object to save audio input
-           when the master wants to record
-     */
     val trackListViewModel = parent as TrackListViewModel
-    val initialTrackWidth = trackListViewModel.stage.width
-    val initialTrackHeight = trackListViewModel.trackHeight
+    val trackListState = trackListViewModel._trackListStateFlow.state
+    val initialTrackWidth = trackListState.trackWidth
+    val initialTrackHeight = trackListState.trackHeight
     val trackColorNormal = Color.WHITESMOKE.darker().darker()
     val trackColorHL = Color.WHITESMOKE.darker()
-    val trackRectangle = Rectangle(trackListViewModel.initialTrackDividerWidth, initialTrackHeight, trackColorNormal)
-    val trackDivider = Rectangle(3.0, initialTrackHeight, trackListViewModel.strokeColor)
-    val labelDivider = Rectangle(1.5, initialTrackHeight, trackListViewModel.strokeColor)
+    val trackRectangle = Rectangle(trackListState.initialTrackDividerWidth, initialTrackHeight, trackColorNormal)
+    val trackDivider = Rectangle(3.0, initialTrackHeight, trackListState.strokeColor)
+    val labelDivider = Rectangle(1.5, initialTrackHeight, trackListState.strokeColor)
     val trackLabel = Rectangle()
     val trackLabelNumber = Text("")
     var isSelected = false
@@ -52,8 +43,8 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
 
     fun setTrackRectangleProperties() {
         trackRectangle.translateY = trackOffsetY
-        trackRectangle.translateX = -trackListViewModel.observableStageWidth.getValue() / 2.0 + trackListViewModel.initialTrackDividerWidth / 2.0
-        trackRectangle.stroke = trackListViewModel.strokeColor
+        trackRectangle.translateX = -trackListState.observableStageWidth.getValue() / 2.0 + trackListState.initialTrackDividerWidth / 2.0
+        trackRectangle.stroke = trackListState.strokeColor
         trackRectangle.strokeWidth = 0.4
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
         trackRectangle.viewOrder = viewOrderFlip - 0.3
@@ -74,18 +65,18 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         }
 
         trackDivider.translateY = trackOffsetY
-        trackDivider.translateX = trackListViewModel.currentDividerOffset.getValue()
+        trackDivider.translateX = trackListState.currentDividerOffset.getValue()
         trackDivider.viewOrder = viewOrderFlip - 0.41
 
         labelDivider.translateY = trackOffsetY
-        labelDivider.translateX = trackListViewModel.labelDividerOffset
+        labelDivider.translateX = trackListState.labelDividerOffset
         labelDivider.viewOrder = viewOrderFlip - 0.44
-        trackLabel.width = trackListViewModel.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
+        trackLabel.width = trackListState.stageWidthProperty.value / 2.0 - abs(labelDivider.translateX)
         trackLabel.height = initialTrackHeight
-        trackLabel.fill = trackListViewModel.generalGray
+        trackLabel.fill = trackListState.generalGray
         trackLabel.translateY = trackOffsetY
-        trackLabel.translateX = -trackListViewModel.stageWidthProperty.value / 2.0 + trackLabel.width / 2.0
-        trackLabel.stroke = trackListViewModel.strokeColor
+        trackLabel.translateX = -trackListState.stageWidthProperty.value / 2.0 + trackLabel.width / 2.0
+        trackLabel.stroke = trackListState.strokeColor
         trackLabel.strokeWidth = 0.4
         trackLabel.viewOrder = viewOrderFlip - 0.42
         trackLabelNumber.translateY = trackOffsetY

@@ -21,11 +21,12 @@ class InputEnableButton(override val parent: Widget?)
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     private var isEnabled: Boolean = false
-    private val buttonWidth = trackListViewModel.buttonSize
-    private val buttonHeight = trackListViewModel.buttonSize
-    private var buttonOffsetY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
-    private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputButtonsOffset
+    private val buttonWidth = trackListState.buttonSize
+    private val buttonHeight = trackListState.buttonSize
+    private var buttonOffsetY = parentTrack.trackOffsetY - trackListState.verticalDistancesBetweenWidgets
+    private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListState.inputButtonsOffset
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -41,16 +42,16 @@ class InputEnableButton(override val parent: Widget?)
     }
 
     init {
-        iImageView.fitHeight = trackListViewModel.buttonSize - 5.0
+        iImageView.fitHeight = trackListState.buttonSize - 5.0
         iImageView.isPreserveRatio = true
         iImageView.translateY = buttonOffsetY
         iImageView.translateX = buttonOffsetX
         buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
-        buttonRect.arcWidth = trackListViewModel.arcSize
-        buttonRect.arcHeight = trackListViewModel.arcSize
-        buttonRect.stroke = trackListViewModel.strokeColor
-        buttonRect.strokeWidth = trackListViewModel.strokeSize
+        buttonRect.arcWidth = trackListState.arcSize
+        buttonRect.arcHeight = trackListState.arcSize
+        buttonRect.stroke = trackListState.strokeColor
+        buttonRect.strokeWidth = trackListState.strokeSize
         buttonRect.onMouseReleased = mouseReleaseEvent
         buttonRect.viewOrder = viewOrderFlip - 0.31
         iImageView.onMouseReleased = mouseReleaseEvent
@@ -131,7 +132,7 @@ class InputEnableButton(override val parent: Widget?)
     }
 
     override fun respondToIndexChange(old: Double, new: Double) {
-        buttonOffsetY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
+        buttonOffsetY = parentTrack.trackOffsetY - trackListState.verticalDistancesBetweenWidgets
         iImageView.translateY = buttonOffsetY
         buttonRect.translateY = buttonOffsetY
     }

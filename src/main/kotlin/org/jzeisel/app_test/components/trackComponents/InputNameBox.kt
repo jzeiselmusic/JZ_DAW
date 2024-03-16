@@ -24,10 +24,11 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
     override val children = mutableListOf<Widget>()
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     private val nameText = Text()
-    private val generalBox = Rectangle(trackListViewModel.inputNameBoxWidth,
-                                        trackListViewModel.buttonSize,
-                                        trackListViewModel.generalGray)
+    private val generalBox = Rectangle(trackListState.inputNameBoxWidth,
+                                        trackListState.buttonSize,
+                                        trackListState.generalGray)
     private val textField = TextField(generalBox, nameText, trackListViewModel, ::returnValueFromTextField)
     var nameSetByUser = false
 
@@ -47,19 +48,19 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
 
 
     init {
-        generalBox.translateY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
-        generalBox.translateX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputNameBoxOffset
-        generalBox.strokeWidth = trackListViewModel.strokeSize
-        generalBox.stroke = trackListViewModel.strokeColor
-        generalBox.arcWidth = trackListViewModel.arcSize
-        generalBox.arcHeight = trackListViewModel.arcSize
+        generalBox.translateY = parentTrack.trackOffsetY - trackListState.verticalDistancesBetweenWidgets
+        generalBox.translateX = -(trackListViewModel.stage.width / 2) + trackListState.inputNameBoxOffset
+        generalBox.strokeWidth = trackListState.strokeSize
+        generalBox.stroke = trackListState.strokeColor
+        generalBox.arcWidth = trackListState.arcSize
+        generalBox.arcHeight = trackListState.arcSize
         generalBox.opacity = 0.8
         generalBox.viewOrder = viewOrderFlip - 0.31
         nameText.text = name
         nameText.translateY = generalBox.translateY
         nameText.translateX = generalBox.translateX
         nameText.textAlignment = TextAlignment.CENTER
-        nameText.fill = trackListViewModel.strokeColor
+        nameText.fill = trackListState.strokeColor
         nameText.isVisible = true
         nameText.opacity = 0.95
         nameText.viewOrder = viewOrderFlip - 0.32
@@ -132,7 +133,7 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
     }
 
     override fun respondToIndexChange(old: Double, new: Double) {
-        generalBox.translateY = parentTrack.trackOffsetY - trackListViewModel.verticalDistancesBetweenWidgets
+        generalBox.translateY = parentTrack.trackOffsetY - trackListState.verticalDistancesBetweenWidgets
         nameText.translateY = generalBox.translateY
     }
 

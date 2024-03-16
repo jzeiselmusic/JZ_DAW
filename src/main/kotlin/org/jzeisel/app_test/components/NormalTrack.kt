@@ -22,7 +22,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     var index = Observable(initialIndex.toDouble())
-    override var trackOffsetY: Double = progenitor.trackOffsetY + trackListViewModel.trackHeight
+    override var trackOffsetY: Double = progenitor.trackOffsetY + trackListState.trackHeight
     var trackWidth: Double = initialTrackWidth
     override val children = mutableListOf<Widget>()
     init {
@@ -47,9 +47,9 @@ class NormalTrack(root: StackPane, override val parent: Widget,
                 trackWidth = new
                 trackRectangle.translateX -= amtChange
                 trackDivider.translateX -= amtChange
-                trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
+                trackListState.currentDividerOffset.setValue(trackDivider.translateX)
                 labelDivider.translateX -= amtChange
-                trackListViewModel.labelDividerOffset = labelDivider.translateX
+                trackListViewModel.updateLabelDividerOffset(labelDivider.translateX)
                 trackLabel.translateX -= amtChange
                 trackLabelNumber.translateX -= amtChange
             }
@@ -81,10 +81,10 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     fun respondToChangeInTrackList(old: List<Widget>, new: List<Widget>) {
         val newIndex = new.indexOf(this)
-        trackOffsetY = trackListViewModel.masterOffsetY + (newIndex+1)*initialTrackHeight
+        trackOffsetY = trackListState.masterOffsetY + (newIndex+1)*initialTrackHeight
         name = (newIndex+1).toString()
         index.setValueAndNotify(newIndex.toDouble(), BroadcastType.INDEX)
-        (trackListViewModel.masterOffsetY + trackListViewModel.trackHeight*(newIndex+1)).let{
+        (trackListState.masterOffsetY + trackListState.trackHeight*(newIndex+1)).let{
             trackRectangle.translateY = it
             trackDivider.translateY = it
             trackLabel.translateY = it

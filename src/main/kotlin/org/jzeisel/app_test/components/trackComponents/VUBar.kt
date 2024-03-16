@@ -17,6 +17,8 @@ class VUBar(color: Color, private var barOffsetY: Double,
     : Widget, TrackComponentWidget, ObservableListener<Double> {
 
     private val parentVUMeter = parent as VUMeter
+    private val trackListViewModel = parentVUMeter.trackListViewModel
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     private val parentTrack = parentVUMeter.parent as Track
     private val barWidth = parentVUMeter.vuMeterWidth - 4.0
     private val barHeight = parentVUMeter.barHeight
@@ -66,7 +68,7 @@ class VUBar(color: Color, private var barOffsetY: Double,
 
     override fun respondToIndexChange(old: Double, new: Double) {
         val indexShift = new - old
-        barOffsetY += parentVUMeter.trackListViewModel.trackHeight * indexShift
+        barOffsetY += trackListState.trackHeight * indexShift
         barRectangle.translateY = barOffsetY
     }
 

@@ -24,11 +24,8 @@ class TextField(private val parentRect: Rectangle,
                 private val trackListViewModel: TrackListViewModel,
                 private val clickCallback: (name: String) -> Unit)
     : TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "TextField"
-        const val LEVEL = 4
-    }
     var isShowing = false
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     private val cursorDistanceFromEndOfText = 3.0
     private val rectangleWidth: Double get() { return parentRect.width }
     private val rectangleHeight: Double get() { return parentRect.height }
@@ -53,10 +50,10 @@ class TextField(private val parentRect: Rectangle,
         rectangle.height = rectangleHeight
         rectangle.translateX = rectangleTranslateX
         rectangle.translateY = rectangleTranslateY
-        rectangle.arcWidth = trackListViewModel.arcSize
-        rectangle.arcHeight = trackListViewModel.arcSize
+        rectangle.arcWidth = trackListState.arcSize
+        rectangle.arcHeight = trackListState.arcSize
         rectangle.fill = Color.WHITESMOKE.brighter()
-        rectangle.stroke = trackListViewModel.strokeColor
+        rectangle.stroke = trackListState.strokeColor
         rectangle.strokeWidth = 2.3
         rectangle.viewOrder = viewOrderFlip - 0.61
         text.text = textString
@@ -68,8 +65,8 @@ class TextField(private val parentRect: Rectangle,
         cursor.height = text.boundsInLocal.height - 1.0
         cursor.translateX = rectangleTranslateX + text.boundsInLocal.width / 2.0 + cursorDistanceFromEndOfText
         cursor.translateY = rectangleTranslateY
-        cursor.fill = trackListViewModel.backgroundGray.brighter()
-        cursor.stroke = trackListViewModel.backgroundGray.brighter()
+        cursor.fill = trackListState.backgroundGray.brighter()
+        cursor.stroke = trackListState.backgroundGray.brighter()
         cursor.isVisible = true
         cursor.viewOrder = viewOrderFlip - 0.62
         val delay = PauseTransition(Duration.millis(100.0));

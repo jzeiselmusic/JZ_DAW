@@ -10,6 +10,8 @@ import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
+import org.jzeisel.app_test.stateflow.TrackListState
+import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
@@ -21,6 +23,7 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
     companion object {
         const val TAG = "DropDownBox"
     }
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     private val parentButton = parent
     private val rectangleList = mutableListOf<Rectangle>()
     private val textList = mutableListOf<Text>()
@@ -40,36 +43,36 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
             val text = Text(string)
             text.translateX = buttonOffsetX + rectangleWidth / 2.0
             text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx
-            text.fill = trackListViewModel.strokeColor
+            text.fill = trackListState.strokeColor
             text.textAlignment = TextAlignment.CENTER
             text.isVisible = true
             text.viewOrder = viewOrderFlip - 0.65
             /*********************/
-            val rect = Rectangle(rectangleWidth, rectangleHeight, trackListViewModel.generalPurple)
+            val rect = Rectangle(rectangleWidth, rectangleHeight, trackListState.generalPurple)
             rect.translateX = buttonOffsetX + rectangleWidth / 2.0
             rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx
-            rect.stroke = trackListViewModel.strokeColor
-            rect.strokeWidth = trackListViewModel.strokeSize
+            rect.stroke = trackListState.strokeColor
+            rect.strokeWidth = trackListState.strokeSize
             rect.arcWidth = 3.0
             rect.arcHeight = 3.0
             rect.isVisible = true
             rect.viewOrder = viewOrderFlip - 0.64
             /*********************/
             text.onMouseEntered = EventHandler {
-                rect.fill = trackListViewModel.generalPurple.darker()
+                rect.fill = trackListState.generalPurple.darker()
             }
             text.onMouseExited = EventHandler {
-                rect.fill = trackListViewModel.generalPurple
+                rect.fill = trackListState.generalPurple
             }
             text.onMouseClicked = EventHandler {
                 clickCallback(idx)
             }
             /*********************/
             rect.onMouseEntered = EventHandler {
-                rect.fill = trackListViewModel.generalPurple.darker()
+                rect.fill = trackListState.generalPurple.darker()
             }
             rect.onMouseExited = EventHandler {
-                rect.fill = trackListViewModel.generalPurple
+                rect.fill = trackListState.generalPurple
             }
             rect.onMouseClicked = EventHandler {
                 clickCallback(idx)

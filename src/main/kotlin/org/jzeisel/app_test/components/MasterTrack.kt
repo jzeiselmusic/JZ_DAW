@@ -13,15 +13,15 @@ class MasterTrack(root: StackPane, override val parent: Widget)
 
     override val name = "Master"
     override val children = mutableListOf<Widget>()
-    override var trackOffsetY: Double = trackListViewModel.masterOffsetY
+    override var trackOffsetY: Double = trackListState.masterOffsetY
     var trackWidth: Double = initialTrackWidth
-    private val headerBar = Rectangle(trackListViewModel.trackWidth, 12.0, trackListViewModel.generalGray.darker().darker())
+    private val headerBar = Rectangle(trackListState.trackWidth, 12.0, trackListState.generalGray.darker().darker())
     init {
         setTrackRectangleProperties()
-        headerBar.translateY = trackListViewModel.masterOffsetY - trackRectangle.height/2.0 - 6.0
+        headerBar.translateY = trackListState.masterOffsetY - trackRectangle.height/2.0 - 6.0
         headerBar.arcWidth = 5.0
         headerBar.arcHeight = 5.0
-        headerBar.stroke = trackListViewModel.strokeColor
+        headerBar.stroke = trackListState.strokeColor
         headerBar.strokeWidth = 0.5
     }
     override val addButton = AddButton(this)
@@ -44,9 +44,9 @@ class MasterTrack(root: StackPane, override val parent: Widget)
                 trackRectangle.translateX -= amtChange
                 headerBar.width = new
                 trackDivider.translateX -= amtChange
-                trackListViewModel.currentDividerOffset.setValue(trackDivider.translateX)
+                trackListState.currentDividerOffset.setValue(trackDivider.translateX)
                 labelDivider.translateX -= amtChange
-                trackListViewModel.labelDividerOffset = labelDivider.translateX
+                trackListViewModel.updateLabelDividerOffset(labelDivider.translateX)
                 trackLabel.translateX -= amtChange
                 trackLabelNumber.translateX -= amtChange
             }
@@ -59,7 +59,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
                 labelDivider.translateY = trackOffsetY
                 trackLabel.translateY = trackOffsetY
                 trackLabelNumber.translateY = trackOffsetY
-                trackListViewModel.masterOffsetY = trackOffsetY
+                trackListViewModel.updateMasterOffsetY(trackOffsetY)
             }
             BroadcastType.INDEX -> {}
             BroadcastType.SCROLL -> {}

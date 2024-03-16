@@ -12,13 +12,6 @@ class AudioInputManager(parent: TrackListViewModel) {
         const val TAG = "AudioInputManager"
         const val LVL = 4
     }
-    /*
-    audio input manager keeps track of which audio inputs are enabled and
-    provides an interface to read data from those inputs such that every
-    track that uses that input gets the same information
-
-    this class knows what audio ports are available, and enables them
-    and starts streaming audio into the port when a track requests it.*/
     private val recorder = Recorder()
     private val audioProcessor = AudioProcessor(50)
 

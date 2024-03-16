@@ -23,10 +23,11 @@ class AddButton(override val parent: Widget)
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
-    private val buttonWidth = trackListViewModel.buttonSize
-    private val buttonHeight = trackListViewModel.buttonSize
+    private val trackListState = trackListViewModel._trackListStateFlow.state
+    private val buttonWidth = trackListState.buttonSize
+    private val buttonHeight = trackListState.buttonSize
     private var buttonOffsetY = parentTrack.trackOffsetY
-    private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListViewModel.addButtonOffset
+    private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListState.addButtonOffset
     override val children = mutableListOf<Widget>()
 
     override fun addChild(child: Widget) {
@@ -59,10 +60,10 @@ class AddButton(override val parent: Widget)
     init {
         buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
-        buttonRect.arcWidth = trackListViewModel.arcSize
-        buttonRect.arcHeight = trackListViewModel.arcSize
-        buttonRect.stroke = trackListViewModel.strokeColor
-        buttonRect.strokeWidth = trackListViewModel.strokeSize
+        buttonRect.arcWidth = trackListState.arcSize
+        buttonRect.arcHeight = trackListState.arcSize
+        buttonRect.stroke = trackListState.strokeColor
+        buttonRect.strokeWidth = trackListState.strokeSize
         buttonRect.viewOrder = viewOrderFlip - 0.31
         horizontalLine.translateX = buttonOffsetX
         horizontalLine.translateY = buttonOffsetY

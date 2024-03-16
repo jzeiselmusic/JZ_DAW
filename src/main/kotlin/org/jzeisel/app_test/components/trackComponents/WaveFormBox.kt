@@ -23,11 +23,12 @@ class WaveFormBox(override val parent: Widget) :
     val zValTicks = viewOrderFlip - 0.12
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
-    val trackListViewModel = parentTrack.trackListViewModel
-    val waveFormWidth = trackListViewModel.waveFormWidth
+    private val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListState = trackListViewModel._trackListStateFlow.state
+    val waveFormWidth = trackListState.waveFormWidth
     val trackRectangle = Rectangle(waveFormWidth,
                                    parentTrack.initialTrackHeight,
-                                   trackListViewModel.generalPurple)
+                                   trackListState.generalPurple)
 
     val measureDividers = mutableListOf<Rectangle>()
     val beatDividers = mutableListOf<Rectangle>()
@@ -35,16 +36,16 @@ class WaveFormBox(override val parent: Widget) :
 
     init {
         trackRectangle.onScroll = EventHandler {
-            if (!((trackRectangle.translateX + it.deltaX) > trackListViewModel.waveFormTranslateX)) {
+            if (!((trackRectangle.translateX + it.deltaX) > trackListState.waveFormTranslateX)) {
                 trackListViewModel.onWaveFormBoxScroll(-it.deltaX / 4.0)
             } else {
-                trackListViewModel.onWaveFormBoxScroll((- trackListViewModel.waveFormTranslateX + trackRectangle.translateX)/4.0)
+                trackListViewModel.onWaveFormBoxScroll((- trackListState.waveFormTranslateX + trackRectangle.translateX)/4.0)
             }
         }
         trackRectangle.translateY = parentTrack.trackOffsetY
-        trackRectangle.translateX = trackListViewModel.waveFormTranslateX - trackListViewModel.waveFormOffset
+        trackRectangle.translateX = trackListState.waveFormTranslateX - trackListState.waveFormOffset
         trackRectangle.opacity = 0.8
-        trackRectangle.stroke = trackListViewModel.strokeColor
+        trackRectangle.stroke = trackListState.strokeColor
         trackRectangle.strokeWidth = 0.5
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
         trackRectangle.viewOrder = zValBase
@@ -56,7 +57,7 @@ class WaveFormBox(override val parent: Widget) :
         }
 
         for (i in 0..(waveFormWidth/100).toInt()) {
-            val measure = Rectangle(1.0, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
+            val measure = Rectangle(1.0, trackListState.trackHeight, trackListState.strokeColor)
             measure.opacity = 0.6
             measure.strokeWidth = 0.8
             measure.translateY = parentTrack.trackOffsetY
@@ -65,13 +66,13 @@ class WaveFormBox(override val parent: Widget) :
             measure.viewOrder = zValMeasures
             measureDividers.add(measure)
             if (parentTrack is MasterTrack) {
-                val tick = Rectangle(1.2, 5.0, trackListViewModel.generalGray.darker())
+                val tick = Rectangle(1.2, 5.0, trackListState.generalGray.darker())
                 tick.opacity = 1.0
                 tick.strokeWidth = 0.8
                 tick.arcHeight = 2.0
                 tick.arcWidth = 2.0
                 tick.stroke = color()
-                tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
+                tick.translateY = measure.translateY - trackListState.trackHeight/2.0 + tick.height/2.0 + 1.0
                 tick.translateX = measure.translateX
                 tick.isMouseTransparent = true
                 tick.viewOrder = zValTicks
@@ -79,7 +80,7 @@ class WaveFormBox(override val parent: Widget) :
             }
 
             for (j in 1..3) {
-                val beat = Rectangle(0.4, trackListViewModel.trackHeight, trackListViewModel.strokeColor)
+                val beat = Rectangle(0.4, trackListState.trackHeight, trackListState.strokeColor)
                 beat.opacity = 0.5
                 beat.strokeWidth = 0.2
                 beat.translateY = parentTrack.trackOffsetY
@@ -88,13 +89,13 @@ class WaveFormBox(override val parent: Widget) :
                 beat.viewOrder = zValMeasures
                 beatDividers.add(beat)
                 if (parentTrack is MasterTrack) {
-                    val tick = Rectangle(1.0, 3.0, trackListViewModel.generalGray.darker())
+                    val tick = Rectangle(1.0, 3.0, trackListState.generalGray.darker())
                     tick.opacity = 1.0
                     tick.strokeWidth = 0.4
                     tick.arcHeight = 2.0
                     tick.arcWidth = 2.0
-                    tick.stroke = trackListViewModel.generalGray
-                    tick.translateY = measure.translateY - trackListViewModel.trackHeight/2.0 + tick.height/2.0 + 1.0
+                    tick.stroke = trackListState.generalGray
+                    tick.translateY = measure.translateY - trackListState.trackHeight/2.0 + tick.height/2.0 + 1.0
                     tick.translateX = beat.translateX
                     tick.isMouseTransparent = true
                     tick.viewOrder = zValTicks
@@ -134,7 +135,7 @@ class WaveFormBox(override val parent: Widget) :
         }
     }
 
-    private fun color(): Color? = trackListViewModel.generalGray.darker()
+    private fun color(): Color? = trackListState.generalGray.darker()
     override fun addChild(child: Widget) {
     }
 
@@ -225,7 +226,7 @@ class WaveFormBox(override val parent: Widget) :
 
     fun respondToScrollChanges(deltaX: Double) {
         trackRectangle.translateX -= deltaX
-        trackListViewModel.waveFormOffset = trackListViewModel.waveFormTranslateX - trackRectangle.translateX
+        trackListViewModel.updateWaveFormOffset(trackListState.waveFormTranslateX - trackRectangle.translateX)
         for (measureDivider in measureDividers) {
             measureDivider.translateX -= deltaX
         }

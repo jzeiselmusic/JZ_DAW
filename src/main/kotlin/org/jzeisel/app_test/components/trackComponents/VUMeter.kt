@@ -20,12 +20,13 @@ class VUMeter(override val parent: Widget)
     /* made of 2 rectangles and a set of numBars Bars */
     private val parentTrack = parent as Track
     val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     private val numBars = 20
-    val vuMeterWidth = trackListViewModel.vuMeterWidth
+    val vuMeterWidth = trackListState.vuMeterWidth
     private var vuMeterHeight = parentTrack.initialTrackHeight / 1.75
-    var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + trackListViewModel.vuMeterOffset
+    var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + trackListState.vuMeterOffset
     private var vuMeterOffsetY = parentTrack.trackOffsetY
-    private val bgColor = trackListViewModel.generalGray
+    private val bgColor = trackListState.generalGray
     private val barSep = 0.0
     private val volumePerBar = 3000.0 / numBars
 
@@ -37,10 +38,10 @@ class VUMeter(override val parent: Widget)
     init {
         vuMeterRectangle.translateX = vuMeterOffsetX
         vuMeterRectangle.translateY = vuMeterOffsetY
-        vuMeterRectangle.arcWidth = trackListViewModel.arcSize
-        vuMeterRectangle.arcHeight = trackListViewModel.arcSize
-        vuMeterRectangle.stroke = trackListViewModel.strokeColor
-        vuMeterRectangle.strokeWidth = trackListViewModel.strokeSize
+        vuMeterRectangle.arcWidth = trackListState.arcSize
+        vuMeterRectangle.arcHeight = trackListState.arcSize
+        vuMeterRectangle.stroke = trackListState.strokeColor
+        vuMeterRectangle.strokeWidth = trackListState.strokeSize
         vuMeterRectangle.viewOrder = viewOrderFlip - 0.31
     }
 

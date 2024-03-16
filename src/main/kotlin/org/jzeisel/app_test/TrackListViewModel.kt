@@ -8,7 +8,6 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
@@ -17,73 +16,14 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
+import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Logger
-import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.properties.Delegates
-
-data class TrackListState(val stageWidthProperty: ReadOnlyDoubleProperty,
-                          val stageHeightProperty: ReadOnlyDoubleProperty) {
-    var trackHeight: Double = 100.0
-    var trackWidth: Double = stageWidthProperty.value
-
-    /* sizes */
-    val separationDistance = 45.0
-    val inputNameBoxWidth = separationDistance*2.0
-    val widgetSize = 20.0
-    val vuMeterWidth = widgetSize
-    val buttonSize = widgetSize
-    val arcSize = 5.0
-    val strokeSize = 1.2
-    var verticalDistancesBetweenWidgets = 15.0
-    /* colors */
-    val strokeColor = Color.BLACK
-    val generalPurple = Color.MEDIUMPURPLE.darker()
-    val generalGray = Color.GRAY.brighter()
-    val backgroundGray = Color.DIMGREY.darker().darker()
-    /* initial offsets */
-    var masterOffsetY = -(stageHeightProperty.value / 2.0) + (trackHeight / 2.0) + 12.0
-
-    val addButtonOffset = separationDistance
-    val inputButtonsOffset = addButtonOffset + 30.0
-    val inputNameBoxOffset = inputButtonsOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
-    val vuMeterOffset = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
-    var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
-    val waveFormWidth = 5000.0
-    val waveFormTranslateX: Double get() { return waveFormWidth / 2.0 + currentDividerOffset.getValue() }
-    var waveFormOffset = 0.0
-
-    /* observable variables */
-    val initialTrackDividerWidth = 310.0
-    var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + initialTrackDividerWidth)
-    var observableStageWidth = Observable<Double>(stageWidthProperty.value)
-    var observableStageHeight = Observable<Double>(stageHeightProperty.value)
-    var waveFormScrollDeltaX = Observable<Double>(0.0)
-
-    val topOfTracks: Double get() { return masterOffsetY - trackHeight/2.0 }
-    val bottomOfTracks: Double get() { return topOfTracks + trackHeight*numTracks }
-    val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
-
-    val numChildren: Int = 0
-    val numTracks: Int get() { return numChildren + 1 }
-}
 
 class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: StackPane): Widget {
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val _trackListState = MutableStateFlow(TrackListState(stageWidthProperty, stageHeightProperty))
-    var trackHeight: Double = 100.0
-    var trackWidth: Double = stageWidthProperty.value
-    val topOfTracks: Double get() { return masterOffsetY - trackHeight/2.0 }
-    val bottomOfTracks: Double get() { return topOfTracks + trackHeight*numTracks }
-    val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
-
-    val numChildren: Int get() { return children.size }
-    val numTracks: Int get() { return numChildren + 1 }
 
     override val parent: Widget? = null
     /* all TrackList children will be NormalTracks */
@@ -92,59 +32,25 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
             val t = child as NormalTrack
             t.respondToChangeInTrackList(old, new)
         }
-        cursorFollower.updateFromTrackList(root)
+        CursorFollower.updateFromTrackList(root)
     }
-    /* sizes */
-    val separationDistance = 45.0
-    val inputNameBoxWidth = separationDistance*2.0
-    val widgetSize = 20.0
-    val vuMeterWidth = widgetSize
-    val buttonSize = widgetSize
-    val arcSize = 5.0
-    val strokeSize = 1.2
-    var verticalDistancesBetweenWidgets = 15.0
-    /* colors */
-    val strokeColor = Color.BLACK
-    val generalPurple = Color.MEDIUMPURPLE.darker()
-    val generalGray = Color.GRAY.brighter()
-    val backgroundGray = Color.DIMGREY.darker().darker()
-    /* initial offsets */
-    var masterOffsetY = -(stage.height / 2.0) + (trackHeight / 2.0) + 12.0
-    /* these are currently distance from left-hand size of stage */
-    val addButtonOffset = separationDistance
-    val inputButtonsOffset = addButtonOffset + 30.0
-    val inputNameBoxOffset = inputButtonsOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
-    val vuMeterOffset = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0
-    var labelDividerOffset = -stageWidthProperty.value / 2.0 + 20.0
-    val waveFormWidth = 5000.0
-    val waveFormTranslateX: Double get() { return waveFormWidth / 2.0 + currentDividerOffset.getValue() }
-    var waveFormOffset = 0.0
-
-    /* observable variables */
-    val initialTrackDividerWidth = 310.0
-    var currentDividerOffset = Observable<Double>(-stageWidthProperty.value / 2.0 + initialTrackDividerWidth)
-    var observableStageWidth = Observable<Double>(stageWidthProperty.value)
-    var observableStageHeight = Observable<Double>(stageHeightProperty.value)
-    var waveFormScrollDeltaX = Observable<Double>(0.0)
     /*      *****      */
     val audioInputManager = AudioInputManager(this)
 
+    var _trackListStateFlow = TrackListStateFlow(stageWidthProperty, stageHeightProperty)
+
     private val masterTrack: MasterTrack = MasterTrack(root,this)
-
-    private val cursorFollower = CursorFollower
-    private val verticalScrollBar = VerticalScrollBar
-
-    private var trackSelected: Track? = null
-
     init {
-        cursorFollower.initialize(this)
-        verticalScrollBar.initialize(this, extraPane)
+        CursorFollower.initialize(this)
+        VerticalScrollBar.initialize(this, extraPane)
         stageWidthProperty.addListener { _, _, new ->
-            observableStageWidth.setValueAndNotify(new as Double, BroadcastType.STAGE_WIDTH)
-            trackWidth = new
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(
+                trackWidth = new as Double
+            )
+            _trackListStateFlow.state.observableStageWidth.setValueAndNotify(new, BroadcastType.STAGE_WIDTH)
         }
         stageHeightProperty.addListener {_, _, new ->
-            observableStageHeight.setValueAndNotify(new as Double, BroadcastType.STAGE_HEIGHT)
+            _trackListStateFlow.state.observableStageHeight.setValueAndNotify(new as Double, BroadcastType.STAGE_HEIGHT)
         }
     }
 
@@ -176,7 +82,6 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     fun addTrackFromMaster() {
         val newTrack = NormalTrack(root, this, 0, masterTrack)
         newTrack.addMeToScene(root)
-        Logger.debug("", "${verticalScrollBar.percentVisible}", 3)
         addChild(newTrack)
     }
 
@@ -190,8 +95,20 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         }
     }
 
+    fun updateWaveFormOffset(new: Double) {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(waveFormOffset = new)
+    }
+
+    fun updateLabelDividerOffset(new: Double) {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(labelDividerOffset = new)
+    }
+
+    fun updateMasterOffsetY(new: Double) {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(masterOffsetY = new)
+    }
+
     fun onWaveFormBoxScroll(deltaX: Double) {
-        waveFormScrollDeltaX.setValueAndNotify(deltaX, BroadcastType.SCROLL)
+        _trackListStateFlow.state.waveFormScrollDeltaX.setValueAndNotify(deltaX, BroadcastType.SCROLL)
     }
 
     fun broadcastMouseClick(root: StackPane) {
@@ -220,25 +137,20 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
     }
 
     fun broadcastMouseClickOnWaveFormBox(translateX: Double) {
-        if (!cursorFollower.isShowing) {
-            cursorFollower.addMeToScene(root, translateX)
+        if (!CursorFollower.isShowing) {
+            CursorFollower.addMeToScene(root, translateX)
         }
         else {
-            cursorFollower.updateLocation(translateX)
+            CursorFollower.updateLocation(translateX)
         }
-    }
-
-    fun setTrackSelected(track: Track) {
-        trackSelected = track
-        track.setSelected()
     }
 
     private fun showVerticalScrollBar() {
-        if (!verticalScrollBar.isShowing) {
-            verticalScrollBar.addMeToScene()
+        if (!VerticalScrollBar.isShowing) {
+            VerticalScrollBar.addMeToScene()
             val delay = PauseTransition(Duration.millis(200.0));
             delay.setOnFinished {
-                verticalScrollBar.removeMeFromScene()
+                VerticalScrollBar.removeMeFromScene()
             }
             delay.play()
         }
@@ -246,47 +158,47 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
 
     private fun moveVerticalScrollBar(deltaY: Double, amountOfRoom: Double) {
         showVerticalScrollBar()
-        verticalScrollBar.moveScrollBar(deltaY, amountOfRoom)
+        VerticalScrollBar.moveScrollBar(deltaY, amountOfRoom)
     }
 
     fun scrollSceneVertically(deltaY: Double) {
         val newTranslate = (root.translateY + deltaY)
-        val amountOfRoom = (totalHeightOfAllTracks - observableStageHeight.getValue()).saturateAt(0.0, null)
+        val amountOfRoom = (_trackListStateFlow.state.totalHeightOfAllTracks - _trackListStateFlow.state.observableStageHeight.getValue()).saturateAt(0.0, null)
         if (amountOfRoom < 1.0) root.translateY = newTranslate.saturateAt(-amountOfRoom, 0.0)
         else root.translateY = newTranslate.saturateAt(-amountOfRoom - 30.0, 0.0)
         moveVerticalScrollBar(deltaY, amountOfRoom)
     }
 
     fun registerForWidthChanges(listener: ObservableListener<Double>) {
-        observableStageWidth.addListener(listener)
+        _trackListStateFlow.state.observableStageWidth.addListener(listener)
     }
 
     fun unregisterForWidthChanges(listener: ObservableListener<Double>) {
-        observableStageWidth.removeListener(listener)
+        _trackListStateFlow.state.observableStageWidth.removeListener(listener)
     }
 
     fun registerForHeightChanges(listener: ObservableListener<Double>) {
-        observableStageHeight.addListener(listener)
+        _trackListStateFlow.state.observableStageHeight.addListener(listener)
     }
 
     fun unregisterForHeightChanges(listener: ObservableListener<Double>) {
-        observableStageHeight.removeListener(listener)
+        _trackListStateFlow.state.observableStageHeight.removeListener(listener)
     }
 
     fun registerForDividerOffsetChanges(listener: ObservableListener<Double>) {
-        currentDividerOffset.addListener(listener)
+        _trackListStateFlow.state.currentDividerOffset.addListener(listener)
     }
 
     fun unregisterForDividerOffsetChanges(listener: ObservableListener<Double>) {
-        currentDividerOffset.removeListener(listener)
+        _trackListStateFlow.state.currentDividerOffset.removeListener(listener)
     }
 
     fun registerForScrollChanges(listener: ObservableListener<Double>) {
-        waveFormScrollDeltaX.addListener(listener)
+        _trackListStateFlow.state.waveFormScrollDeltaX.addListener(listener)
     }
 
     fun unregisterForScrollChanges(listener: ObservableListener<Double>) {
-        waveFormScrollDeltaX.removeListener(listener)
+        _trackListStateFlow.state.waveFormScrollDeltaX.removeListener(listener)
     }
 
     fun setTrackAudioInput(index: Int, child: Widget) {

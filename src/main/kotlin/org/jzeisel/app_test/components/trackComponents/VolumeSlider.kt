@@ -20,19 +20,20 @@ class VolumeSlider(override val parent: Widget)
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     override val children = mutableListOf<Widget>()
-    private val sliderBar = Rectangle(trackListViewModel.inputNameBoxWidth, 5.0, trackListViewModel.generalGray)
-    private val sliderCircle = Circle(6.0, trackListViewModel.generalPurple)
+    private val sliderBar = Rectangle(trackListState.inputNameBoxWidth, 5.0, trackListState.generalGray)
+    private val sliderCircle = Circle(6.0, trackListState.generalPurple)
     init {
-        sliderBar.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
-        sliderCircle.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
-        sliderBar.translateX = -(trackListViewModel.stage.width / 2) + trackListViewModel.inputNameBoxOffset
+        sliderBar.translateY = parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets
+        sliderCircle.translateY = parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets
+        sliderBar.translateX = -(trackListViewModel.stage.width / 2) + trackListState.inputNameBoxOffset
         sliderCircle.translateX = sliderBar.translateX + sliderBar.width / 4.0
-        sliderCircle.stroke = trackListViewModel.strokeColor
+        sliderCircle.stroke = trackListState.strokeColor
         sliderCircle.strokeLineJoin = StrokeLineJoin.MITER
-        sliderCircle.strokeWidth = trackListViewModel.strokeSize - 0.3
-        sliderBar.strokeWidth = trackListViewModel.strokeSize
-        sliderBar.stroke = trackListViewModel.strokeColor
+        sliderCircle.strokeWidth = trackListState.strokeSize - 0.3
+        sliderBar.strokeWidth = trackListState.strokeSize
+        sliderBar.stroke = trackListState.strokeColor
         sliderBar.strokeLineJoin = StrokeLineJoin.MITER
         sliderBar.arcWidth = 7.0
         sliderBar.arcHeight = 7.0
@@ -40,11 +41,11 @@ class VolumeSlider(override val parent: Widget)
         sliderCircle.viewOrder = viewOrderFlip - 0.32
 
         sliderCircle.onMousePressed = EventHandler {
-            sliderCircle.fill = trackListViewModel.generalPurple.brighter()
+            sliderCircle.fill = trackListState.generalPurple.brighter()
             animateObjectScale(1.0, 1.3, sliderCircle)
         }
         sliderCircle.onMouseReleased = EventHandler {
-            sliderCircle.fill = trackListViewModel.generalPurple
+            sliderCircle.fill = trackListState.generalPurple
             animateObjectScale(1.3, 1.0, sliderCircle)
         }
         sliderCircle.onMouseDragged = EventHandler {
@@ -60,12 +61,12 @@ class VolumeSlider(override val parent: Widget)
         sliderBar.onMousePressed = EventHandler {
             /* it.x here represents distance from the left side of the slider */
             val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x
-            sliderCircle.fill = trackListViewModel.generalPurple.brighter()
+            sliderCircle.fill = trackListState.generalPurple.brighter()
             sliderCircle.translateX = finalX
             animateObjectScale(1.0, 1.3, sliderCircle)
         }
         sliderBar.onMouseReleased = EventHandler {
-            sliderCircle.fill = trackListViewModel.generalPurple
+            sliderCircle.fill = trackListState.generalPurple
             animateObjectScale(1.3, 1.0, sliderCircle)
         }
         sliderBar.onMouseDragged = EventHandler {
@@ -138,7 +139,7 @@ class VolumeSlider(override val parent: Widget)
     }
 
     override fun respondToIndexChange(old: Double, new: Double) {
-        (parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets).let {
+        (parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets).let {
             sliderBar.translateY = it
             sliderCircle.translateY = it
         }

@@ -23,27 +23,28 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     override val children: MutableList<Widget> = mutableListOf()
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListState = trackListViewModel._trackListStateFlow.state
     private var isDropDownBoxActive = false
-    private val inputSelectRectangle = Rectangle(trackListViewModel.buttonSize,
-                                                trackListViewModel.buttonSize,
-                                                trackListViewModel.generalPurple)
+    private val inputSelectRectangle = Rectangle(trackListState.buttonSize,
+                                                trackListState.buttonSize,
+                                                trackListState.generalPurple)
     private val inputSelectArrow = Polygon(0.0, 0.0,
                                         8.0, 0.0,
                                         4.0, -4.0)
     init {
-        inputSelectRectangle.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListViewModel.inputButtonsOffset
-        inputSelectRectangle.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
-        inputSelectRectangle.arcWidth = trackListViewModel.arcSize
-        inputSelectRectangle.arcHeight = trackListViewModel.arcSize
-        inputSelectRectangle.stroke = trackListViewModel.strokeColor
-        inputSelectRectangle.strokeWidth = trackListViewModel.strokeSize
+        inputSelectRectangle.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListState.inputButtonsOffset
+        inputSelectRectangle.translateY = parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets
+        inputSelectRectangle.arcWidth = trackListState.arcSize
+        inputSelectRectangle.arcHeight = trackListState.arcSize
+        inputSelectRectangle.stroke = trackListState.strokeColor
+        inputSelectRectangle.strokeWidth = trackListState.strokeSize
         inputSelectRectangle.viewOrder = viewOrderFlip - 0.31
 
         inputSelectArrow.fill = Color.BLACK
-        inputSelectArrow.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListViewModel.inputButtonsOffset - 0.5
-        inputSelectArrow.translateY = parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets
+        inputSelectArrow.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListState.inputButtonsOffset - 0.5
+        inputSelectArrow.translateY = parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets
         inputSelectArrow.rotate = 180.0
-        inputSelectArrow.stroke = trackListViewModel.strokeColor
+        inputSelectArrow.stroke = trackListState.strokeColor
         inputSelectArrow.strokeWidth = 1.5
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
         inputSelectRectangle.viewOrder = viewOrderFlip - 0.32
@@ -138,7 +139,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     }
 
     override fun respondToIndexChange(old: Double, new: Double) {
-        (parentTrack.trackOffsetY + trackListViewModel.verticalDistancesBetweenWidgets).let {
+        (parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets).let {
             inputSelectRectangle.translateY = it
             inputSelectArrow.translateY = it
         }

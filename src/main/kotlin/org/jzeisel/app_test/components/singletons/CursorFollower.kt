@@ -7,6 +7,7 @@ import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
+import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
@@ -14,15 +15,16 @@ import org.jzeisel.app_test.util.viewOrderFlip
 object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     private lateinit var trackListViewModel: TrackListViewModel
+    private lateinit var trackListState: TrackListState
     var isShowing = false
     private var rectangleWidth = 1.8
     private const val zValCursor = viewOrderFlip - 0.13
     private const val zValCursorTriangle = viewOrderFlip - 0.14
     private val rectangleHeight: Double
-        get() { return trackListViewModel.numTracks * trackListViewModel.trackHeight }
+        get() { return trackListState.numTracks * trackListState.trackHeight }
 
     private val rectangleTranslateY: Double
-        get() { return trackListViewModel.masterOffsetY - trackListViewModel.trackHeight/2.0 + rectangleHeight /2.0 }
+        get() { return trackListState.masterOffsetY - trackListState.trackHeight/2.0 + rectangleHeight /2.0 }
 
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
@@ -33,10 +35,10 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         registerForBroadcasts()
         isShowing = true
         currentOffsetX = offsetX
-        cursorRectangle = Rectangle(rectangleWidth, rectangleHeight, trackListViewModel.generalGray)
+        cursorRectangle = Rectangle(rectangleWidth, rectangleHeight, trackListState.generalGray)
         cursorRectangle.opacity = 0.9
         cursorRectangle.translateY = rectangleTranslateY
-        cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + offsetX - trackListViewModel.waveFormOffset
+        cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + offsetX - trackListState.waveFormOffset
         cursorRectangle.viewOrder = zValCursor
         cursorRectangle.isMouseTransparent = true
         root.children.add(cursorRectangle)
@@ -45,7 +47,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
                                 12.0, 0.0,
                                 6.0, -8.0)
         cursorPointer.fill = Color.LIGHTGOLDENRODYELLOW
-        cursorPointer.stroke = trackListViewModel.strokeColor
+        cursorPointer.stroke = trackListState.strokeColor
         cursorPointer.strokeWidth = 1.5
         cursorPointer.translateY =  cursorRectangle.translateY -
                                     cursorRectangle.height/2.0 +
@@ -71,7 +73,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         if (isShowing) {
             Platform.runLater {
                 currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
-                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX - trackListViewModel.waveFormOffset
+                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - trackListState.waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
         }
@@ -81,7 +83,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
         if (isShowing) {
             when (broadcastType) {
                 BroadcastType.DIVIDER -> {
-                    cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX - trackListViewModel.waveFormOffset
+                    cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - trackListState.waveFormOffset
                     cursorPointer.translateX = cursorRectangle.translateX
                 }
                 BroadcastType.STAGE_WIDTH -> { respondToWidthChange(old, new) }
@@ -111,7 +113,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
             Platform.runLater {
                 cursorRectangle.height = rectangleHeight
                 cursorRectangle.translateY = rectangleTranslateY
-                cursorRectangle.translateX = trackListViewModel.currentDividerOffset.getValue() + currentOffsetX - trackListViewModel.waveFormOffset
+                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - trackListState.waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
         }
@@ -119,6 +121,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     fun initialize(trackListViewModel: TrackListViewModel){
         CursorFollower.trackListViewModel = trackListViewModel
+        trackListState = trackListViewModel._trackListStateFlow.state
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {
