@@ -19,17 +19,16 @@ class AudioWaveform : Application() {
     private lateinit var verticalScrollBarPane: StackPane
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
-
     override fun start(stage: Stage) {
         /* the z values of the nodes should be laid out in the following way */
         /*
-               waveform box and cursor - 10-20
-               track boxes and nodes - 30-40
-                 -   divider lines - 41-49
-               scrollbars - 50-60
-                 -   ephemerals (textbox, dropboxes) - 61-69
-               mixer - 70-80
-               plugin boxes - 100-200
+                   waveform box and cursor - 10-20
+                   track boxes and nodes - 30-40
+                     -   divider lines - 41-49
+                   scrollbars - 50-60
+                     -   ephemerals (textbox, dropboxes) - 61-69
+                   mixer - 70-80
+                   plugin boxes - 100-200
          */
         stage.title = "JZ Digital Audio Workstation"
         stage.width = INIT_STAGE_WIDTH

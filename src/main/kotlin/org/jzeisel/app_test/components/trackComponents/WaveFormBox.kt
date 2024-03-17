@@ -2,6 +2,7 @@ package org.jzeisel.app_test.components.trackComponents
 
 import javafx.application.Platform
 import javafx.event.EventHandler
+import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -12,15 +13,36 @@ import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class WaveFormBox(override val parent: Widget) :
     Widget, TrackComponentWidget, ObservableListener<Double> {
 
-    val zValBase = viewOrderFlip - 0.1
-    val zValMeasures = viewOrderFlip - 0.11
-    val zValTicks = viewOrderFlip - 0.12
+    private val zValBase = viewOrderFlip - 0.1
+    private val zValMeasures = viewOrderFlip - 0.11
+    private val zValTicks = viewOrderFlip - 0.12
+    private val originalLocation: Double get() { return trackListFlow.waveFormTranslateX }
+    private val farthestLocation: Double
+        get() {
+            return (trackListFlow.waveFormTranslateX
+                    - trackListState.waveFormWidth
+                    + (trackListState.observableStageWidth.getValue()
+                    - trackListState.initialTrackDividerWidth))
+        }
+
+    private val scrollEvent = EventHandler<ScrollEvent> {
+        if (((trackRectangle.translateX + it.deltaX) > originalLocation)&& it.deltaX > 0) {
+            trackListViewModel.onWaveFormBoxScroll((trackRectangle.translateX - originalLocation)/4.0)
+        }
+        else if (((trackRectangle.translateX + it.deltaX) < farthestLocation) && it.deltaX < 0) {
+            trackListViewModel.onWaveFormBoxScroll((trackRectangle.translateX - farthestLocation)/4.0)
+        }
+        else {
+            trackListViewModel.onWaveFormBoxScroll(-it.deltaX/3.0)
+        }
+    }
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
@@ -36,13 +58,7 @@ class WaveFormBox(override val parent: Widget) :
     val ticksForMasterTrack = mutableListOf<Rectangle>()
 
     init {
-        trackRectangle.onScroll = EventHandler {
-            if (!((trackRectangle.translateX + it.deltaX) > trackListFlow.waveFormTranslateX)) {
-                trackListViewModel.onWaveFormBoxScroll(-it.deltaX / 4.0)
-            } else {
-                trackListViewModel.onWaveFormBoxScroll((- trackListFlow.waveFormTranslateX + trackRectangle.translateX)/4.0)
-            }
-        }
+        trackRectangle.onScroll = scrollEvent
         trackRectangle.translateY = parentTrack.trackOffsetY
         trackRectangle.translateX = trackListFlow.waveFormTranslateX - trackListState.waveFormOffset
         trackRectangle.opacity = 0.8
