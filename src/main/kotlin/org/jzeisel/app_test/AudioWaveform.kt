@@ -8,6 +8,7 @@ import javafx.stage.Stage
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.MouseEventBroadcaster
 import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.viewmodel.TrackListViewModel
 
 class AudioWaveform : Application() {
     companion object {

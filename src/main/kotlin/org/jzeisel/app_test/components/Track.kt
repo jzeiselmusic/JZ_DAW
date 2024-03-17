@@ -1,22 +1,18 @@
 package org.jzeisel.app_test.components
 
 import javafx.event.EventHandler
-import javafx.scene.Cursor
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import javafx.scene.text.Text
-import org.jzeisel.app_test.TrackListViewModel
+import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
-import org.jzeisel.app_test.stateflow.TrackListState
-import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 import kotlin.math.abs
-import kotlin.math.ulp
 
 abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<Double> {
     val trackListViewModel = parent as TrackListViewModel

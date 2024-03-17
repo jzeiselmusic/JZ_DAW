@@ -1,4 +1,4 @@
-package org.jzeisel.app_test
+package org.jzeisel.app_test.viewmodel
 
 import javafx.animation.PauseTransition
 import javafx.application.Platform

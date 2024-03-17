@@ -6,7 +6,7 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.StackPane
-import org.jzeisel.app_test.TrackListViewModel
+import org.jzeisel.app_test.viewmodel.TrackListViewModel
 
 object MouseEventBroadcaster {
     private lateinit var root: StackPane

@@ -12,7 +12,7 @@ import javafx.scene.paint.Paint
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.util.Duration
-import org.jzeisel.app_test.TrackListViewModel
+import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
