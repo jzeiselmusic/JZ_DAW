@@ -4,7 +4,6 @@ import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.NormalTrack
@@ -100,7 +99,7 @@ class VUMeter(override val parent: Widget)
         bar.isVisible(true)
     }
 
-    fun setBarsBasedOnAudio(audioInputManager: AudioInputManager, index: Int) {
+    /* fun setBarsBasedOnAudio(audioInputManager: AudioInputManager, index: Int) {
         val mean = audioInputManager.dataStreams[index]
         Platform.runLater {
             makeAllBarsInvisible()
@@ -112,7 +111,7 @@ class VUMeter(override val parent: Widget)
                 }
             }
         }
-    }
+    } */
 
     override fun respondToHeightChange(old: Double, new: Double) {
         ((new - old)/2.0).let {

@@ -50,7 +50,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectRectangle.viewOrder = viewOrderFlip - 0.32
     }
 
-    private val dropDownBox = DropDownBox(trackListViewModel.audioInputManager.allMixerNames,
+    private val dropDownBox = DropDownBox(listOf("1", "2", "3"),
                                   inputSelectRectangle, trackListViewModel,
                                   ::selectionChosen)
 

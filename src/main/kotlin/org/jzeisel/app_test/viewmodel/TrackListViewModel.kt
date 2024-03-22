@@ -7,7 +7,6 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
-import org.jzeisel.app_test.audio.AudioInputManager
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
@@ -35,7 +34,6 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         CursorFollower.updateFromTrackList(root)
     }
     /*      *****      */
-    val audioInputManager = AudioInputManager(this)
 
     val _trackListStateFlow = TrackListStateFlow(stageWidthProperty, stageHeightProperty)
 

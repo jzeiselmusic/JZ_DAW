@@ -5,6 +5,8 @@ import javafx.scene.Scene
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
+import org.jzeisel.app_test.audio.AudioEngineManager
+import org.jzeisel.app_test.audio.AudioError
 import org.jzeisel.app_test.jna.SoundIoInterface
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.MouseEventBroadcaster
@@ -21,6 +23,7 @@ class AudioWaveform : Application() {
     private lateinit var verticalScrollBarPane: StackPane
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
+    private lateinit var aEM: AudioEngineManager
     override fun start(stage: Stage) {
         /* the z values of the nodes should be laid out in the following way */
         /*
@@ -39,8 +42,15 @@ class AudioWaveform : Application() {
 
         Logger.setDebug(true)
 
-        val ret = SoundIoInterface.initializeEnvironment()
-        Logger.debug(javaClass.simpleName, "returned value: $ret", 5)
+        aEM = AudioEngineManager()
+        if (aEM.initialize() == AudioError.SoundIoErrorNone) {
+            val nInputs = aEM.getNumAudioInputs()
+            nInputs?.let {
+                Logger.debug(javaClass.simpleName, "num inputs: $nInputs", 5)
+                aEM.chooseInputDevice(it - 1)
+                Logger.debug(javaClass.simpleName, "device: ${aEM.currentInputDevice.toString()}", 5)
+            }
+        }
 
         root = StackPane()
         scene = Scene(root, null)
@@ -60,6 +70,11 @@ class AudioWaveform : Application() {
 
         trackListViewModel.addMeToScene(everythingPane)
         stage.show()
+    }
+
+    override fun stop() {
+        Logger.debug(javaClass.simpleName, "application stopping", 5)
+        aEM.deinitialize()
     }
 }
 
