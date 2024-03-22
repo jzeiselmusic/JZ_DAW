@@ -58,18 +58,39 @@ class AudioEngineManager {
     }
 
     fun chooseInputDevice(index: Int): AudioError {
-        if (initialized) {
-            if (index >= getNumAudioInputs()!! || index < 0) {
-                return AudioError.IndexOutOfBounds
-            }
-            soundInterface.pickCurrentInputDevice(index)
-            val id = soundInterface.getInputDeviceId(index)
-            val name = soundInterface.getInputDeviceName(index)
-            val channels = soundInterface.numChannelsOfCurrentInputDevice
-            currentInputDevice = Device(index, name, id, Direction.INPUT, channels)
-            return AudioError.SoundIoErrorNone
+        if (!initialized) {
+            return AudioError.SoundIoErrorInitAudioBackend
         }
-        else return AudioError.SoundIoErrorInitAudioBackend
+        if (index >= getNumAudioInputs()!! || index < 0) {
+            return AudioError.IndexOutOfBounds
+        }
+        if (!outputDevicesLoaded) {
+            return AudioError.DevicesNotLoaded
+        }
+        soundInterface.pickCurrentInputDevice(index)
+        val id = soundInterface.getInputDeviceId(index)
+        val name = soundInterface.getInputDeviceName(index)
+        val channels = soundInterface.numChannelsOfCurrentInputDevice
+        currentInputDevice = Device(index, name, id, Direction.INPUT, channels)
+        return AudioError.SoundIoErrorNone
+    }
+
+    fun chooseOutputDevice(index: Int): AudioError {
+        if (!initialized) {
+            return AudioError.SoundIoErrorInitAudioBackend
+        }
+        if (index >= getNumAudioOutputs()!! || index < 0) {
+            return AudioError.IndexOutOfBounds
+        }
+        if (!outputDevicesLoaded) {
+            return AudioError.DevicesNotLoaded
+        }
+        soundInterface.pickCurrentOutputDevice(index)
+        val id = soundInterface.getOutputDeviceId(index)
+        val name = soundInterface.getOutputDeviceName(index)
+        val channels = soundInterface.numChannelsOfCurrentOutputDevice
+        currentOutputDevice = Device(index, name, id, Direction.OUTPUT, channels)
+        return AudioError.SoundIoErrorNone
     }
 
     fun getInputDeviceName(index: Int): String? {
@@ -80,20 +101,5 @@ class AudioEngineManager {
             return soundInterface.getInputDeviceName(index)
         }
         else return null
-    }
-
-    fun chooseOutputDevice(index: Int): AudioError {
-        if (initialized) {
-            if (index >= getNumAudioOutputs()!! || index < 0) {
-                return AudioError.IndexOutOfBounds
-            }
-            soundInterface.pickCurrentOutputDevice(index)
-            val id = soundInterface.getOutputDeviceId(index)
-            val name = soundInterface.getOutputDeviceName(index)
-            val channels = soundInterface.numChannelsOfCurrentOutputDevice
-            currentOutputDevice = Device(index, name, id, Direction.OUTPUT, channels)
-            return AudioError.SoundIoErrorNone
-        }
-        else return AudioError.SoundIoErrorInitAudioBackend
     }
 }

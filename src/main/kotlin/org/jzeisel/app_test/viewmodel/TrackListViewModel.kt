@@ -209,4 +209,8 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
 
     fun setTrackDisabled(child: Widget) {
     }
+
+    fun onPlaybackError(error: AudioError) {
+
+    }
 }

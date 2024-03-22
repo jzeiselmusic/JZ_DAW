@@ -20,4 +20,5 @@ enum class AudioError(val s: String) {
 
     EnvironmentNotInitialized("No memory to initialize sound environment"),
     IndexOutOfBounds("Index chosen out of bounds of number of devices"),
+    DevicesNotLoaded("Devices not loaded")
 }

@@ -23,10 +23,9 @@ class AudioWaveform : Application() {
     private lateinit var verticalScrollBarPane: StackPane
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
-    private lateinit var aEM: AudioEngineManager
     override fun start(stage: Stage) {
-        /* the z values of the nodes should be laid out in the following way */
-        /*
+        /* the z values of the nodes should be laid out in the following way
+
                    waveform box and cursor - 10-20
                    track boxes and nodes - 30-40
                      -   divider lines - 41-49
@@ -34,6 +33,7 @@ class AudioWaveform : Application() {
                      -   ephemerals (textbox, dropboxes) - 61-69
                    mixer - 70-80
                    plugin boxes - 100-200
+
          */
         stage.title = "JZ Digital Audio Workstation"
         stage.width = INIT_STAGE_WIDTH
@@ -64,7 +64,6 @@ class AudioWaveform : Application() {
 
     override fun stop() {
         Logger.debug(javaClass.simpleName, "application stopping", 5)
-        aEM.deinitialize()
     }
 }
 
