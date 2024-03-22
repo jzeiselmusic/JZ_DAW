@@ -72,6 +72,16 @@ class AudioEngineManager {
         else return AudioError.SoundIoErrorInitAudioBackend
     }
 
+    fun getInputDeviceName(index: Int): String? {
+        if (initialized) {
+            if (index >= getNumAudioInputs()!! || index < 0) {
+                return null
+            }
+            return soundInterface.getInputDeviceName(index)
+        }
+        else return null
+    }
+
     fun chooseOutputDevice(index: Int): AudioError {
         if (initialized) {
             if (index >= getNumAudioOutputs()!! || index < 0) {

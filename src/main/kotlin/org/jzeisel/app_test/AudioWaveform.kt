@@ -42,16 +42,6 @@ class AudioWaveform : Application() {
 
         Logger.setDebug(true)
 
-        aEM = AudioEngineManager()
-        if (aEM.initialize() == AudioError.SoundIoErrorNone) {
-            val nInputs = aEM.getNumAudioInputs()
-            nInputs?.let {
-                Logger.debug(javaClass.simpleName, "num inputs: $nInputs", 5)
-                aEM.chooseInputDevice(it - 1)
-                Logger.debug(javaClass.simpleName, "device: ${aEM.currentInputDevice.toString()}", 5)
-            }
-        }
-
         root = StackPane()
         scene = Scene(root, null)
         everythingPane = StackPane()
