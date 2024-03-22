@@ -5,6 +5,7 @@ import javafx.scene.Scene
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
+import org.jzeisel.app_test.jna.SoundIoInterface
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.MouseEventBroadcaster
 import org.jzeisel.app_test.util.viewOrderFlip
@@ -37,6 +38,9 @@ class AudioWaveform : Application() {
         stage.isResizable = true
 
         Logger.setDebug(true)
+
+        val ret = SoundIoInterface.initializeEnvironment()
+        Logger.debug(javaClass.simpleName, "returned value: $ret", 5)
 
         root = StackPane()
         scene = Scene(root, null)
