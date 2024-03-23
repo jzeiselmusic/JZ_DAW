@@ -22,7 +22,10 @@ import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import kotlin.properties.Delegates
 
-class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: StackPane): Widget {
+class TrackListViewModel(val root: StackPane,
+                         val stage: Stage, extraPane: StackPane): Widget {
+
+    lateinit var audioViewModel: AudioViewModel
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
 
@@ -53,6 +56,11 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         }
     }
 
+    fun addAudioEngine(model: AudioViewModel) {
+        audioViewModel = model
+        audioViewModel.initialize()
+    }
+
     override fun addChild(child: Widget) {
         children = children.toMutableList().apply {
             add((child as NormalTrack).index.getValue().toInt(), child)
@@ -72,8 +80,7 @@ class TrackListViewModel(val root: StackPane, val stage: Stage, extraPane: Stack
         /* tell this function which child called it */
         /* if called by index -1, then called by master */
         val newTrack = NormalTrack(root, this,
-                (child as NormalTrack).index.getValue().toInt() + 1, child as Track
-        )
+                (child as NormalTrack).index.getValue().toInt() + 1, child as Track)
         newTrack.addMeToScene(root)
         addChild(newTrack)
     }

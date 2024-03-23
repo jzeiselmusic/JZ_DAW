@@ -1,7 +1,5 @@
 package org.jzeisel.app_test.audio
 
-import org.jzeisel.app_test.jna.SoundIoInterface
-
 class AudioEngineManager {
     private val soundInterface = SoundIoInterface()
     private var initialized = false
@@ -9,8 +7,8 @@ class AudioEngineManager {
     private var inputDevicesLoaded = false
     private var outputDevicesLoaded = false
 
-    var currentInputDevice: Device? = null
-    var currentOutputDevice: Device? = null
+    val defaultOutputIndex: Int get() { return soundInterface.defaultOutputDeviceIndex }
+
     fun initialize() : AudioError  {
         var returnError = soundInterface.initializeEnvironment()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
@@ -35,8 +33,6 @@ class AudioEngineManager {
             initialized = false
             inputDevicesLoaded = false
             outputDevicesLoaded = false
-            currentInputDevice = null
-            currentOutputDevice = null
             soundInterface.destroySession()
             return AudioError.SoundIoErrorNone
         }
@@ -57,40 +53,18 @@ class AudioEngineManager {
         else return null
     }
 
-    fun chooseInputDevice(index: Int): AudioError {
-        if (!initialized) {
-            return AudioError.SoundIoErrorInitAudioBackend
-        }
-        if (index >= getNumAudioInputs()!! || index < 0) {
-            return AudioError.IndexOutOfBounds
-        }
-        if (!outputDevicesLoaded) {
-            return AudioError.DevicesNotLoaded
-        }
-        soundInterface.pickCurrentInputDevice(index)
-        val id = soundInterface.getInputDeviceId(index)
-        val name = soundInterface.getInputDeviceName(index)
-        val channels = soundInterface.numChannelsOfCurrentInputDevice
-        currentInputDevice = Device(index, name, id, Direction.INPUT, channels)
-        return AudioError.SoundIoErrorNone
+    fun getOutputDeviceFromIndex(index: Int): Device {
+        val name = soundInterface.getOutputDeviceName(index)
+        val id = soundInterface.getOutputDeviceId(index)
+        val nChannels = soundInterface.getNumChannelsOfOutputDevice(index)
+        return Device(index, name, id, Direction.OUTPUT, nChannels)
     }
 
-    fun chooseOutputDevice(index: Int): AudioError {
-        if (!initialized) {
-            return AudioError.SoundIoErrorInitAudioBackend
-        }
-        if (index >= getNumAudioOutputs()!! || index < 0) {
-            return AudioError.IndexOutOfBounds
-        }
-        if (!outputDevicesLoaded) {
-            return AudioError.DevicesNotLoaded
-        }
-        soundInterface.pickCurrentOutputDevice(index)
-        val id = soundInterface.getOutputDeviceId(index)
-        val name = soundInterface.getOutputDeviceName(index)
-        val channels = soundInterface.numChannelsOfCurrentOutputDevice
-        currentOutputDevice = Device(index, name, id, Direction.OUTPUT, channels)
-        return AudioError.SoundIoErrorNone
+    fun getInputDeviceFromIndex(index: Int): Device {
+        val name = soundInterface.getInputDeviceName(index)
+        val id = soundInterface.getInputDeviceId(index)
+        val nChannels = soundInterface.getNumChannelsOfInputDevice(index)
+        return Device(index, name, id, Direction.INPUT, nChannels)
     }
 
     fun getInputDeviceName(index: Int): String? {
@@ -99,6 +73,13 @@ class AudioEngineManager {
                 return null
             }
             return soundInterface.getInputDeviceName(index)
+        }
+        else return null
+    }
+
+    fun getCurrentBackend(): AudioBackend? {
+        if (initialized) {
+            return AudioBackend.values()[soundInterface.currentBackend]
         }
         else return null
     }

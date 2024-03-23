@@ -1,6 +1,7 @@
 package org.jzeisel.app_test.audio
 
-enum class AudioError(val s: String) {
+enum class AudioError(val readable: String) {
+    /* as defined in libsoundio */
     SoundIoErrorNone("No error"),
     SoundIoErrorNoMem("Out of memory"),
     SoundIoErrorInitAudioBackend("The backend does not appear to be active or running"),
@@ -17,7 +18,7 @@ enum class AudioError(val s: String) {
     SoundIoErrorInterrupted("Error Interrupted"),
     SoundIoErrorUnderflow("Buffer underrun occurred"),
     SoundIoErrorEncodingString("Unable to convert to or from UTF-8 to the native string format"),
-
+    /* custom errors */
     EnvironmentNotInitialized("No memory to initialize sound environment"),
     IndexOutOfBounds("Index chosen out of bounds of number of devices"),
     DevicesNotLoaded("Devices not loaded")

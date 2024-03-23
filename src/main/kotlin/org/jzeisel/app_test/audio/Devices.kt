@@ -19,12 +19,12 @@ enum class Direction {
     INPUT, OUTPUT
 }
 
-enum class AudioBackend {
-    SoundIoBackendNone,
-    SoundIoBackendJack,
-    SoundIoBackendPulseAudio,
-    SoundIoBackendAlsa,
-    SoundIoBackendCoreAudio,
-    SoundIoBackendWasapi,
-    SoundIoBackendDummy,
+enum class AudioBackend(val readable: String) {
+    SoundIoBackendNone("None"),
+    SoundIoBackendJack("JACK"),
+    SoundIoBackendPulseAudio("Pulse Audio"),
+    SoundIoBackendAlsa("Alsa"),
+    SoundIoBackendCoreAudio("Core Audio"),
+    SoundIoBackendWasapi("WASAPI"),
+    SoundIoBackendDummy("Dummy"),
 }

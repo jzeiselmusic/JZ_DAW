@@ -5,13 +5,12 @@ import javafx.scene.Scene
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
-import org.jzeisel.app_test.audio.AudioEngineManager
-import org.jzeisel.app_test.audio.AudioError
-import org.jzeisel.app_test.jna.SoundIoInterface
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.MouseEventBroadcaster
 import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.viewmodel.AudioViewModel
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
+import org.jzeisel.app_test.viewmodel.controller.ViewModelController
 
 class AudioWaveform : Application() {
     companion object {
@@ -23,6 +22,8 @@ class AudioWaveform : Application() {
     private lateinit var verticalScrollBarPane: StackPane
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
+    private lateinit var viewModelController: ViewModelController
+    private lateinit var audioViewModel: AudioViewModel
     override fun start(stage: Stage) {
         /* the z values of the nodes should be laid out in the following way
 
@@ -54,7 +55,11 @@ class AudioWaveform : Application() {
         root.children.addAll(everythingPane, verticalScrollBarPane)
         scene.fill = Color.DIMGREY.darker().darker()
         stage.scene = scene
+
         trackListViewModel = TrackListViewModel(everythingPane, stage, verticalScrollBarPane)
+        viewModelController = ViewModelController(trackListViewModel)
+        audioViewModel = AudioViewModel(viewModelController)
+        trackListViewModel.addAudioEngine(audioViewModel)
 
         MouseEventBroadcaster.initializeBroadcasts(everythingPane, scene, trackListViewModel)
 
@@ -64,6 +69,7 @@ class AudioWaveform : Application() {
 
     override fun stop() {
         Logger.debug(javaClass.simpleName, "application stopping", 5)
+        audioViewModel.deinitialize()
     }
 }
 

@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.jna;
+package org.jzeisel.app_test.audio;
 
 import com.sun.jna.Native;
 import com.sun.jna.Library;
@@ -9,6 +9,7 @@ public class SoundIoInterface {
         void destroySession();
         int initializeEnvironment();
         int connectToBackend();
+        int getCurrentBackend();
 
         /* functions for input devices */
         int getDefaultInputDeviceIndex();
@@ -20,6 +21,7 @@ public class SoundIoInterface {
         String pickCurrentInputDevice(int index);
         int getNumChannelsOfCurrentInputDevice();
         String getNameOfChannelOfCurrentInputDevice(int index);
+        int getNumChannelsOfInputDevice(int index);
 
         /* functions for output devices */
         int getDefaultOutputDeviceIndex();
@@ -31,6 +33,7 @@ public class SoundIoInterface {
         String pickCurrentOutputDevice(int index);
         int getNumChannelsOfCurrentOutputDevice();
         String getNameOfChannelOfCurrentOutputDevice(int index);
+        int getNumChannelsOfOutputDevice(int index);
     }
 
     public void destroySession() {
@@ -44,6 +47,8 @@ public class SoundIoInterface {
     public int connectToBackend() {
         return SoundIoLib.INSTANCE.connectToBackend();
     }
+
+    public int getCurrentBackend() { return SoundIoLib.INSTANCE.getCurrentBackend(); }
 
     public int getDefaultInputDeviceIndex() {
         return SoundIoLib.INSTANCE.getDefaultInputDeviceIndex();
@@ -81,6 +86,8 @@ public class SoundIoInterface {
     public String getNameOfChannelOfCurrentInputDevice(int index) {
         return SoundIoLib.INSTANCE.getNameOfChannelOfCurrentInputDevice(index);
     }
+
+    public int getNumChannelsOfInputDevice(int index) { return SoundIoLib.INSTANCE.getNumChannelsOfInputDevice(index); }
 
 
 
@@ -120,4 +127,7 @@ public class SoundIoInterface {
     public String getNameOfChannelOfCurrentOutputDevice(int index) {
         return SoundIoLib.INSTANCE.getNameOfChannelOfCurrentOutputDevice(index);
     }
+
+    public int getNumChannelsOfOutputDevice(int index) { return SoundIoLib.INSTANCE.getNumChannelsOfOutputDevice(index); }
+
 }
