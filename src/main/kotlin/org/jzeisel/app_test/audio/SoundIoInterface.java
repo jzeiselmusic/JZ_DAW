@@ -22,6 +22,7 @@ public class SoundIoInterface {
         int getNumChannelsOfCurrentInputDevice();
         String getNameOfChannelOfCurrentInputDevice(int index);
         int getNumChannelsOfInputDevice(int index);
+        String getNameOfChannelOfInputDevice(int deviceIndex, int channelIndex);
 
         /* functions for output devices */
         int getDefaultOutputDeviceIndex();
@@ -34,6 +35,7 @@ public class SoundIoInterface {
         int getNumChannelsOfCurrentOutputDevice();
         String getNameOfChannelOfCurrentOutputDevice(int index);
         int getNumChannelsOfOutputDevice(int index);
+        String getNameOfChannelOfOutputDevice(int deviceIndex, int channelIndex);
     }
 
     public void destroySession() {
@@ -89,6 +91,7 @@ public class SoundIoInterface {
 
     public int getNumChannelsOfInputDevice(int index) { return SoundIoLib.INSTANCE.getNumChannelsOfInputDevice(index); }
 
+    public String getNameOfChannelOfInputDevice(int deviceIndex, int channelIndex) { return SoundIoLib.INSTANCE.getNameOfChannelOfInputDevice(deviceIndex, channelIndex); };
 
 
     public int getDefaultOutputDeviceIndex() {
@@ -129,5 +132,7 @@ public class SoundIoInterface {
     }
 
     public int getNumChannelsOfOutputDevice(int index) { return SoundIoLib.INSTANCE.getNumChannelsOfOutputDevice(index); }
+
+    public String getNameOfChannelOfOutputDevice(int deviceIndex, int channelIndex) { return SoundIoLib.INSTANCE.getNameOfChannelOfOutputDevice(deviceIndex, channelIndex); };
 
 }

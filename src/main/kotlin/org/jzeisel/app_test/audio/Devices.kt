@@ -8,6 +8,11 @@ data class Device(
     var numChannels: Int
 )
 
+data class Channel(
+    val index: Int,
+    val name: String,
+)
+
 data class TrackData(
     var trackId: Int,
     var inputDevice: Device?,

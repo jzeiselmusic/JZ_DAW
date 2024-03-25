@@ -83,4 +83,30 @@ class AudioEngineManager {
         }
         else return null
     }
+
+    fun getChannelsFromDeviceIndex(deviceIndex: Int): List<Channel>? {
+        if (initialized) {
+            val channelList = mutableListOf<Channel>()
+            repeat(soundInterface.getNumChannelsOfInputDevice(deviceIndex)) { channelIndex->
+                channelList.add( Channel(deviceIndex, soundInterface.getNameOfChannelOfInputDevice(deviceIndex, channelIndex)))
+            }
+            return channelList
+        }
+        else return null
+    }
+
+    fun getInputDevices(): List<Device>? {
+        if (initialized) {
+            val deviceList = mutableListOf<Device>()
+            repeat(soundInterface.numInputDevices) {
+                deviceList.add(Device(it,
+                    soundInterface.getInputDeviceName(it),
+                    soundInterface.getInputDeviceId(it),
+                    Direction.INPUT,
+                    soundInterface.getNumChannelsOfInputDevice(it)))
+            }
+            return deviceList
+        }
+        else return null
+    }
 }

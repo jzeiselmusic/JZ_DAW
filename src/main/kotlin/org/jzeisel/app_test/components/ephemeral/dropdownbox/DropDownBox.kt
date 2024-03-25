@@ -1,10 +1,12 @@
-package org.jzeisel.app_test.components.ephemeral
+package org.jzeisel.app_test.components.ephemeral.dropdownbox
 
 import javafx.animation.PauseTransition
 import javafx.application.Platform
 import javafx.event.EventHandler
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Rectangle
+import javafx.scene.shape.Shape
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import javafx.util.Duration
@@ -14,27 +16,23 @@ import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 
-class DropDownBox(stringList: List<String>, parent: Rectangle,
-                  private val trackListViewModel: TrackListViewModel,
-                  clickCallback: (index: Int) -> Unit)
+open class DropDownBox(stringList: List<String>, parent: Rectangle,
+                       private val trackListViewModel: TrackListViewModel,
+                       clickCallback: (index: Int) -> Unit)
     : TrackComponentWidget, ObservableListener<Double> {
-    companion object {
-        const val TAG = "DropDownBox"
-    }
     private val trackListState = trackListViewModel._trackListStateFlow.state
     private val parentButton = parent
-    private val rectangleList = mutableListOf<Rectangle>()
+    val rectangleList = mutableListOf<Rectangle>()
     private val textList = mutableListOf<Text>()
     private val buttonOffsetX = parentButton.translateX
     private val buttonOffsetY = parentButton.translateY
     private var rectangleWidth = 100.0
     private var rectangleHeight = 25.0
-    private var isAdded = false
     init {
         /* find the largest text and conform width */
         for ( string in stringList ) {
             val testText = Text(string)
-            if (testText.boundsInLocal.width > (rectangleWidth - 8)) rectangleWidth = testText.boundsInLocal.width + 8
+            if (testText.boundsInLocal.width > (rectangleWidth - 8)) rectangleWidth = testText.boundsInLocal.width + 40
             if (testText.boundsInLocal.height > (rectangleHeight - 8)) rectangleHeight = testText.boundsInLocal.height + 8
         }
         for ( (idx,string) in stringList.withIndex() ) {
@@ -56,51 +54,33 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
             rect.isVisible = true
             rect.viewOrder = viewOrderFlip - 0.64
             /*********************/
-            text.onMouseEntered = EventHandler {
-                rect.fill = trackListState.generalPurple.darker()
-            }
-            text.onMouseExited = EventHandler {
-                rect.fill = trackListState.generalPurple
-            }
-            text.onMouseClicked = EventHandler {
-                clickCallback(idx)
-            }
+            text.onMouseEntered = onMouseHovers(rect)
+            text.onMouseExited = onMouseExits(rect)
             /*********************/
-            rect.onMouseEntered = EventHandler {
-                rect.fill = trackListState.generalPurple.darker()
-            }
-            rect.onMouseExited = EventHandler {
-                rect.fill = trackListState.generalPurple
-            }
-            rect.onMouseClicked = EventHandler {
-                clickCallback(idx)
-            }
+            rect.onMouseEntered = onMouseHovers(rect)
+            rect.onMouseExited = onMouseExits(rect)
             rectangleList.add(rect)
             textList.add(text)
         }
     }
 
-    fun addMeToScene(root: StackPane) {
-        val delay = PauseTransition(Duration.millis(100.0));
+    open fun addMeToScene(root: StackPane) {
+        val delay = PauseTransition(Duration.millis(50.0));
         Platform.runLater {
             delay.setOnFinished {
                 registerForBroadcasts()
                 root.children.addAll(rectangleList)
                 root.children.addAll(textList)
-                isAdded = true
             }
             delay.play()
         }
     }
 
-    fun removeMeFromScene(root: StackPane) {
-        if (isAdded) {
-            Platform.runLater {
-                unregisterForBroadcasts()
-                root.children.removeAll(textList)
-                root.children.removeAll(rectangleList)
-                isAdded = false
-            }
+    open fun removeMeFromScene(root: StackPane) {
+        Platform.runLater {
+            unregisterForBroadcasts()
+            root.children.removeAll(textList)
+            root.children.removeAll(rectangleList)
         }
     }
 
@@ -146,5 +126,13 @@ class DropDownBox(stringList: List<String>, parent: Rectangle,
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
+    }
+
+    open fun onMouseHovers(obj: Shape): EventHandler<MouseEvent> {
+        return EventHandler { obj.fill = trackListState.generalPurple.darker() }
+    }
+
+    open fun onMouseExits(obj: Shape): EventHandler<MouseEvent> {
+        return EventHandler { obj.fill = trackListState.generalPurple }
     }
 }

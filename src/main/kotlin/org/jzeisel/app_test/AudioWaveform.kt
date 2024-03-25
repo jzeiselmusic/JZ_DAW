@@ -68,7 +68,7 @@ class AudioWaveform : Application() {
     }
 
     override fun stop() {
-        Logger.debug(javaClass.simpleName, "application stopping", 5)
+        Logger.debug(javaClass.simpleName, "quit application", 5)
         audioViewModel.deinitialize()
     }
 }

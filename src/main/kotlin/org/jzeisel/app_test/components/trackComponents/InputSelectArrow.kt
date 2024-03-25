@@ -1,17 +1,22 @@
 package org.jzeisel.app_test.components.trackComponents
 
+import javafx.animation.PauseTransition
 import javafx.application.Platform
 import javafx.event.EventHandler
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
+import javafx.util.Duration
+import org.jzeisel.app_test.audio.Device
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.ephemeral.DropDownBox
+import org.jzeisel.app_test.components.ephemeral.dropdownbox.DropDownBox
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.ephemeral.dropdownbox.InputDeviceList
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
@@ -31,6 +36,27 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     private val inputSelectArrow = Polygon(0.0, 0.0,
                                         8.0, 0.0,
                                         4.0, -4.0)
+    private var dropDownBox: InputDeviceList? = null
+
+    private val deviceList: List<Device>
+        get() {
+            trackListViewModel.audioViewModel.getInputDeviceList()?.let {
+                return it
+            }
+            return listOf()
+        }
+    private val clickEvent = EventHandler<MouseEvent> {
+        val delay = PauseTransition(Duration.millis(50.0));
+        Platform.runLater {
+            delay.setOnFinished {
+                dropDownBox = InputDeviceList(deviceList.map { it.name },
+                    inputSelectRectangle, trackListViewModel,
+                    ::selectionChosen)
+                dropDownBox!!.addMeToScene(root)
+            }
+            delay.play()
+        }
+    }
     init {
         inputSelectRectangle.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListState.inputButtonsOffset
         inputSelectRectangle.translateY = parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets
@@ -50,19 +76,9 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectRectangle.viewOrder = viewOrderFlip - 0.32
     }
 
-    private val dropDownBox = DropDownBox(listOf("1", "2", "3"),
-                                  inputSelectRectangle, trackListViewModel,
-                                  ::selectionChosen)
-
     init {
-        inputSelectRectangle.onMouseReleased = EventHandler {
-            dropDownBox.addMeToScene(root)
-            isDropDownBoxActive = true
-        }
-        inputSelectArrow.onMouseReleased = EventHandler {
-            dropDownBox.addMeToScene(root)
-            isDropDownBoxActive = true
-        }
+        inputSelectRectangle.onMouseReleased = clickEvent
+        inputSelectArrow.onMouseReleased = clickEvent
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
@@ -95,7 +111,10 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     }
 
     fun removeDropDownBox(root: StackPane) {
-        dropDownBox.removeMeFromScene(root)
+        dropDownBox?.let {
+            it.removeMeFromScene(root)
+            dropDownBox = null
+        }
     }
 
     override fun addMeToScene(root: StackPane) {
@@ -109,7 +128,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     override fun removeMeFromScene(root: StackPane) {
         Platform.runLater {
             unregisterForBroadcasts()
-            dropDownBox.removeMeFromScene(root)
+            dropDownBox?.removeMeFromScene(root)
             for (child in children) {
                 child.removeMeFromScene(root)
             }
