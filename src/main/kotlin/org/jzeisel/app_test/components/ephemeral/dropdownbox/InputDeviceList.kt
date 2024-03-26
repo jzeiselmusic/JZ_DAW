@@ -16,12 +16,11 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 
-class InputDeviceList(stringList: List<String>, parent: Rectangle,
+class InputDeviceList(override val root: StackPane, stringList: List<String>, parent: Rectangle,
                       private val trackListViewModel: TrackListViewModel,
                       private val clickCallback: (index: Int) -> Unit)
-            : DropDownBox(stringList, parent, trackListViewModel, clickCallback){
+            : DropDownBox(root, stringList, parent, trackListViewModel, clickCallback){
     private val state = trackListViewModel._trackListStateFlow.state
-    lateinit var root: StackPane
     private val expansionArrows = mutableListOf<Polygon>()
     private val listOfChannelLists = mutableListOf<List<String>>()
     private val listOfAtomicVars = mutableListOf<AtomicInteger>()
@@ -62,13 +61,14 @@ class InputDeviceList(stringList: List<String>, parent: Rectangle,
             val index = max(rectangleList.indexOf(it.source), textList.indexOf(it.source))
             listOfAtomicVars.forEach { v -> v.set(0) }
             listOfAtomicVars[index].set(1)
-            val dropDownBox = DropDownBox(listOfChannelLists[index],
+            val dropDownBox = DropDownBox(root, listOfChannelLists[index],
                                           it.source as Shape,
                                           trackListViewModel,
                                           clickCallback,
-                                          rectangleWidth/2.0, -rectangleHeight/2.0)
+                                          rectangleWidth/2.0, -rectangleHeight/2.0,
+                                            this)
             CoroutineScope(Dispatchers.Default).launch {
-                delay(200L)
+                delay(300L)
                 if (listOfAtomicVars[index].get() == 1) {
                     dropDownBox.addMeToScene(root)
                     listOfActiveDropDownBoxes.add(AtomicReference(dropDownBox))
@@ -85,11 +85,16 @@ class InputDeviceList(stringList: List<String>, parent: Rectangle,
         val superEventHandler = super.onMouseExits(obj)
         val extraEventHandler = EventHandler<MouseEvent> {
             listOfAtomicVars.forEach { v -> v.set(0) }
-            listOfActiveDropDownBoxes.forEach { ddb ->
-                ddb?.get()?.removeMeFromScene(root)
-                CoroutineScope(Dispatchers.Default).launch {
-                    delay(500L)
-                    listOfActiveDropDownBoxes.remove(ddb)
+            CoroutineScope(Dispatchers.Default).launch {
+                delay(250)
+                listOfActiveDropDownBoxes.forEach { ddb ->
+                    if (ddb?.get()?.setOfHoveredDropDownBoxes?.isEmpty() == true) {
+                        ddb?.get()?.removeMeFromScene(root)
+                        CoroutineScope(Dispatchers.Default).launch {
+                            delay(500L)
+                            listOfActiveDropDownBoxes.remove(ddb)
+                        }
+                    }
                 }
             }
         }
@@ -101,7 +106,6 @@ class InputDeviceList(stringList: List<String>, parent: Rectangle,
 
     override fun addMeToScene(root: StackPane) {
         super.addMeToScene(root)
-        this.root = root
         expansionArrows.forEach { root.children.add(it) }
     }
 

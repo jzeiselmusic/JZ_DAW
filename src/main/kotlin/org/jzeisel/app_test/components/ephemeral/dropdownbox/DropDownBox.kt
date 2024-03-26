@@ -15,16 +15,20 @@ import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
+import java.util.concurrent.atomic.AtomicReference
 
-open class DropDownBox(stringList: List<String>, parent: Shape,
-                       private val trackListViewModel: TrackListViewModel,
-                       clickCallback: (index: Int) -> Unit,
-                       val xOffset: Double = 0.0, val yOffset: Double = 0.0)
+open class DropDownBox(
+    open val root: StackPane, stringList: List<String>, parent: Shape,
+    private val trackListViewModel: TrackListViewModel,
+    clickCallback: (index: Int) -> Unit,
+    xOffset: Double = 0.0, yOffset: Double = 0.0,
+    val parentDropDownBox: InputDeviceList? = null)
     : TrackComponentWidget, ObservableListener<Double> {
     private val trackListState = trackListViewModel._trackListStateFlow.state
     private val parentButton = parent
     val rectangleList = mutableListOf<Rectangle>()
     val textList = mutableListOf<Text>()
+    val setOfHoveredDropDownBoxes = mutableSetOf<AtomicReference<DropDownBox>>()
     private val buttonOffsetX = parentButton.translateX
     private val buttonOffsetY = parentButton.translateY
     var rectangleWidth = 100.0
@@ -60,6 +64,9 @@ open class DropDownBox(stringList: List<String>, parent: Shape,
             /*********************/
             rect.onMouseEntered = onMouseHovers(rect)
             rect.onMouseExited = onMouseExits(rect)
+            /*********************/
+            rect.onMouseClicked = EventHandler{ removeMeFromScene(root) }
+            text.onMouseClicked = EventHandler { removeMeFromScene(root) }
             rectangleList.add(rect)
             textList.add(text)
         }
@@ -130,10 +137,16 @@ open class DropDownBox(stringList: List<String>, parent: Shape,
     }
 
     open fun onMouseHovers(obj: Shape): EventHandler<MouseEvent> {
-        return EventHandler { obj.fill = trackListState.generalPurple.darker() }
+        return EventHandler {
+            obj.fill = trackListState.generalPurple.darker()
+            setOfHoveredDropDownBoxes.add(AtomicReference(this))
+        }
     }
 
     open fun onMouseExits(obj: Shape): EventHandler<MouseEvent> {
-        return EventHandler { obj.fill = trackListState.generalPurple }
+        return EventHandler {
+            obj.fill = trackListState.generalPurple
+            setOfHoveredDropDownBoxes.clear()
+        }
     }
 }

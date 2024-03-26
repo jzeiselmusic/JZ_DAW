@@ -49,7 +49,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         val delay = PauseTransition(Duration.millis(50.0));
         Platform.runLater {
             delay.setOnFinished {
-                dropDownBox = InputDeviceList(deviceList.map { it.name },
+                dropDownBox = InputDeviceList(root, deviceList.map { it.name },
                     inputSelectRectangle, trackListViewModel,
                     ::selectionChosen)
                 dropDownBox!!.addMeToScene(root)
