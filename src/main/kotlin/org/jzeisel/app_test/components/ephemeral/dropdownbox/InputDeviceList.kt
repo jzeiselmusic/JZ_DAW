@@ -1,7 +1,5 @@
 package org.jzeisel.app_test.components.ephemeral.dropdownbox
 
-import javafx.animation.PauseTransition
-import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
@@ -9,8 +7,13 @@ import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.scene.shape.StrokeLineJoin
-import javafx.util.Duration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 
 class InputDeviceList(stringList: List<String>, parent: Rectangle,
@@ -21,7 +24,8 @@ class InputDeviceList(stringList: List<String>, parent: Rectangle,
     lateinit var root: StackPane
     private val expansionArrows = mutableListOf<Polygon>()
     private val listOfChannelLists = mutableListOf<List<String>>()
-    private var activeChannelList: DropDownBox? = null
+    private val listOfAtomicVars = mutableListOf<AtomicInteger>()
+    private val listOfActiveDropDownBoxes = mutableListOf<AtomicReference<DropDownBox>>()
 
     init {
         /* gets called every time input select arrow is pressed */
@@ -31,6 +35,8 @@ class InputDeviceList(stringList: List<String>, parent: Rectangle,
                     createExpansionArrow(index, rect)
                 }
                 listOfChannelLists.add(it.map { channel-> channel.name })
+                listOfAtomicVars.add(AtomicInteger())
+                listOfAtomicVars.forEach { atomic -> atomic.set(0) }
             }
         }
     }
@@ -54,13 +60,20 @@ class InputDeviceList(stringList: List<String>, parent: Rectangle,
         val superEventHandler = super.onMouseHovers(obj)
         val extraEventHandler = EventHandler<MouseEvent> {
             val index = max(rectangleList.indexOf(it.source), textList.indexOf(it.source))
+            listOfAtomicVars.forEach { v -> v.set(0) }
+            listOfAtomicVars[index].set(1)
             val dropDownBox = DropDownBox(listOfChannelLists[index],
                                           it.source as Shape,
                                           trackListViewModel,
                                           clickCallback,
                                           rectangleWidth/2.0, -rectangleHeight/2.0)
-            dropDownBox.addMeToScene(root)
-            activeChannelList = dropDownBox
+            CoroutineScope(Dispatchers.Default).launch {
+                delay(200L)
+                if (listOfAtomicVars[index].get() == 1) {
+                    dropDownBox.addMeToScene(root)
+                    listOfActiveDropDownBoxes.add(AtomicReference(dropDownBox))
+                }
+            }
         }
         return EventHandler { event ->
             superEventHandler.handle(event)
@@ -71,13 +84,13 @@ class InputDeviceList(stringList: List<String>, parent: Rectangle,
     override fun onMouseExits(obj: Shape): EventHandler<MouseEvent> {
         val superEventHandler = super.onMouseExits(obj)
         val extraEventHandler = EventHandler<MouseEvent> {
-            val delay = PauseTransition(Duration.millis(100.0));
-            Platform.runLater {
-                delay.setOnFinished {
-                    activeChannelList?.removeMeFromScene(root)
-                    activeChannelList = null
+            listOfAtomicVars.forEach { v -> v.set(0) }
+            listOfActiveDropDownBoxes.forEach { ddb ->
+                ddb?.get()?.removeMeFromScene(root)
+                CoroutineScope(Dispatchers.Default).launch {
+                    delay(500L)
+                    listOfActiveDropDownBoxes.remove(ddb)
                 }
-                delay.play()
             }
         }
         return EventHandler { event ->
