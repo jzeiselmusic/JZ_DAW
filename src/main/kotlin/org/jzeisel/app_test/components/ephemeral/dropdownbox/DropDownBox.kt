@@ -16,18 +16,19 @@ import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 
-open class DropDownBox(stringList: List<String>, parent: Rectangle,
+open class DropDownBox(stringList: List<String>, parent: Shape,
                        private val trackListViewModel: TrackListViewModel,
-                       clickCallback: (index: Int) -> Unit)
+                       clickCallback: (index: Int) -> Unit,
+                       val xOffset: Double = 0.0, val yOffset: Double = 0.0)
     : TrackComponentWidget, ObservableListener<Double> {
     private val trackListState = trackListViewModel._trackListStateFlow.state
     private val parentButton = parent
     val rectangleList = mutableListOf<Rectangle>()
-    private val textList = mutableListOf<Text>()
+    val textList = mutableListOf<Text>()
     private val buttonOffsetX = parentButton.translateX
     private val buttonOffsetY = parentButton.translateY
-    private var rectangleWidth = 100.0
-    private var rectangleHeight = 25.0
+    var rectangleWidth = 100.0
+    var rectangleHeight = 25.0
     init {
         /* find the largest text and conform width */
         for ( string in stringList ) {
@@ -37,16 +38,16 @@ open class DropDownBox(stringList: List<String>, parent: Rectangle,
         }
         for ( (idx,string) in stringList.withIndex() ) {
             val text = Text(string)
-            text.translateX = buttonOffsetX + rectangleWidth / 2.0
-            text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx
+            text.translateX = buttonOffsetX + rectangleWidth / 2.0 + xOffset
+            text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx + yOffset
             text.fill = trackListState.strokeColor
             text.textAlignment = TextAlignment.CENTER
             text.isVisible = true
             text.viewOrder = viewOrderFlip - 0.65
             /*********************/
             val rect = Rectangle(rectangleWidth, rectangleHeight, trackListState.generalPurple)
-            rect.translateX = buttonOffsetX + rectangleWidth / 2.0
-            rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx
+            rect.translateX = buttonOffsetX + rectangleWidth / 2.0 + xOffset
+            rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx + yOffset
             rect.stroke = trackListState.strokeColor
             rect.strokeWidth = trackListState.strokeSize
             rect.arcWidth = 3.0
