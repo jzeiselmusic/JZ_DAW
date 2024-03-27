@@ -5,25 +5,21 @@ data class Device(
     var name: String,
     var id: String,
     var direction: Direction,
-    var numChannels: Int
+    var channels: List<Channel>? = null
 )
-
 data class Channel(
-    val index: Int,
-    val name: String,
+    var index: Int,
+    var name: String,
 )
-
 data class TrackData(
     var trackId: Int,
     var inputDevice: Device?,
     var volume: Double,
     var panning: Int,
 )
-
 enum class Direction {
     INPUT, OUTPUT
 }
-
 enum class AudioBackend(val readable: String) {
     SoundIoBackendNone("None"),
     SoundIoBackendJack("JACK"),

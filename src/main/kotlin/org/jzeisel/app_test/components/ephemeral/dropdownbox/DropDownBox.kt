@@ -12,35 +12,35 @@ import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
+import org.jzeisel.app_test.util.BoxEntry
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 import java.util.concurrent.atomic.AtomicReference
 
-open class DropDownBox(
-    open val root: StackPane, stringList: List<String>, parent: Shape,
-    private val trackListViewModel: TrackListViewModel,
-    clickCallback: (index: Int) -> Unit,
-    xOffset: Double = 0.0, yOffset: Double = 0.0,
-    val parentDropDownBox: InputDeviceList? = null)
-    : TrackComponentWidget, ObservableListener<Double> {
-    private val trackListState = trackListViewModel._trackListStateFlow.state
-    private val parentButton = parent
+open class DropDownBox(val root: StackPane,
+                       boxEntryList: List<BoxEntry>,
+                       clickCallback: (index: Int) -> Unit,
+                       translateX: Double, translateY: Double,
+                       private val trackListViewModel: TrackListViewModel,
+                       xOffset: Double = 0.0, yOffset: Double = 0.0)
+            : TrackComponentWidget, ObservableListener<Double> {
+    val trackListState = trackListViewModel._trackListStateFlow.state
+    val boxEntryListNames = boxEntryList.map { it.name }
     val rectangleList = mutableListOf<Rectangle>()
     val textList = mutableListOf<Text>()
-    val setOfHoveredDropDownBoxes = mutableSetOf<AtomicReference<DropDownBox>>()
-    private val buttonOffsetX = parentButton.translateX
-    private val buttonOffsetY = parentButton.translateY
+    private val buttonOffsetX = translateX
+    private val buttonOffsetY = translateY
     var rectangleWidth = 100.0
     var rectangleHeight = 25.0
     init {
         /* find the largest text and conform width */
-        for ( string in stringList ) {
+        for ( string in boxEntryList.map{it.name} ) {
             val testText = Text(string)
             if (testText.boundsInLocal.width > (rectangleWidth - 8)) rectangleWidth = testText.boundsInLocal.width + 40
             if (testText.boundsInLocal.height > (rectangleHeight - 8)) rectangleHeight = testText.boundsInLocal.height + 8
         }
-        for ( (idx,string) in stringList.withIndex() ) {
+        for ( (idx,string) in boxEntryListNames.withIndex() ) {
             val text = Text(string)
             text.translateX = buttonOffsetX + rectangleWidth / 2.0 + xOffset
             text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx + yOffset
@@ -139,14 +139,12 @@ open class DropDownBox(
     open fun onMouseHovers(obj: Shape): EventHandler<MouseEvent> {
         return EventHandler {
             obj.fill = trackListState.generalPurple.darker()
-            setOfHoveredDropDownBoxes.add(AtomicReference(this))
         }
     }
 
     open fun onMouseExits(obj: Shape): EventHandler<MouseEvent> {
         return EventHandler {
             obj.fill = trackListState.generalPurple
-            setOfHoveredDropDownBoxes.clear()
         }
     }
 }

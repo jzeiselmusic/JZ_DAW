@@ -16,10 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 
-class InputDeviceList(override val root: StackPane, stringList: List<String>, parent: Rectangle,
+/* class InputDeviceList(subRoot: StackPane, stringList: List<String>, parent: Rectangle,
                       private val trackListViewModel: TrackListViewModel,
-                      private val clickCallback: (index: Int) -> Unit)
-            : DropDownBox(root, stringList, parent, trackListViewModel, clickCallback){
+                      private val clickCallback: (index: Int) -> Unit) {
     private val state = trackListViewModel._trackListStateFlow.state
     private val expansionArrows = mutableListOf<Polygon>()
     private val listOfChannelLists = mutableListOf<List<String>>()
@@ -65,8 +64,7 @@ class InputDeviceList(override val root: StackPane, stringList: List<String>, pa
                                           it.source as Shape,
                                           trackListViewModel,
                                           clickCallback,
-                                          rectangleWidth/2.0, -rectangleHeight/2.0,
-                                            this)
+                                          rectangleWidth/2.0, -rectangleHeight/2.0)
             CoroutineScope(Dispatchers.Default).launch {
                 delay(300L)
                 if (listOfAtomicVars[index].get() == 1) {
@@ -113,4 +111,4 @@ class InputDeviceList(override val root: StackPane, stringList: List<String>, pa
         super.removeMeFromScene(root)
         expansionArrows.forEach { root.children.remove(it) }
     }
-}
+}*/

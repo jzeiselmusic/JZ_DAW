@@ -53,18 +53,32 @@ class AudioEngineManager {
         else return null
     }
 
-    fun getOutputDeviceFromIndex(index: Int): Device {
-        val name = soundInterface.getOutputDeviceName(index)
-        val id = soundInterface.getOutputDeviceId(index)
-        val nChannels = soundInterface.getNumChannelsOfOutputDevice(index)
-        return Device(index, name, id, Direction.OUTPUT, nChannels)
+    fun getOutputDeviceFromIndex(deviceIndex: Int): Device {
+        val name = soundInterface.getOutputDeviceName(deviceIndex)
+        val id = soundInterface.getOutputDeviceId(deviceIndex)
+        val nChannels = soundInterface.getNumChannelsOfOutputDevice(deviceIndex)
+        val channels =
+            List(nChannels) { Channel(0, "") }
+        channels.forEachIndexed { channelIndex, element ->
+            element.index = channelIndex
+            element.name =
+                soundInterface.getNameOfChannelOfInputDevice(deviceIndex, channelIndex)
+        }
+        return Device(deviceIndex, name, id, Direction.OUTPUT, channels)
     }
 
-    fun getInputDeviceFromIndex(index: Int): Device {
-        val name = soundInterface.getInputDeviceName(index)
-        val id = soundInterface.getInputDeviceId(index)
-        val nChannels = soundInterface.getNumChannelsOfInputDevice(index)
-        return Device(index, name, id, Direction.INPUT, nChannels)
+    fun getInputDeviceFromIndex(deviceIndex: Int): Device {
+        val name = soundInterface.getInputDeviceName(deviceIndex)
+        val id = soundInterface.getInputDeviceId(deviceIndex)
+        val nChannels = soundInterface.getNumChannelsOfInputDevice(deviceIndex)
+        val channels =
+            List(nChannels) { Channel(0, "") }
+        channels.forEachIndexed { channelIndex, element ->
+            element.index = channelIndex
+            element.name =
+                soundInterface.getNameOfChannelOfInputDevice(deviceIndex, channelIndex)
+        }
+        return Device(deviceIndex, name, id, Direction.INPUT, channels)
     }
 
     fun getInputDeviceName(index: Int): String? {
@@ -98,12 +112,25 @@ class AudioEngineManager {
     fun getInputDevices(): List<Device>? {
         if (initialized) {
             val deviceList = mutableListOf<Device>()
-            repeat(soundInterface.numInputDevices) {
-                deviceList.add(Device(it,
-                    soundInterface.getInputDeviceName(it),
-                    soundInterface.getInputDeviceId(it),
-                    Direction.INPUT,
-                    soundInterface.getNumChannelsOfInputDevice(it)))
+            repeat(soundInterface.numInputDevices) {deviceIndex ->
+                val name = soundInterface.getInputDeviceName(deviceIndex)
+                val deviceId = soundInterface.getInputDeviceId(deviceIndex)
+                val numChannels = soundInterface.getNumChannelsOfInputDevice(deviceIndex)
+                val channels =
+                    List(numChannels) { Channel(0, "") }
+                channels.forEachIndexed { index, element ->
+                    element.index = index
+                    element.name =
+                        soundInterface.getNameOfChannelOfInputDevice(deviceIndex, index)
+                }
+                deviceList.add(
+                    Device(deviceIndex,
+                        name,
+                        deviceId,
+                        Direction.INPUT,
+                        channels
+                    )
+                )
             }
             return deviceList
         }

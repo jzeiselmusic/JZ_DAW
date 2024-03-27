@@ -6,6 +6,7 @@ import javafx.event.EventHandler
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
+import javafx.scene.shape.Box
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
@@ -13,14 +14,10 @@ import javafx.util.Duration
 import org.jzeisel.app_test.audio.Device
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
-import org.jzeisel.app_test.components.ephemeral.dropdownbox.DropDownBox
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
-import org.jzeisel.app_test.components.ephemeral.dropdownbox.InputDeviceList
-import org.jzeisel.app_test.util.Logger
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.components.ephemeral.dropdownbox.ExpandableDropDownBox
+import org.jzeisel.app_test.util.*
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
             : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -36,7 +33,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     private val inputSelectArrow = Polygon(0.0, 0.0,
                                         8.0, 0.0,
                                         4.0, -4.0)
-    private var dropDownBox: InputDeviceList? = null
+    private var dropDownBox: ExpandableDropDownBox? = null
 
     private val deviceList: List<Device>
         get() {
@@ -49,10 +46,21 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         val delay = PauseTransition(Duration.millis(50.0));
         Platform.runLater {
             delay.setOnFinished {
-                dropDownBox = InputDeviceList(root, deviceList.map { it.name },
-                    inputSelectRectangle, trackListViewModel,
-                    ::selectionChosen)
-                dropDownBox!!.addMeToScene(root)
+                val deviceList = trackListViewModel.audioViewModel.getInputDeviceList()
+                deviceList?.let {devices ->
+                    val deviceBoxEntryList = List(devices.size) { BoxEntry() }
+                    deviceBoxEntryList.forEachIndexed { index, element ->
+                        element.name = deviceList[index].name
+                        element.boxEntrySubList =
+                            deviceList[index].channels!!.map { BoxEntry(it.name, null) }
+                    }
+
+                    dropDownBox = ExpandableDropDownBox(
+                        root, deviceBoxEntryList, ::selectionChosen,
+                        inputSelectRectangle.translateX, inputSelectRectangle.translateY,
+                        trackListViewModel)
+                    dropDownBox!!.addMeToScene(root)
+                }
             }
             delay.play()
         }
