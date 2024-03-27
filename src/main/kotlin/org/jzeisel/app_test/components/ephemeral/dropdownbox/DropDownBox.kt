@@ -45,6 +45,7 @@ open class DropDownBox(val root: StackPane,
             text.textAlignment = TextAlignment.CENTER
             text.isVisible = true
             text.viewOrder = viewOrderFlip - 0.65
+            text.isMouseTransparent = true
             /*********************/
             val rect = Rectangle(rectangleWidth, rectangleHeight, trackListState.generalPurple)
             rect.translateX = buttonOffsetX + rectangleWidth / 2.0 + xOffset
@@ -55,9 +56,6 @@ open class DropDownBox(val root: StackPane,
             rect.arcHeight = 3.0
             rect.isVisible = true
             rect.viewOrder = viewOrderFlip - 0.64
-            /*********************/
-            text.onMouseEntered = onMouseHovers(rect)
-            text.onMouseExited = onMouseExits(rect)
             /*********************/
             rect.onMouseEntered = onMouseHovers(rect)
             rect.onMouseExited = onMouseExits(rect)

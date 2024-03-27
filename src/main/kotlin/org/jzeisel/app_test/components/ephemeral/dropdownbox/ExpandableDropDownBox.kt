@@ -1,13 +1,17 @@
 package org.jzeisel.app_test.components.ephemeral.dropdownbox
 
-import javafx.application.Platform
+import javafx.event.EventHandler
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
+import javafx.scene.shape.Shape
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.util.BoxEntry
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
+import kotlin.math.max
 
 class ExpandableDropDownBox(root: StackPane, boxEntryList: List<BoxEntry>,
                             clickCallback: (index: Int) -> Unit,
@@ -29,8 +33,8 @@ class ExpandableDropDownBox(root: StackPane, boxEntryList: List<BoxEntry>,
 
     private fun createExpansionArrow(index: Int, rect: Rectangle) {
         val arrow = Polygon(0.0, 0.0,
-            8.0, 0.0,
-            4.0, -4.0)
+                                    8.0, 0.0,
+                                    4.0, -3.0)
         arrow.viewOrder = rect.viewOrder - 1.0
         arrow.translateY = rect.translateY
         arrow.translateX = rect.translateX + rect.width/2.0 - 10.0
@@ -50,5 +54,29 @@ class ExpandableDropDownBox(root: StackPane, boxEntryList: List<BoxEntry>,
     override fun removeMeFromScene(root: StackPane) {
         super.removeMeFromScene(root)
         runLater(0.0) { expansionArrows.forEach { root.children.remove(it) } }
+    }
+
+    override fun onMouseHovers(obj: Shape): EventHandler<MouseEvent> {
+        val firstEvent = super.onMouseHovers(obj)
+        val newEvent = EventHandler<MouseEvent> {
+            val index = max(rectangleList.indexOf(it.source), textList.indexOf(it.source))
+            Logger.debug(javaClass.simpleName, "$index entered", 5)
+        }
+        return EventHandler { event ->
+            firstEvent.handle(event)
+            newEvent.handle(event)
+        }
+    }
+
+    override fun onMouseExits(obj: Shape): EventHandler<MouseEvent> {
+        val firstEvent = super.onMouseExits(obj)
+        val newEvent = EventHandler<MouseEvent> {
+            val index = max(rectangleList.indexOf(it.source), textList.indexOf(it.source))
+            Logger.debug(javaClass.simpleName, "$index exited", 3)
+        }
+        return EventHandler { event ->
+            firstEvent.handle(event)
+            newEvent.handle(event)
+        }
     }
 }
