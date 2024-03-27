@@ -43,26 +43,22 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             return listOf()
         }
     private val clickEvent = EventHandler<MouseEvent> {
-        val delay = PauseTransition(Duration.millis(50.0));
-        Platform.runLater {
-            delay.setOnFinished {
-                val deviceList = trackListViewModel.audioViewModel.getInputDeviceList()
-                deviceList?.let {devices ->
-                    val deviceBoxEntryList = List(devices.size) { BoxEntry() }
-                    deviceBoxEntryList.forEachIndexed { index, element ->
-                        element.name = deviceList[index].name
-                        element.boxEntrySubList =
-                            deviceList[index].channels!!.map { BoxEntry(it.name, null) }
-                    }
-
-                    dropDownBox = ExpandableDropDownBox(
-                        root, deviceBoxEntryList, ::selectionChosen,
-                        inputSelectRectangle.translateX, inputSelectRectangle.translateY,
-                        trackListViewModel)
-                    dropDownBox!!.addMeToScene(root)
+        runLater(50.0) {
+            val deviceList = trackListViewModel.audioViewModel.getInputDeviceList()
+            deviceList?.let {devices ->
+                val deviceBoxEntryList = List(devices.size) { BoxEntry() }
+                deviceBoxEntryList.forEachIndexed { index, element ->
+                    element.name = deviceList[index].name
+                    element.boxEntrySubList =
+                        deviceList[index].channels!!.map { BoxEntry(it.name, null) }
                 }
+
+                dropDownBox = ExpandableDropDownBox(
+                    root, deviceBoxEntryList, ::selectionChosen,
+                    inputSelectRectangle.translateX, inputSelectRectangle.translateY,
+                    trackListViewModel)
+                dropDownBox!!.addMeToScene(root)
             }
-            delay.play()
         }
     }
     init {
@@ -126,7 +122,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     }
 
     override fun addMeToScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             registerForBroadcasts()
             root.children.add(inputSelectRectangle)
             root.children.add(inputSelectArrow)
@@ -134,7 +130,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             dropDownBox?.removeMeFromScene(root)
             for (child in children) {

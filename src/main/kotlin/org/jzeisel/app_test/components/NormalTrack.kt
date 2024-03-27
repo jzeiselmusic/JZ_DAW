@@ -8,6 +8,7 @@ import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Observable
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.runLater
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,
@@ -124,7 +125,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             for (child in children) {
                 child.removeMeFromScene(root)

@@ -12,10 +12,7 @@ import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Logger
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.util.*
 
 class WaveFormBox(override val parent: Widget) :
     Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -171,7 +168,7 @@ class WaveFormBox(override val parent: Widget) :
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             root.children.remove(trackRectangle)
             for (measureDivider in measureDividers) {

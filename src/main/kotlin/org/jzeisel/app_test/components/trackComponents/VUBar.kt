@@ -10,6 +10,7 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class VUBar(color: Color, private var barOffsetY: Double,
@@ -46,7 +47,7 @@ class VUBar(color: Color, private var barOffsetY: Double,
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             root.children.remove(barRectangle)
         }

@@ -11,6 +11,7 @@ import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
 object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
@@ -63,7 +64,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     fun removeMeFromScene(root: StackPane) {
         if (isShowing) {
-            Platform.runLater {
+            runLater {
                 unregisterForBroadcasts()
                 root.children.remove(cursorRectangle)
                 root.children.remove(cursorPointer)
@@ -74,7 +75,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     fun updateLocation(offsetX: Double) {
         if (isShowing) {
-            Platform.runLater {
+            runLater {
                 currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
                 cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
@@ -113,7 +114,7 @@ object CursorFollower: TrackComponentWidget, ObservableListener<Double> {
 
     fun updateFromTrackList(root: StackPane) {
         if (isShowing) {
-            Platform.runLater {
+            runLater {
                 cursorRectangle.height = rectangleHeight
                 cursorRectangle.translateY = rectangleTranslateY
                 cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset

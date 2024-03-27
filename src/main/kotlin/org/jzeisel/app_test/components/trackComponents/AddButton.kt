@@ -12,10 +12,7 @@ import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
-import org.jzeisel.app_test.util.Logger
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.util.*
 import java.util.*
 
 class AddButton(override val parent: Widget)
@@ -128,7 +125,7 @@ class AddButton(override val parent: Widget)
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             root.children.remove(buttonRect)
             root.children.remove(horizontalLine)

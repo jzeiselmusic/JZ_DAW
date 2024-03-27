@@ -20,6 +20,7 @@ import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.runLater
 import kotlin.properties.Delegates
 
 class TrackListViewModel(val root: StackPane,
@@ -93,7 +94,7 @@ class TrackListViewModel(val root: StackPane,
 
     fun removeTrack(child: Widget) {
         /* same comment as above */
-        Platform.runLater {
+        runLater {
             child.removeMeFromScene(root)
             children = children.toMutableList().apply {
                 remove(child)

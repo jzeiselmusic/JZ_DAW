@@ -10,6 +10,7 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class VUMeter(override val parent: Widget)
@@ -51,7 +52,7 @@ class VUMeter(override val parent: Widget)
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             for (child in children) {
                 child.removeMeFromScene(root)
@@ -76,7 +77,7 @@ class VUMeter(override val parent: Widget)
                                 - (bar * (barHeight + barSep)), this)
             )
         }
-        Platform.runLater {
+        runLater {
             for (bar in children) {
                 bar.addMeToScene(root)
                 /* initially make invisible */
@@ -98,20 +99,6 @@ class VUMeter(override val parent: Widget)
     private fun makeBarVisible(bar: VUBar) {
         bar.isVisible(true)
     }
-
-    /* fun setBarsBasedOnAudio(audioInputManager: AudioInputManager, index: Int) {
-        val mean = audioInputManager.dataStreams[index]
-        Platform.runLater {
-            makeAllBarsInvisible()
-            for (i in 1..numBars) {
-                if (mean >= volumePerBar * i) {
-                    makeBarVisible(children[i - 1] as VUBar)
-                } else {
-                    break
-                }
-            }
-        }
-    } */
 
     override fun respondToHeightChange(old: Double, new: Double) {
         ((new - old)/2.0).let {

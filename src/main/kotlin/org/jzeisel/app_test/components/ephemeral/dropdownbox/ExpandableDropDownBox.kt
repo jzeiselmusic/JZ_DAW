@@ -1,10 +1,12 @@
 package org.jzeisel.app_test.components.ephemeral.dropdownbox
 
+import javafx.application.Platform
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.util.BoxEntry
+import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 
 class ExpandableDropDownBox(root: StackPane, boxEntryList: List<BoxEntry>,
@@ -42,11 +44,11 @@ class ExpandableDropDownBox(root: StackPane, boxEntryList: List<BoxEntry>,
 
     override fun addMeToScene(root: StackPane) {
         super.addMeToScene(root)
-        expansionArrows.forEach { root.children.add(it) }
+        runLater(50.0) { expansionArrows.forEach { root.children.add(it) } }
     }
 
     override fun removeMeFromScene(root: StackPane) {
         super.removeMeFromScene(root)
-        expansionArrows.forEach { root.children.remove(it) }
+        runLater(0.0) { expansionArrows.forEach { root.children.remove(it) } }
     }
 }

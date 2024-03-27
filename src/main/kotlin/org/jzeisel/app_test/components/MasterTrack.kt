@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.runLater
 
 class MasterTrack(root: StackPane, override val parent: Widget)
     : Track(root, parent), Widget {
@@ -114,7 +115,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             for (child in children) {
                 child.removeMeFromScene(root)

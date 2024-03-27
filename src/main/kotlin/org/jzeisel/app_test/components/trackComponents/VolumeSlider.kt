@@ -10,10 +10,7 @@ import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.animateObjectScale
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.util.*
 
 class VolumeSlider(override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -117,7 +114,7 @@ class VolumeSlider(override val parent: Widget)
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater {
             unregisterForBroadcasts()
             root.children.remove(sliderCircle)
             root.children.remove(sliderBar)

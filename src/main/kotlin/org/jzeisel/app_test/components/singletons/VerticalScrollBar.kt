@@ -10,6 +10,7 @@ import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
 object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
@@ -60,7 +61,7 @@ object VerticalScrollBar: TrackComponentWidget, ObservableListener<Double> {
 
     fun removeMeFromScene() {
         if (isShowing) {
-            Platform.runLater {
+            runLater {
                 unregisterForBroadcasts()
                 scrollRectangleStackPane.children.remove(scrollRectangle)
                 isShowing = false

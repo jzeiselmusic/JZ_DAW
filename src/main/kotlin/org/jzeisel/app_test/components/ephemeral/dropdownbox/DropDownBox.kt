@@ -12,10 +12,7 @@ import javafx.scene.text.TextAlignment
 import javafx.util.Duration
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
-import org.jzeisel.app_test.util.BoxEntry
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.util.*
 import java.util.concurrent.atomic.AtomicReference
 
 open class DropDownBox(val root: StackPane,
@@ -73,19 +70,15 @@ open class DropDownBox(val root: StackPane,
     }
 
     open fun addMeToScene(root: StackPane) {
-        val delay = PauseTransition(Duration.millis(50.0));
-        Platform.runLater {
-            delay.setOnFinished {
-                registerForBroadcasts()
-                root.children.addAll(rectangleList)
-                root.children.addAll(textList)
-            }
-            delay.play()
+        runLater(50.0) {
+            registerForBroadcasts()
+            root.children.addAll(rectangleList)
+            root.children.addAll(textList)
         }
     }
 
     open fun removeMeFromScene(root: StackPane) {
-        Platform.runLater {
+        runLater(0.0) {
             unregisterForBroadcasts()
             root.children.removeAll(textList)
             root.children.removeAll(rectangleList)

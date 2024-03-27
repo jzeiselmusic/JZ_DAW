@@ -16,6 +16,7 @@ import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
+import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
 
@@ -69,20 +70,17 @@ class TextField(private val parentRect: Rectangle,
         cursor.stroke = trackListState.backgroundGray.brighter()
         cursor.isVisible = true
         cursor.viewOrder = viewOrderFlip - 0.62
-        val delay = PauseTransition(Duration.millis(100.0));
-        Platform.runLater {
-            delay.setOnFinished {
-                root.children.add(rectangle)
-                root.children.add(text)
-                root.children.add(cursor)
-                isShowing = true
-            }
-            delay.play()
+
+        runLater(100.0) {
+            root.children.add(rectangle)
+            root.children.add(text)
+            root.children.add(cursor)
+            isShowing = true
         }
 
         timeline = Timeline(
                 KeyFrame(Duration.millis(500.0), { _: ActionEvent? ->
-                    Platform.runLater{ cursor.isVisible = !cursor.isVisible }
+                    runLater{ cursor.isVisible = !cursor.isVisible }
                 }),
         )
         timeline.cycleCount = Timeline.INDEFINITE
@@ -91,7 +89,7 @@ class TextField(private val parentRect: Rectangle,
 
     fun removeMeFromScene(root: StackPane) {
         if (isShowing) {
-            Platform.runLater {
+            runLater {
                 timeline.stop()
                 root.children.removeAll(cursor, rectangle, text)
                 isShowing = false
