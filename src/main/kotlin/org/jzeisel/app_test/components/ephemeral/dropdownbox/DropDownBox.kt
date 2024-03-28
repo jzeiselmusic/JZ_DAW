@@ -20,7 +20,7 @@ open class DropDownBox(val root: StackPane,
                        clickCallback: (index: Int) -> Unit,
                        translateX: Double, translateY: Double,
                        private val trackListViewModel: TrackListViewModel,
-                       xOffset: Double = 0.0, yOffset: Double = 0.0)
+                       val isSublist: Boolean, parentList: DropDownBox? = null)
             : TrackComponentWidget, ObservableListener<Double> {
     val trackListState = trackListViewModel._trackListStateFlow.state
     val boxEntryListNames = boxEntryList.map { it.name }
@@ -39,8 +39,14 @@ open class DropDownBox(val root: StackPane,
         }
         for ( (idx,string) in boxEntryListNames.withIndex() ) {
             val text = Text(string)
-            text.translateX = buttonOffsetX + rectangleWidth / 2.0 + xOffset
-            text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx + yOffset
+            if (!isSublist) {
+                text.translateX = buttonOffsetX + rectangleWidth / 2.0
+                text.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight * idx
+            }
+            else {
+                text.translateX = buttonOffsetX + parentList!!.rectangleWidth/2.0 + rectangleWidth / 2.0
+                text.translateY = buttonOffsetY + rectangleHeight * idx
+            }
             text.fill = trackListState.strokeColor
             text.textAlignment = TextAlignment.CENTER
             text.isVisible = true
@@ -48,8 +54,14 @@ open class DropDownBox(val root: StackPane,
             text.isMouseTransparent = true
             /*********************/
             val rect = Rectangle(rectangleWidth, rectangleHeight, trackListState.generalPurple)
-            rect.translateX = buttonOffsetX + rectangleWidth / 2.0 + xOffset
-            rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight*idx + yOffset
+            if (!isSublist) {
+                rect.translateX = buttonOffsetX + rectangleWidth / 2.0
+                rect.translateY = (buttonOffsetY + rectangleHeight / 2.0) + rectangleHeight * idx
+            }
+            else {
+                rect.translateX = buttonOffsetX + parentList!!.rectangleWidth/2.0 + rectangleWidth/2.0
+                rect.translateY = buttonOffsetY + rectangleHeight * idx
+            }
             rect.stroke = trackListState.strokeColor
             rect.strokeWidth = trackListState.strokeSize
             rect.arcWidth = 3.0

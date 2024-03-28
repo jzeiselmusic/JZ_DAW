@@ -56,7 +56,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
                 dropDownBox = ExpandableDropDownBox(
                     root, deviceBoxEntryList, ::selectionChosen,
                     inputSelectRectangle.translateX, inputSelectRectangle.translateY,
-                    trackListViewModel)
+                    trackListViewModel, false)
                 dropDownBox!!.addMeToScene(root)
             }
         }
