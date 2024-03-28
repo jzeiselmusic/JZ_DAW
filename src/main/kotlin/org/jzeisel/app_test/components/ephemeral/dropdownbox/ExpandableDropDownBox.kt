@@ -16,11 +16,13 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 
 class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
-                            val clickCallback: (index: Int) -> Unit,
+                            val myClickCallback: (indexes: List<Int>) -> Unit,
                             translateX: Double, translateY: Double,
                             private val trackListViewModel: TrackListViewModel,
-                            isSubList: Boolean, val parentList: DropDownBox? = null)
-        : DropDownBox(root, boxEntryList, clickCallback, translateX, translateY,
+                            isSubList: Boolean,
+                            val parentList: DropDownBox? = null,
+                            val parentIndex: Int? = null)
+        : DropDownBox(root, boxEntryList, myClickCallback, translateX, translateY,
                         trackListViewModel, isSubList, parentList) {
 
     private val expansionArrows = mutableListOf<Polygon?>()
@@ -83,7 +85,8 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
                         rectangleList[index].translateY,
                         trackListViewModel,
                         true,
-                        this@ExpandableDropDownBox
+                        this@ExpandableDropDownBox,
+                        index
                     ))
                     expandableDropDownBoxChild.get()?.addMeToScene(root)
                     mouseCheckedInWaitThreads[index] = null
@@ -112,6 +115,15 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
         return EventHandler { event ->
             firstEvent.handle(event)
             newEvent.handle(event)
+        }
+    }
+
+    override fun onMouseClicked(idx: Int): EventHandler<MouseEvent> {
+        return EventHandler {
+            if (expansionArrows[idx] == null) {
+                myClickCallback(listOf(parentIndex!!, idx))
+                removeMeFromScene(root)
+            }
         }
     }
 }

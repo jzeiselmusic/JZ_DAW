@@ -116,8 +116,10 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
 
     fun removeDropDownBox(root: StackPane) {
         dropDownBox?.let {
-            it.removeMeFromScene(root)
-            dropDownBox = null
+            if (!it.isHovering) {
+                it.removeMeFromScene(root)
+                dropDownBox = null
+            }
         }
     }
 
@@ -142,9 +144,8 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         }
     }
 
-    private fun selectionChosen(index: Int) {
+    private fun selectionChosen(index: List<Int>) {
         Logger.debug(javaClass.simpleName, "chose index $index", 5)
-        (parentTrack as NormalTrack).setAudioInputIndex(index)
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {

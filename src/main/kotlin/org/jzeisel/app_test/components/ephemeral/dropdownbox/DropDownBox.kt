@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 open class DropDownBox(val root: StackPane,
                        boxEntryList: List<BoxEntry>,
-                       clickCallback: (index: Int) -> Unit,
+                       val clickCallback: (indexes: List<Int>) -> Unit,
                        translateX: Double, translateY: Double,
                        private val trackListViewModel: TrackListViewModel,
                        val isSublist: Boolean, parentList: DropDownBox? = null)
@@ -30,6 +30,7 @@ open class DropDownBox(val root: StackPane,
     private val buttonOffsetY = translateY
     var rectangleWidth = 100.0
     var rectangleHeight = 25.0
+    var isHovering = false
     init {
         /* find the largest text and conform width */
         for ( string in boxEntryList.map{it.name} ) {
@@ -72,8 +73,7 @@ open class DropDownBox(val root: StackPane,
             rect.onMouseEntered = onMouseHovers(rect)
             rect.onMouseExited = onMouseExits(rect)
             /*********************/
-            rect.onMouseClicked = EventHandler{ removeMeFromScene(root) }
-            text.onMouseClicked = EventHandler { removeMeFromScene(root) }
+            rect.onMouseClicked = onMouseClicked(idx)
             rectangleList.add(rect)
             textList.add(text)
         }
@@ -141,13 +141,22 @@ open class DropDownBox(val root: StackPane,
 
     open fun onMouseHovers(obj: Shape): EventHandler<MouseEvent> {
         return EventHandler {
+            isHovering = true
             obj.fill = trackListState.generalPurple.darker()
         }
     }
 
     open fun onMouseExits(obj: Shape): EventHandler<MouseEvent> {
         return EventHandler {
+            isHovering = false
             obj.fill = trackListState.generalPurple
+        }
+    }
+
+    open fun onMouseClicked(idx: Int): EventHandler<MouseEvent> {
+        return EventHandler{
+            clickCallback(listOf(idx))
+            removeMeFromScene(root)
         }
     }
 }
