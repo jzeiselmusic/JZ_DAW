@@ -20,6 +20,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         _, _, new ->
         trackLabelNumber.text = new
         if (!inputNameBox.nameSetByUser) inputNameBox.name = "Track $new"
+        trackListViewModel.updateTrackName(index.getValue().toInt(), new)
     }
 
     var index = Observable(initialIndex.toDouble())
@@ -92,6 +93,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
             labelDivider.translateY = it
             trackLabelNumber.translateY = it
         }
+        trackListViewModel.updateTrackIndex(name, newIndex)
     }
 
     override fun addMeToScene(root: StackPane) {

@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.viewmodel.controller
+package org.jzeisel.app_test.audio.viewmodel
 
 import org.jzeisel.app_test.audio.AudioError
 import org.jzeisel.app_test.viewmodel.TrackListViewModel

@@ -146,6 +146,8 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
 
     private fun selectionChosen(index: List<Int>) {
         Logger.debug(javaClass.simpleName, "chose index $index", 5)
+        trackListViewModel.setTrackDeviceAndChannel(
+            (parentTrack as NormalTrack).index.getValue().toInt(), index[0], index[1])
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {

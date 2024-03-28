@@ -1,8 +1,4 @@
-package org.jzeisel.app_test.stateflow
-
-import org.jzeisel.app_test.audio.AudioBackend
-import org.jzeisel.app_test.audio.Device
-import org.jzeisel.app_test.audio.TrackData
+package org.jzeisel.app_test.audio
 
 data class AudioState(
     var isInitialized: Boolean = false,
@@ -13,9 +9,9 @@ data class AudioState(
     var tSignatureTop: UInt = 4U,
     var tSignatureBottom: UInt = 4U,
     var numTracks: Int = 0,
-    var trackDataList: MutableList<TrackData> = mutableListOf(),
+    var trackList: MutableList<TrackData> = mutableListOf(),
     var outputDevice: Device? = null,
 )
 class AudioStateFlow {
-    var state = AudioState()
+    var _state = AudioState()
 }

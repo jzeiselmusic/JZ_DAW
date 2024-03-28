@@ -12,8 +12,10 @@ data class Channel(
     var name: String,
 )
 data class TrackData(
-    var trackId: Int,
+    var trackName: String,
+    var trackIndex: Int,
     var inputDevice: Device?,
+    var inputChannel: Channel?,
     var volume: Double,
     var panning: Int,
 )

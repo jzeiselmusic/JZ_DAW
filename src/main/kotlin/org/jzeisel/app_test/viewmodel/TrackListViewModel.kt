@@ -1,14 +1,15 @@
 package org.jzeisel.app_test.viewmodel
 
 import javafx.animation.PauseTransition
-import javafx.application.Platform
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
-import org.jzeisel.app_test.audio.AudioEngineManager
 import org.jzeisel.app_test.audio.AudioError
+import org.jzeisel.app_test.audio.Channel
+import org.jzeisel.app_test.audio.Device
+import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
@@ -18,7 +19,6 @@ import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
 import kotlin.properties.Delegates
@@ -84,22 +84,38 @@ class TrackListViewModel(val root: StackPane,
                 (child as NormalTrack).index.getValue().toInt() + 1, child as Track)
         newTrack.addMeToScene(root)
         addChild(newTrack)
+        audioViewModel.addTrack(newTrack.index.getValue().toInt(), newTrack.name)
     }
 
     fun addTrackFromMaster() {
         val newTrack = NormalTrack(root, this, 0, masterTrack)
         newTrack.addMeToScene(root)
         addChild(newTrack)
+        audioViewModel.addTrack(newTrack.index.getValue().toInt(), newTrack.name)
     }
 
     fun removeTrack(child: Widget) {
         /* same comment as above */
         runLater {
+            val trackIndex = (child as NormalTrack).index
+            audioViewModel.removeTrack(trackIndex.getValue().toInt())
             child.removeMeFromScene(root)
             children = children.toMutableList().apply {
                 remove(child)
             }
         }
+    }
+
+    fun updateTrackName(trackIndex: Int, newName: String) {
+        audioViewModel.updateTrackName(trackIndex, newName)
+    }
+
+    fun updateTrackIndex(name: String, newIndex: Int) {
+        audioViewModel.updateTrackIndex(name, newIndex)
+    }
+
+    fun setTrackDeviceAndChannel(trackIndex: Int, deviceIndex: Int, channelIndex: Int) {
+        audioViewModel.setTrackDeviceAndChannel(trackIndex, deviceIndex, channelIndex)
     }
 
     fun updateWaveFormOffset(new: Double) {
