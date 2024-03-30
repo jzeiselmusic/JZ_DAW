@@ -6,10 +6,7 @@ import javafx.scene.layout.StackPane
 import org.jzeisel.app_test.audio.AudioError
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Observable
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.runLater
+import org.jzeisel.app_test.util.*
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,

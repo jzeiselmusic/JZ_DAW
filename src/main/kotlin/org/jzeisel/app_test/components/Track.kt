@@ -10,13 +10,14 @@ import javafx.scene.text.Text
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
+import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 import kotlin.math.abs
 
 abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<Double> {
     val trackListViewModel = parent as TrackListViewModel
-    val trackListState = trackListViewModel._trackListStateFlow.state
+    val trackListState: TrackListState get() { return trackListViewModel._trackListStateFlow.state }
     val initialTrackWidth = trackListState.trackWidth
     val initialTrackHeight = trackListState.trackHeight
     val trackColorNormal = Color.WHITESMOKE.darker().darker()

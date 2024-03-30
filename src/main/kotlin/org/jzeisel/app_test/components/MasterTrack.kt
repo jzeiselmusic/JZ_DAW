@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.runLater
 
 class MasterTrack(root: StackPane, override val parent: Widget)
