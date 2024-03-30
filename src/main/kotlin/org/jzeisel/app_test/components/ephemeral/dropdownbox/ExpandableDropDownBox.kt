@@ -10,6 +10,7 @@ import javafx.scene.shape.StrokeLineJoin
 import kotlinx.coroutines.*
 import org.jzeisel.app_test.util.BoxEntry
 import org.jzeisel.app_test.util.runLater
+import org.jzeisel.app_test.util.viewOrderFlip
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
@@ -46,7 +47,6 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
         val arrow = Polygon(0.0, 0.0,
                                     8.0, 0.0,
                                     4.0, -3.0)
-        arrow.viewOrder = rect.viewOrder - 1.0
         arrow.translateY = rect.translateY
         arrow.translateX = rect.translateX + rect.width/2.0 - 10.0
         arrow.rotate = 90.0
@@ -54,6 +54,7 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
         arrow.strokeWidth = 1.5
         arrow.strokeLineJoin = StrokeLineJoin.ROUND
         arrow.opacity = 0.55
+        arrow.viewOrder = viewOrderFlip - 0.65
         expansionArrows[index] = arrow
     }
 

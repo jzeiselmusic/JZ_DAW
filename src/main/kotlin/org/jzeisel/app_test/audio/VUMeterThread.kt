@@ -23,7 +23,7 @@ class VUMeterThread(val audioEngineManager: AudioEngineManager,
     private fun startVUMeterThread() {
         if (vuMeterThreadJob == null) {
             vuMeterThreadJob = scope.launch {
-                loop(10L) {
+                loop(80L) {
                     if (isActive) {
                         tracksStreaming.forEach { track ->
                             track.audioStream?.let {

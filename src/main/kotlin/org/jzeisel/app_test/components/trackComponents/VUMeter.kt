@@ -1,38 +1,39 @@
 package org.jzeisel.app_test.components.trackComponents
 
+import javafx.animation.ParallelTransition
+import javafx.animation.PathTransition
+import javafx.animation.ScaleTransition
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
+import javafx.scene.shape.MoveTo
+import javafx.scene.shape.Path
 import javafx.scene.shape.Rectangle
+import javafx.util.Duration
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.runLater
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.util.*
 
 class VUMeter(override val parent: Widget)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
 
-    /* object that represents a single VUMeter */
-    /* made of 2 rectangles and a set of numBars Bars */
     private val parentTrack = parent as Track
     val trackListViewModel = parentTrack.trackListViewModel
     private val trackListState = trackListViewModel._trackListStateFlow.state
-    private val numBars = 20
     val vuMeterWidth = trackListState.vuMeterWidth
     private var vuMeterHeight = parentTrack.initialTrackHeight / 1.75
     var vuMeterOffsetX = -(parentTrack.trackListViewModel.stage.width / 2.0) + trackListState.vuMeterOffset
     private var vuMeterOffsetY = parentTrack.trackOffsetY
     private val bgColor = trackListState.generalGray
-    private val barSep = 0.0
-    private val volumePerBar = 3000.0 / numBars
-
+    val volumeMinimumHeight = 1.0
+    val volumeMaximumHeight = vuMeterHeight - 4.0
     private val vuMeterRectangle = Rectangle(vuMeterWidth, vuMeterHeight, bgColor)
-    val barHeight = (vuMeterHeight - (barSep * numBars + 2)) / numBars
-
+    private val volumeRectangle = Rectangle(vuMeterWidth - 4.0, volumeMinimumHeight, Color.GREEN)
     override val children = mutableListOf<Widget>()
+    var currentVolume: Double = -100.0
+    lateinit var parallelTransition: ParallelTransition
+    var isVUMeterRunning = false
 
     init {
         vuMeterRectangle.translateX = vuMeterOffsetX
@@ -42,46 +43,25 @@ class VUMeter(override val parent: Widget)
         vuMeterRectangle.stroke = trackListState.strokeColor
         vuMeterRectangle.strokeWidth = trackListState.strokeSize
         vuMeterRectangle.viewOrder = viewOrderFlip - 0.31
+
+        volumeRectangle.translateX = vuMeterOffsetX - 0.5
+        volumeRectangle.translateY = vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 3.0
+        volumeRectangle.arcWidth = trackListState.arcSize
+        volumeRectangle.arcHeight = trackListState.arcSize
+        vuMeterRectangle.viewOrder = viewOrderFlip - 0.30
     }
 
     override fun addMeToScene(root: StackPane) {
         registerForBroadcasts()
         root.children.add(vuMeterRectangle)
-        makeMeterBars(root)
+        root.children.add(volumeRectangle)
     }
 
     override fun removeMeFromScene(root: StackPane) {
         runLater {
             unregisterForBroadcasts()
-            for (child in children) {
-                child.removeMeFromScene(root)
-            }
-            children.clear()
             root.children.remove(vuMeterRectangle)
-        }
-    }
-
-    private fun makeMeterBars(root: StackPane) {
-        for (bar in 0 until numBars) {
-            val color: Color
-            if (bar <= numBars /2) {
-                color = Color.GREEN.brighter()
-            }
-            else if (bar <= 3* numBars /4) {
-                color = Color.YELLOW.brighter()
-            }
-            else color = Color.RED.brighter()
-            addChild(
-                VUBar(color, vuMeterOffsetY + ((vuMeterHeight / 2) - barSep - barHeight /2)
-                                - (bar * (barHeight + barSep)), this)
-            )
-        }
-        runLater {
-            for (bar in children) {
-                bar.addMeToScene(root)
-                /* initially make invisible */
-                (bar as VUBar).isVisible(false)
-            }
+            root.children.remove(volumeRectangle)
         }
     }
 
@@ -89,19 +69,10 @@ class VUMeter(override val parent: Widget)
         children.add(child)
     }
 
-    private fun makeAllBarsInvisible() {
-        for (child in children) {
-            (child as VUBar).isVisible(false)
-        }
-    }
-
-    private fun makeBarVisible(bar: VUBar) {
-        bar.isVisible(true)
-    }
-
     override fun respondToHeightChange(old: Double, new: Double) {
         ((new - old)/2.0).let {
             vuMeterRectangle.translateY -= it
+            volumeRectangle.translateY -= it
             vuMeterOffsetY = vuMeterRectangle.translateY
         }
     }
@@ -109,6 +80,7 @@ class VUMeter(override val parent: Widget)
     override fun respondToWidthChange(old: Double, new: Double) {
         ((new - old)/2.0).let {
             vuMeterRectangle.translateX -= it
+            volumeRectangle.translateX -= it
             vuMeterOffsetX = vuMeterRectangle.translateX
         }
     }
@@ -116,6 +88,7 @@ class VUMeter(override val parent: Widget)
     override fun respondToIndexChange(old: Double, new: Double) {
         vuMeterOffsetY = parentTrack.trackOffsetY
         vuMeterRectangle.translateY = vuMeterOffsetY
+        volumeRectangle.translateY = vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 3.0
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
@@ -141,6 +114,26 @@ class VUMeter(override val parent: Widget)
         trackListViewModel.unregisterForHeightChanges(this)
         if (parentTrack is NormalTrack) {
             parentTrack.registerForIndexChanges(this)
+        }
+    }
+
+    fun setVUMeterCurrentRMS(volume: Double) {
+        if (isVUMeterRunning) {
+            currentVolume = volume
+            runLater {
+                val oldHeight = volumeRectangle.height
+                val newHeight = scaleNumber(volume, volumeMaximumHeight, volumeMinimumHeight)
+                volumeRectangle.translateY += (oldHeight - newHeight) / 2.0
+                volumeRectangle.height = newHeight
+            }
+        }
+    }
+
+    fun turnOffCurrentRMSReading() {
+        currentVolume = -100.0
+        runLater {
+            volumeRectangle.height = volumeMinimumHeight
+            volumeRectangle.translateY = vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 3.0
         }
     }
 }

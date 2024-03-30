@@ -240,10 +240,8 @@ class TrackListViewModel(val root: StackPane,
     }
 
     fun updateTrackRMSVolume(volume: Double, trackIndex: Int) {
-        Logger.debug(javaClass.simpleName, "track $trackIndex: $volume", 3)
-        children.forEach {
-            val track = it as NormalTrack
-            track.
+        children.firstOrNull { (it as NormalTrack).index.getValue().toInt() == trackIndex }?.let {
+            (it as NormalTrack).updateVUMeter(volume)
         }
     }
 }

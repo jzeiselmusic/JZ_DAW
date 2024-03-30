@@ -163,6 +163,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         val err = trackListViewModel.setTrackEnabled(this)
         if (err == AudioError.SoundIoErrorNone) {
             audioInputEnabled = true
+            vuMeter.isVUMeterRunning = true
         }
         return err
     }
@@ -170,9 +171,11 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     fun audioInputDisable() {
         trackListViewModel.setTrackDisabled(this)
         audioInputEnabled = false
+        vuMeter.isVUMeterRunning = false
+        vuMeter.turnOffCurrentRMSReading()
     }
 
     fun updateVUMeter(volume: Double) {
-
+        vuMeter.setVUMeterCurrentRMS(volume)
     }
 }
