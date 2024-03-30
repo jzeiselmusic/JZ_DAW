@@ -153,4 +153,8 @@ class AudioEngineManager {
     fun stopInputStream(deviceIndex: Int) {
         soundInterface.stop_input_stream(deviceIndex)
     }
+
+    fun getCurrentRMSVolume(deviceIndex: Int): Double {
+        return soundInterface.get_current_rms_volume(deviceIndex)
+    }
 }

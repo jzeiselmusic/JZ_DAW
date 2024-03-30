@@ -8,4 +8,7 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
     fun throwPlaybackError(error: AudioError) {
         viewModel.onPlaybackError(error)
     }
+    fun sendTrackRMSVolume(volume: Double, trackIndex: Int) {
+        viewModel.updateTrackRMSVolume(volume, trackIndex)
+    }
 }

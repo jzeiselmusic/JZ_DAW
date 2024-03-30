@@ -172,11 +172,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         audioInputEnabled = false
     }
 
-    fun setAudioInputIndex(index: Int) {
-        audioInputIndex = index
-        trackListViewModel.setTrackAudioInput(index, this)
-    }
+    fun updateVUMeter(volume: Double) {
 
-    fun startGettingDataForVuMeter() {
     }
 }

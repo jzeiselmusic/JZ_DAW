@@ -3,10 +3,11 @@ package org.jzeisel.app_test.audio.viewmodel
 import org.jzeisel.app_test.audio.*
 import org.jzeisel.app_test.util.Logger
 
-class AudioViewModel(val viewModelController: ViewModelController) {
+class AudioViewModel(viewModelController: ViewModelController) {
 
     private val audioStateFlow = AudioStateFlow()
     private val audioEngineManager = AudioEngineManager()
+    private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController)
 
     fun initialize() {
         audioEngineManager.initialize()
@@ -24,6 +25,7 @@ class AudioViewModel(val viewModelController: ViewModelController) {
     }
 
     fun deinitialize() {
+        vuMeterThread.removeAllTracksFromStreaming()
         audioEngineManager.deinitialize()
     }
 
@@ -95,6 +97,7 @@ class AudioViewModel(val viewModelController: ViewModelController) {
                             chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice!!)
                             tList[trackIndex] = chosenTrack
                             audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+                            vuMeterThread.addToTracksStreaming(chosenTrack)
                             return AudioError.SoundIoErrorNone
                         }
                     }
@@ -103,7 +106,9 @@ class AudioViewModel(val viewModelController: ViewModelController) {
             chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice!!)
             tList[trackIndex] = chosenTrack
             audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-            return audioEngineManager.startInputStream(it.index)
+            val err = audioEngineManager.startInputStream(it.index)
+            if (err == AudioError.SoundIoErrorNone) vuMeterThread.addToTracksStreaming(chosenTrack)
+            return err
         }
         return AudioError.DevicesNotInitialized
     }
@@ -119,6 +124,7 @@ class AudioViewModel(val viewModelController: ViewModelController) {
                             chosenTrack.audioStream = null
                             tList[trackIndex] = chosenTrack
                             audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+                            vuMeterThread.removeFromTracksStreaming(chosenTrack)
                             return
                         }
                     }
@@ -128,6 +134,7 @@ class AudioViewModel(val viewModelController: ViewModelController) {
             tList[trackIndex] = chosenTrack
             audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
             audioEngineManager.stopInputStream(it.device.index)
+            vuMeterThread.removeFromTracksStreaming(chosenTrack)
         }
     }
 }

@@ -5,6 +5,7 @@ import javafx.animation.ScaleTransition
 import javafx.application.Platform
 import javafx.scene.shape.Shape
 import javafx.util.Duration
+import kotlinx.coroutines.delay
 
 fun animateObjectScale(from: Double, to: Double, obj: Shape) {
     val animate = ScaleTransition(Duration.millis(100.0), obj)
@@ -21,6 +22,13 @@ fun runLater(millis: Double = 0.0, r: Runnable) {
     Platform.runLater {
         delay.setOnFinished { r.run() }
         delay.play()
+    }
+}
+
+suspend fun loop(delayMillis: Long, action: () -> Unit) {
+    while(true) {
+        delay(delayMillis)
+        action()
     }
 }
 

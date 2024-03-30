@@ -19,6 +19,7 @@ import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
 import kotlin.properties.Delegates
@@ -236,6 +237,13 @@ class TrackListViewModel(val root: StackPane,
     }
 
     fun onPlaybackError(error: AudioError) {
+    }
 
+    fun updateTrackRMSVolume(volume: Double, trackIndex: Int) {
+        Logger.debug(javaClass.simpleName, "track $trackIndex: $volume", 3)
+        children.forEach {
+            val track = it as NormalTrack
+            track.
+        }
     }
 }

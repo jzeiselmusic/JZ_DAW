@@ -39,6 +39,7 @@ public class SoundIoInterface {
 
         int start_input_stream(int deviceIndex);
         void stop_input_stream(int deviceIndex);
+        double get_current_rms_volume(int deviceIndex);
     }
 
     public void destroySession() {
@@ -141,4 +142,6 @@ public class SoundIoInterface {
     public int start_input_stream(int deviceIndex) { return SoundIoLib.INSTANCE.start_input_stream(deviceIndex); }
 
     public void stop_input_stream(int deviceIndex) { SoundIoLib.INSTANCE.stop_input_stream(deviceIndex); }
+
+    public double get_current_rms_volume(int deviceIndex) { return SoundIoLib.INSTANCE.get_current_rms_volume(deviceIndex); }
 }
