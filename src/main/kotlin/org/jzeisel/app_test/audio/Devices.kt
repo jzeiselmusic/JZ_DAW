@@ -11,13 +11,18 @@ data class Channel(
     var index: Int,
     var name: String,
 )
+
 data class TrackData(
     var trackName: String,
     var trackIndex: Int,
-    var inputDevice: Device?,
-    var inputChannel: Channel?,
     var volume: Double,
     var panning: Int,
+    var inputDevice: Device? = null,
+    var inputChannel: Channel? = null,
+    var audioStream: AudioStream? = null,
+)
+data class AudioStream(
+    var device: Device
 )
 enum class Direction {
     INPUT, OUTPUT

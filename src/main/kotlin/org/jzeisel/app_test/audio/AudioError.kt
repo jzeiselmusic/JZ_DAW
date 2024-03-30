@@ -19,7 +19,9 @@ enum class AudioError(val readable: String) {
     SoundIoErrorUnderflow("Buffer underrun occurred"),
     SoundIoErrorEncodingString("Unable to convert to or from UTF-8 to the native string format"),
     /* custom errors */
+    DevicesNotInitialized("device for track is null"),
     EnvironmentNotInitialized("No memory to initialize sound environment"),
     IndexOutOfBounds("Index chosen out of bounds of number of devices"),
-    DevicesNotLoaded("Devices not loaded")
+    DevicesNotLoaded("Devices not loaded"),
+    InputStreamError("Input stream error")
 }

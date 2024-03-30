@@ -8,14 +8,12 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import org.jzeisel.app_test.audio.AudioError
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.runLater
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.util.*
 
 class InputEnableButton(override val parent: Widget?)
     : Widget, TrackComponentWidget, ObservableListener<Double> {
@@ -93,12 +91,14 @@ class InputEnableButton(override val parent: Widget?)
                 (parentTrack as NormalTrack).audioInputDisable()
             }
             false -> {
-                if ((parentTrack as NormalTrack).audioInputEnable()) {
+                val err = (parentTrack as NormalTrack).audioInputEnable()
+                if (err == AudioError.SoundIoErrorNone) {
                     isEnabled = true
                     buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40)
                     buttonRect.opacity = 0.9
-
-                    parentTrack.startGettingDataForVuMeter()
+                }
+                else {
+                    Logger.debug(javaClass.simpleName, err.readable, 5)
                 }
             }
         }

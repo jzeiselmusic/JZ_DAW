@@ -3,6 +3,7 @@ package org.jzeisel.app_test.components
 import javafx.application.Platform
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
+import org.jzeisel.app_test.audio.AudioError
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
@@ -161,15 +162,12 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         index.removeListener(listener)
     }
 
-    fun audioInputEnable(): Boolean {
-        val result = trackListViewModel.setTrackEnabled(this)
-        if (result) {
+    fun audioInputEnable(): AudioError {
+        val err = trackListViewModel.setTrackEnabled(this)
+        if (err == AudioError.SoundIoErrorNone) {
             audioInputEnabled = true
-            return true
         }
-        else {
-            return false
-        }
+        return err
     }
 
     fun audioInputDisable() {

@@ -227,11 +227,12 @@ class TrackListViewModel(val root: StackPane,
     fun setTrackAudioInput(index: Int, child: Widget) {
     }
 
-    fun setTrackEnabled(child: Widget): Boolean {
-        return true
+    fun setTrackEnabled(child: Widget): AudioError {
+        return audioViewModel.startInputStream((child as? NormalTrack)?.index!!.getValue().toInt())
     }
 
     fun setTrackDisabled(child: Widget) {
+        audioViewModel.stopInputStream((child as? NormalTrack)?.index!!.getValue().toInt())
     }
 
     fun onPlaybackError(error: AudioError) {

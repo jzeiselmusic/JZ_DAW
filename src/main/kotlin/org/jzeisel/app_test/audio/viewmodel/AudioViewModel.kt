@@ -27,6 +27,16 @@ class AudioViewModel(val viewModelController: ViewModelController) {
         audioEngineManager.deinitialize()
     }
 
+    private fun printTrackData() {
+        Logger.debug(javaClass.simpleName, "tracks: ${audioStateFlow._state.numTracks}", 1)
+        for (t in audioStateFlow._state.trackList) {
+            Logger.debug(javaClass.simpleName, "index: ${t.trackIndex}", 1)
+            Logger.debug(javaClass.simpleName, "\tname: ${t.trackName}", 1)
+            Logger.debug(javaClass.simpleName, "\tdevice: ${t.inputDevice}", 1)
+            Logger.debug(javaClass.simpleName, "\tchannel: ${t.inputChannel}", 1)
+        }
+    }
+
     fun getChannelsFromDevice(index: Int): List<Channel>? {
         if (audioStateFlow._state.isInitialized) return audioEngineManager.getChannelsFromDeviceIndex(index)!!
         else return null
@@ -40,7 +50,7 @@ class AudioViewModel(val viewModelController: ViewModelController) {
     fun addTrack(trackIndex: Int, trackName: String) {
         val nTracks = audioStateFlow._state.numTracks
         val tList = audioStateFlow._state.trackList
-        tList.add(trackIndex, TrackData(trackName, trackIndex, null, null, 0.0, 0))
+        tList.add(trackIndex, TrackData(trackName, trackIndex, 0.0, 0))
         audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks + 1, trackList = tList)
     }
 
@@ -72,5 +82,52 @@ class AudioViewModel(val viewModelController: ViewModelController) {
         val tList = audioStateFlow._state.trackList
         tList.firstOrNull { it.trackName == name }?.apply { trackIndex = newIndex }
         audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+    }
+
+    fun startInputStream(trackIndex: Int): AudioError {
+        val tList = audioStateFlow._state.trackList
+        val chosenTrack = tList.firstOrNull { it.trackIndex == trackIndex }
+        chosenTrack?.inputDevice?.let {
+            tList.forEach {otherTrack ->
+                if (otherTrack.trackIndex != chosenTrack.trackIndex) {
+                    if (otherTrack.audioStream != null) {
+                        if (otherTrack.audioStream!!.device == chosenTrack.inputDevice) {
+                            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice!!)
+                            tList[trackIndex] = chosenTrack
+                            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+                            return AudioError.SoundIoErrorNone
+                        }
+                    }
+                }
+            }
+            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice!!)
+            tList[trackIndex] = chosenTrack
+            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+            return audioEngineManager.startInputStream(it.index)
+        }
+        return AudioError.DevicesNotInitialized
+    }
+
+    fun stopInputStream(trackIndex: Int) {
+        val tList = audioStateFlow._state.trackList
+        val chosenTrack = tList.firstOrNull { it.trackIndex == trackIndex }
+        chosenTrack?.audioStream?.let {
+            tList.forEach {otherTrack ->
+                if (otherTrack.trackIndex != chosenTrack.trackIndex) {
+                    if (otherTrack.audioStream != null) {
+                        if (otherTrack.audioStream!!.device == chosenTrack.inputDevice) {
+                            chosenTrack.audioStream = null
+                            tList[trackIndex] = chosenTrack
+                            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+                            return
+                        }
+                    }
+                }
+            }
+            chosenTrack.audioStream = null
+            tList[trackIndex] = chosenTrack
+            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+            audioEngineManager.stopInputStream(it.device.index)
+        }
     }
 }

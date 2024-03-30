@@ -136,4 +136,21 @@ class AudioEngineManager {
         }
         else return null
     }
+
+    fun startInputStream(deviceIndex: Int): AudioError {
+        if (initialized && inputDevicesLoaded) {
+            val err: Int = soundInterface.start_input_stream(deviceIndex)
+            if (err != 0) {
+                return AudioError.InputStreamError
+            }
+            else return AudioError.SoundIoErrorNone
+        }
+        else {
+            return AudioError.EnvironmentNotInitialized
+        }
+    }
+
+    fun stopInputStream(deviceIndex: Int) {
+        soundInterface.stop_input_stream(deviceIndex)
+    }
 }
