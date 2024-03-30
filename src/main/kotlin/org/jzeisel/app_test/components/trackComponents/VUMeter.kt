@@ -28,6 +28,7 @@ class VUMeter(override val parent: Widget)
     private val bgColor = trackListState.generalGray
     val volumeMinimumHeight = 1.0
     val volumeMaximumHeight = vuMeterHeight - 4.0
+    val volumeRectangleY: Double get() { return vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 2.5 }
     private val vuMeterRectangle = Rectangle(vuMeterWidth, vuMeterHeight, bgColor)
     private val volumeRectangle = Rectangle(vuMeterWidth - 4.0, volumeMinimumHeight, Color.GREEN)
     override val children = mutableListOf<Widget>()
@@ -45,7 +46,7 @@ class VUMeter(override val parent: Widget)
         vuMeterRectangle.viewOrder = viewOrderFlip - 0.31
 
         volumeRectangle.translateX = vuMeterOffsetX - 0.5
-        volumeRectangle.translateY = vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 3.0
+        volumeRectangle.translateY = volumeRectangleY
         volumeRectangle.arcWidth = trackListState.arcSize
         volumeRectangle.arcHeight = trackListState.arcSize
         volumeRectangle.viewOrder = viewOrderFlip - 0.31
@@ -88,7 +89,7 @@ class VUMeter(override val parent: Widget)
     override fun respondToIndexChange(old: Double, new: Double) {
         vuMeterOffsetY = parentTrack.trackOffsetY
         vuMeterRectangle.translateY = vuMeterOffsetY
-        volumeRectangle.translateY = vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 3.0
+        volumeRectangle.translateY = volumeRectangleY
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
@@ -133,7 +134,7 @@ class VUMeter(override val parent: Widget)
         currentVolume = -100.0
         runLater {
             volumeRectangle.height = volumeMinimumHeight
-            volumeRectangle.translateY = vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 3.0
+            volumeRectangle.translateY = volumeRectangleY
         }
     }
 }
