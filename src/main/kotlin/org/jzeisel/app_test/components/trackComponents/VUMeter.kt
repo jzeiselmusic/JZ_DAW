@@ -48,7 +48,7 @@ class VUMeter(override val parent: Widget)
         volumeRectangle.translateY = vuMeterOffsetY + vuMeterRectangle.height / 2.0 - 3.0
         volumeRectangle.arcWidth = trackListState.arcSize
         volumeRectangle.arcHeight = trackListState.arcSize
-        vuMeterRectangle.viewOrder = viewOrderFlip - 0.30
+        volumeRectangle.viewOrder = viewOrderFlip - 0.31
     }
 
     override fun addMeToScene(root: StackPane) {
