@@ -46,14 +46,6 @@ abstract class Track(val root: StackPane, parent: Widget) : ObservableListener<D
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
         trackRectangle.viewOrder = viewOrderFlip - 0.3
 
-        trackRectangle.onMouseEntered = EventHandler {
-            if (!isSelected)
-            trackRectangle.fill = trackColorHL
-        }
-        trackRectangle.onMouseExited = EventHandler {
-            if (!isSelected)
-            trackRectangle.fill = trackColorNormal
-        }
         trackRectangle.onMousePressed = EventHandler {
             trackRectangle.opacity = 0.7
         }
