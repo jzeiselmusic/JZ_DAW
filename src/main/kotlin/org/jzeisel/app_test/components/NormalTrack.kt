@@ -1,9 +1,8 @@
 package org.jzeisel.app_test.components
 
-import javafx.application.Platform
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
-import org.jzeisel.app_test.audio.AudioError
+import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.*

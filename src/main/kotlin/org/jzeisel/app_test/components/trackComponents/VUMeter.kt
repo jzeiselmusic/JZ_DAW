@@ -44,12 +44,14 @@ class VUMeter(override val parent: Widget)
         vuMeterRectangle.stroke = trackListState.strokeColor
         vuMeterRectangle.strokeWidth = trackListState.strokeSize
         vuMeterRectangle.viewOrder = viewOrderFlip - 0.31
+        vuMeterRectangle.isMouseTransparent = true
 
         volumeRectangle.translateX = vuMeterOffsetX - 0.5
         volumeRectangle.translateY = volumeRectangleY
         volumeRectangle.arcWidth = trackListState.arcSize
         volumeRectangle.arcHeight = trackListState.arcSize
         volumeRectangle.viewOrder = viewOrderFlip - 0.31
+        volumeRectangle.isMouseTransparent = true
     }
 
     override fun addMeToScene(root: StackPane) {

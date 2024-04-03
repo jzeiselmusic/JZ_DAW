@@ -1,6 +1,7 @@
 package org.jzeisel.app_test.audio.viewmodel
 
 import org.jzeisel.app_test.audio.*
+import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.util.Logger
 
 class AudioViewModel(viewModelController: ViewModelController) {

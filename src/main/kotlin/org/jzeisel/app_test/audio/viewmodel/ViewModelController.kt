@@ -1,6 +1,6 @@
 package org.jzeisel.app_test.audio.viewmodel
 
-import org.jzeisel.app_test.audio.AudioError
+import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 
 class ViewModelController(private val viewModel: TrackListViewModel) {

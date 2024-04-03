@@ -1,4 +1,4 @@
-package org.jzeisel.app_test.audio
+package org.jzeisel.app_test.error
 
 enum class AudioError(val readable: String) {
     /* as defined in libsoundio */

@@ -6,9 +6,7 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
-import org.jzeisel.app_test.audio.AudioError
-import org.jzeisel.app_test.audio.Channel
-import org.jzeisel.app_test.audio.Device
+import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
@@ -19,7 +17,6 @@ import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
 import kotlin.properties.Delegates

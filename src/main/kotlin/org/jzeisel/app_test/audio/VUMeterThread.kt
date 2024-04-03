@@ -7,6 +7,7 @@ import java.util.*
 
 class VUMeterThread(val audioEngineManager: AudioEngineManager,
                     val viewModelController: ViewModelController) {
+    private val threadDelay = 50L
     private val tracksStreaming = Collections.synchronizedList(mutableListOf<TrackData>())
     private val scope = CoroutineScope(Dispatchers.Default)
     private var vuMeterThreadJob: Job? = null
@@ -23,7 +24,7 @@ class VUMeterThread(val audioEngineManager: AudioEngineManager,
     private fun startVUMeterThread() {
         if (vuMeterThreadJob == null) {
             vuMeterThreadJob = scope.launch {
-                loop(80L) {
+                loop(threadDelay) {
                     if (isActive) {
                         tracksStreaming.forEach { track ->
                             track.audioStream?.let {

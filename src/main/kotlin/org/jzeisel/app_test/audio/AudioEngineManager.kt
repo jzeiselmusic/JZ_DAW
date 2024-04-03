@@ -1,5 +1,7 @@
 package org.jzeisel.app_test.audio
 
+import org.jzeisel.app_test.error.AudioError
+
 class AudioEngineManager {
     private val soundInterface = SoundIoInterface()
     private var initialized = false
@@ -9,7 +11,7 @@ class AudioEngineManager {
 
     val defaultOutputIndex: Int get() { return soundInterface.lib_getDefaultOutputDeviceIndex() }
 
-    fun initialize() : AudioError  {
+    fun initialize() : AudioError {
         var returnError = soundInterface.lib_startSession()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             initialized = false

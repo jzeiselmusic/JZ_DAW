@@ -1,6 +1,5 @@
 package org.jzeisel.app_test.components.trackComponents
 
-import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
@@ -8,7 +7,7 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.audio.AudioError
+import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.components.TrackComponentWidget
 import org.jzeisel.app_test.components.Widget
 import org.jzeisel.app_test.components.NormalTrack
