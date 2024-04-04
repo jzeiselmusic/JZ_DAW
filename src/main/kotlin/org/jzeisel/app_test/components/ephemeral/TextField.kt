@@ -13,6 +13,9 @@ import javafx.util.Duration
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
+import org.jzeisel.app_test.components.interfaces.widget.SingularWidget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
@@ -23,7 +26,7 @@ class TextField(private val parentRect: Rectangle,
                 private val parentText: Text,
                 private val trackListViewModel: TrackListViewModel,
                 private val clickCallback: (name: String) -> Unit)
-    : TrackElement, WindowElement {
+    : SingularWidget, TrackElement, WindowElement {
     var isShowing = false
     private val trackListState = trackListViewModel._trackListStateFlow.state
     private val cursorDistanceFromEndOfText = 3.0
@@ -39,7 +42,7 @@ class TextField(private val parentRect: Rectangle,
     lateinit var text: Text
     lateinit var cursor: Rectangle
 
-    fun addMeToScene(root: StackPane) {
+    override fun addMeToScene(root: StackPane) {
         registerForBroadcasts()
 
         rectangle = Rectangle()
@@ -86,7 +89,7 @@ class TextField(private val parentRect: Rectangle,
         timeline.play()
     }
 
-    fun removeMeFromScene(root: StackPane) {
+    override fun removeMeFromScene(root: StackPane) {
         if (isShowing) {
             runLater {
                 timeline.stop()

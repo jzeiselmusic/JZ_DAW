@@ -10,6 +10,7 @@ import javafx.scene.text.TextAlignment
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.SingularWidget
 import org.jzeisel.app_test.util.*
 
 open class DropDownBox(val root: StackPane,
@@ -18,7 +19,7 @@ open class DropDownBox(val root: StackPane,
                        translateX: Double, translateY: Double,
                        private val trackListViewModel: TrackListViewModel,
                        val isSublist: Boolean, parentList: DropDownBox? = null)
-            : TrackElement, WindowElement {
+            : SingularWidget, TrackElement, WindowElement {
     val trackListState = trackListViewModel._trackListStateFlow.state
     val boxEntryListNames = boxEntryList.map { it.name }
     val rectangleList = mutableListOf<Rectangle>()
@@ -76,7 +77,7 @@ open class DropDownBox(val root: StackPane,
         }
     }
 
-    open fun addMeToScene(root: StackPane) {
+    override fun addMeToScene(root: StackPane) {
         runLater(50.0) {
             registerForBroadcasts()
             root.children.addAll(rectangleList)
@@ -84,7 +85,7 @@ open class DropDownBox(val root: StackPane,
         }
     }
 
-    open fun removeMeFromScene(root: StackPane) {
+    override fun removeMeFromScene(root: StackPane) {
         runLater(0.0) {
             unregisterForBroadcasts()
             root.children.removeAll(textList)

@@ -2,7 +2,8 @@ package org.jzeisel.app_test.components
 
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
-import org.jzeisel.app_test.components.interfaces.Widget
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
@@ -12,7 +13,7 @@ import kotlin.properties.Delegates
 class NormalTrack(root: StackPane, override val parent: Widget,
                   initialIndex: Int, progenitor: Track
 )
-    : Track(root, parent), Widget {
+    : Track(root, parent), NodeWidget {
 
     override var name: String by Delegates.observable ((initialIndex + 1).toString()) {
         _, _, new ->

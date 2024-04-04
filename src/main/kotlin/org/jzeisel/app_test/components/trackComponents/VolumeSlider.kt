@@ -6,14 +6,15 @@ import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.components.interfaces.TrackElement
-import org.jzeisel.app_test.components.interfaces.Widget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.util.*
 
 class VolumeSlider(override val parent: Widget)
-    : Widget, TrackElement, WindowElement {
+    : NodeWidget, TrackElement, WindowElement {
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel

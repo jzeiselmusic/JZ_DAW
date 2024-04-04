@@ -9,18 +9,18 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import org.jzeisel.app_test.components.interfaces.TrackElement
-import org.jzeisel.app_test.components.interfaces.Widget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.ephemeral.TextField
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class InputNameBox(private val root: StackPane, override val parent: Widget)
-    : Widget, TrackElement, WindowElement {
+    : NodeWidget, TrackElement, WindowElement {
 
     override val children = mutableListOf<Widget>()
     private val parentTrack = parent as Track

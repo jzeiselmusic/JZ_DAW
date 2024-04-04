@@ -8,15 +8,16 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Line
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.interfaces.TrackElement
-import org.jzeisel.app_test.components.interfaces.Widget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.util.*
 import java.util.*
 
 class AddButton(override val parent: Widget)
-    : Widget, TrackElement, WindowElement {
+    : NodeWidget, TrackElement, WindowElement {
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel

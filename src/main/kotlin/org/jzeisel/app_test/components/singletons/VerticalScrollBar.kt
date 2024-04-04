@@ -6,14 +6,16 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.SingularWidget
 import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
+import java.util.Stack
 
-object VerticalScrollBar: TrackElement, WindowElement {
+object VerticalScrollBar: SingularWidget, WindowElement {
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var trackListState: TrackListState
     private lateinit var trackListFlow: TrackListStateFlow
@@ -46,7 +48,7 @@ object VerticalScrollBar: TrackElement, WindowElement {
         return this
     }
 
-    fun addMeToScene() {
+    override fun addMeToScene(root: StackPane) {
         scrollRectangle = Rectangle(8.0, barHeight, Color.DARKGRAY.darker())
         scrollRectangle.translateX = stageWidth / 2.0 - 12.0
         scrollRectangle.translateY = -stageHeight/2.0 + barHeight/2.0 + 23.0 + currentOffsetFromTop
@@ -59,7 +61,7 @@ object VerticalScrollBar: TrackElement, WindowElement {
         isShowing = true
     }
 
-    fun removeMeFromScene() {
+    override fun removeMeFromScene(root: StackPane) {
         if (isShowing) {
             runLater {
                 unregisterForBroadcasts()
@@ -84,8 +86,6 @@ object VerticalScrollBar: TrackElement, WindowElement {
             }
         }
     }
-
-    override fun respondToIndexChange(old: Double, new: Double) {}
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         when (broadcastType) {

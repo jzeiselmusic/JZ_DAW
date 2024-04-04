@@ -8,11 +8,12 @@ import javafx.stage.Stage
 import javafx.util.Duration
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
-import org.jzeisel.app_test.components.interfaces.Widget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
@@ -22,7 +23,7 @@ import org.jzeisel.app_test.util.runLater
 import kotlin.properties.Delegates
 
 class TrackListViewModel(val root: StackPane,
-                         val stage: Stage, extraPane: StackPane): Widget {
+                         val stage: Stage, extraPane: StackPane): NodeWidget {
 
     lateinit var audioViewModel: AudioViewModel
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
@@ -168,10 +169,10 @@ class TrackListViewModel(val root: StackPane,
 
     private fun showVerticalScrollBar() {
         if (!VerticalScrollBar.isShowing) {
-            VerticalScrollBar.addMeToScene()
+            VerticalScrollBar.addMeToScene(root)
             val delay = PauseTransition(Duration.millis(200.0));
             delay.setOnFinished {
-                VerticalScrollBar.removeMeFromScene()
+                VerticalScrollBar.removeMeFromScene(root)
             }
             delay.play()
         }

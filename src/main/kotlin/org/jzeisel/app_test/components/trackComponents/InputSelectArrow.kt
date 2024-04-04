@@ -9,15 +9,16 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
 import org.jzeisel.app_test.audio.Device
 import org.jzeisel.app_test.components.interfaces.TrackElement
-import org.jzeisel.app_test.components.interfaces.Widget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.ephemeral.dropdownbox.ExpandableDropDownBox
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.util.*
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
-            : Widget, TrackElement, WindowElement {
+            : NodeWidget, TrackElement, WindowElement {
 
     override val children: MutableList<Widget> = mutableListOf()
     private val parentTrack = parent as Track

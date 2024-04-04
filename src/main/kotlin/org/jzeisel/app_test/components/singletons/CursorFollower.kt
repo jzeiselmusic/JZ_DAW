@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
+import org.jzeisel.app_test.components.interfaces.widget.SingularWidget
 import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
@@ -14,7 +15,7 @@ import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
-object CursorFollower: TrackElement, WindowElement {
+object CursorFollower: SingularWidget, TrackElement, WindowElement {
 
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var trackListState: TrackListState
@@ -33,6 +34,8 @@ object CursorFollower: TrackElement, WindowElement {
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
     private var currentOffsetX = 0.0
+
+    override fun addMeToScene(root:StackPane) {}
 
     fun addMeToScene(root: StackPane, offsetX: Double) {
         /* offset x is distance to the right from track divider offset */
@@ -62,7 +65,7 @@ object CursorFollower: TrackElement, WindowElement {
         root.children.add(cursorPointer)
     }
 
-    fun removeMeFromScene(root: StackPane) {
+    override fun removeMeFromScene(root: StackPane) {
         if (isShowing) {
             runLater {
                 unregisterForBroadcasts()

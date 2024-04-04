@@ -3,14 +3,15 @@ package org.jzeisel.app_test.components
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.components.interfaces.Widget
+import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
+import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.runLater
 
 class MasterTrack(root: StackPane, override val parent: Widget)
-    : Track(root, parent), Widget {
+    : Track(root, parent), NodeWidget {
 
     override val name = "Master"
     override val children = mutableListOf<Widget>()
