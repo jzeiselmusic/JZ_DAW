@@ -8,14 +8,15 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.error.AudioError
-import org.jzeisel.app_test.components.TrackComponentWidget
-import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.interfaces.TrackElement
+import org.jzeisel.app_test.components.interfaces.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.util.*
 
 class InputEnableButton(override val parent: Widget?)
-    : Widget, TrackComponentWidget, ObservableListener<Double> {
+    : Widget, TrackElement, WindowElement {
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel

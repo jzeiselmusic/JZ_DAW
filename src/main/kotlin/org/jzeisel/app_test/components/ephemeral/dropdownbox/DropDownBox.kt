@@ -1,7 +1,5 @@
 package org.jzeisel.app_test.components.ephemeral.dropdownbox
 
-import javafx.animation.PauseTransition
-import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
@@ -9,11 +7,10 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
-import javafx.util.Duration
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
-import org.jzeisel.app_test.components.TrackComponentWidget
+import org.jzeisel.app_test.components.interfaces.TrackElement
+import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.util.*
-import java.util.concurrent.atomic.AtomicReference
 
 open class DropDownBox(val root: StackPane,
                        boxEntryList: List<BoxEntry>,
@@ -21,7 +18,7 @@ open class DropDownBox(val root: StackPane,
                        translateX: Double, translateY: Double,
                        private val trackListViewModel: TrackListViewModel,
                        val isSublist: Boolean, parentList: DropDownBox? = null)
-            : TrackComponentWidget, ObservableListener<Double> {
+            : TrackElement, WindowElement {
     val trackListState = trackListViewModel._trackListStateFlow.state
     val boxEntryListNames = boxEntryList.map { it.name }
     val rectangleList = mutableListOf<Rectangle>()

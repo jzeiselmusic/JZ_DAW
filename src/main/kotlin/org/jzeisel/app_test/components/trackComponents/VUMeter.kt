@@ -1,22 +1,18 @@
 package org.jzeisel.app_test.components.trackComponents
 
 import javafx.animation.ParallelTransition
-import javafx.animation.PathTransition
-import javafx.animation.ScaleTransition
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
-import javafx.scene.shape.MoveTo
-import javafx.scene.shape.Path
 import javafx.scene.shape.Rectangle
-import javafx.util.Duration
-import org.jzeisel.app_test.components.TrackComponentWidget
-import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.interfaces.TrackElement
+import org.jzeisel.app_test.components.interfaces.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.util.*
 
 class VUMeter(override val parent: Widget)
-    : Widget, TrackComponentWidget, ObservableListener<Double> {
+    : Widget, TrackElement, WindowElement {
 
     private val parentTrack = parent as Track
     val trackListViewModel = parentTrack.trackListViewModel

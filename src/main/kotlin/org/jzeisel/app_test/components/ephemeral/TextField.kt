@@ -1,9 +1,7 @@
 package org.jzeisel.app_test.components.ephemeral
 
 import javafx.animation.KeyFrame
-import javafx.animation.PauseTransition
 import javafx.animation.Timeline
-import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
@@ -13,7 +11,8 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.text.Text
 import javafx.util.Duration
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
-import org.jzeisel.app_test.components.TrackComponentWidget
+import org.jzeisel.app_test.components.interfaces.TrackElement
+import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
@@ -24,7 +23,7 @@ class TextField(private val parentRect: Rectangle,
                 private val parentText: Text,
                 private val trackListViewModel: TrackListViewModel,
                 private val clickCallback: (name: String) -> Unit)
-    : TrackComponentWidget, ObservableListener<Double> {
+    : TrackElement, WindowElement {
     var isShowing = false
     private val trackListState = trackListViewModel._trackListStateFlow.state
     private val cursorDistanceFromEndOfText = 3.0

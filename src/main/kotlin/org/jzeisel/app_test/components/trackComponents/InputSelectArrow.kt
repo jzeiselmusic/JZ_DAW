@@ -1,26 +1,23 @@
 package org.jzeisel.app_test.components.trackComponents
 
-import javafx.animation.PauseTransition
-import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
-import javafx.scene.shape.Box
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
-import javafx.util.Duration
 import org.jzeisel.app_test.audio.Device
-import org.jzeisel.app_test.components.TrackComponentWidget
-import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.interfaces.TrackElement
+import org.jzeisel.app_test.components.interfaces.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.ephemeral.dropdownbox.ExpandableDropDownBox
+import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.util.*
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
-            : Widget, TrackComponentWidget, ObservableListener<Double> {
+            : Widget, TrackElement, WindowElement {
 
     override val children: MutableList<Widget> = mutableListOf()
     private val parentTrack = parent as Track

@@ -2,6 +2,7 @@ package org.jzeisel.app_test.components
 
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
+import org.jzeisel.app_test.components.interfaces.Widget
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
@@ -38,29 +39,9 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         when (broadcastType) {
-            BroadcastType.DIVIDER -> {
-                trackDivider.translateX = new
-            }
-            BroadcastType.STAGE_WIDTH -> {
-                val amtChange = (new - old) / 2.0
-                trackWidth = new
-                trackRectangle.translateX -= amtChange
-                trackDivider.translateX -= amtChange
-                trackListState.currentDividerOffset.setValue(trackDivider.translateX)
-                labelDivider.translateX -= amtChange
-                trackListViewModel.updateLabelDividerOffset(labelDivider.translateX)
-                trackLabel.translateX -= amtChange
-                trackLabelNumber.translateX -= amtChange
-            }
-            BroadcastType.STAGE_HEIGHT -> {
-                trackOffsetY -= (new - old) / 2.0
-                trackRectangle.translateY = trackOffsetY
-                trackDivider.translateY = trackOffsetY
-                trackDivider.translateY = trackOffsetY
-                labelDivider.translateY = trackOffsetY
-                trackLabel.translateY = trackOffsetY
-                trackLabelNumber.translateY = trackOffsetY
-            }
+            BroadcastType.DIVIDER -> {}
+            BroadcastType.STAGE_WIDTH -> { respondToWidthChange(old, new) }
+            BroadcastType.STAGE_HEIGHT -> { respondToHeightChange(old, new) }
             BroadcastType.INDEX -> {}
             BroadcastType.SCROLL -> {}
         }
@@ -148,6 +129,28 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     override fun characterText(character: KeyEvent) {
         inputNameBox.characterText(character)
+    }
+
+    override fun respondToHeightChange(old: Double, new: Double) {
+        trackOffsetY -= (new - old) / 2.0
+        trackRectangle.translateY = trackOffsetY
+        trackDivider.translateY = trackOffsetY
+        trackDivider.translateY = trackOffsetY
+        labelDivider.translateY = trackOffsetY
+        trackLabel.translateY = trackOffsetY
+        trackLabelNumber.translateY = trackOffsetY
+    }
+
+    override fun respondToWidthChange(old: Double, new: Double) {
+        val amtChange = (new - old) / 2.0
+        trackWidth = new
+        trackRectangle.translateX -= amtChange
+        trackDivider.translateX -= amtChange
+        trackListState.currentDividerOffset.setValue(trackDivider.translateX)
+        labelDivider.translateX -= amtChange
+        trackListViewModel.updateLabelDividerOffset(labelDivider.translateX)
+        trackLabel.translateX -= amtChange
+        trackLabelNumber.translateX -= amtChange
     }
 
     fun registerForIndexChanges(listener: ObservableListener<Double>) {

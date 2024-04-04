@@ -8,7 +8,7 @@ import javafx.stage.Stage
 import javafx.util.Duration
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
-import org.jzeisel.app_test.components.Widget
+import org.jzeisel.app_test.components.interfaces.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
@@ -30,7 +30,7 @@ class TrackListViewModel(val root: StackPane,
 
     override val parent: Widget? = null
     /* all TrackList children will be NormalTracks */
-    override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) {_, old, new ->
+    override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) { _, old, new ->
         _trackListStateFlow.state = _trackListStateFlow.state.copy(numChildren = new.size)
         for (child in children) {
             val t = child as NormalTrack
