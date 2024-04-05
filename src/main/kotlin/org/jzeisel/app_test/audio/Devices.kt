@@ -1,5 +1,7 @@
 package org.jzeisel.app_test.audio
 
+import org.jzeisel.app_test.error.AudioError
+
 data class Device(
     var index: Int,
     var name: String,
@@ -35,4 +37,22 @@ enum class AudioBackend(val readable: String) {
     SoundIoBackendCoreAudio("Core Audio"),
     SoundIoBackendWasapi("WASAPI"),
     SoundIoBackendDummy("Dummy"),
+}
+
+fun <T> T.whenNot(value: T, block: (T) -> Unit): T? {
+    return if (this != value) {
+        block(this)
+        this
+    } else {
+        null
+    }
+}
+
+fun <T> T.whenIs(value: T, block: (T) -> Unit): T? {
+    return if (this == value) {
+        block(this)
+        this
+    } else {
+        null
+    }
 }

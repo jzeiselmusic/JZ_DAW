@@ -22,7 +22,22 @@ class InputEnableButton(override val parent: Widget?)
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     private val trackListState = trackListViewModel._trackListStateFlow.state
-    private var isEnabled: Boolean = false
+    var isEnabled: Boolean = false
+        set(new) {
+            field = new
+            if (new) {
+                runLater {
+                    buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40)
+                    buttonRect.opacity = 0.9
+                }
+            }
+            else {
+                runLater {
+                    buttonRect.fill = Color.TRANSPARENT
+                    buttonRect.opacity = 1.0
+                }
+            }
+        }
     private val buttonWidth = trackListState.buttonSize
     private val buttonHeight = trackListState.buttonSize
     private var buttonOffsetY = parentTrack.trackOffsetY - trackListState.verticalDistancesBetweenWidgets
@@ -86,22 +101,8 @@ class InputEnableButton(override val parent: Widget?)
 
     private fun mouseReleaseLeft() {
         when (isEnabled) {
-            true -> {
-                isEnabled = false
-                buttonRect.fill = Color.TRANSPARENT
-                (parentTrack as NormalTrack).audioInputDisable()
-            }
-            false -> {
-                val err = (parentTrack as NormalTrack).audioInputEnable()
-                if (err == AudioError.SoundIoErrorNone) {
-                    isEnabled = true
-                    buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40)
-                    buttonRect.opacity = 0.9
-                }
-                else {
-                    Logger.debug(javaClass.simpleName, err.readable, 5)
-                }
-            }
+            true -> (parentTrack as NormalTrack).audioInputDisable()
+            false -> (parentTrack as NormalTrack).audioInputEnable()
         }
     }
 

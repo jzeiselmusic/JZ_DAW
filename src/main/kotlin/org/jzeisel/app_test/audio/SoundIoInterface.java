@@ -1,11 +1,22 @@
 package org.jzeisel.app_test.audio;
 
+import com.sun.jna.Callback;
 import com.sun.jna.Native;
 import com.sun.jna.Library;
+import org.jzeisel.app_test.util.Logger;
 
 public class SoundIoInterface {
+    private AudioEngineManager engineManager;
+    public SoundIoInterface(AudioEngineManager manager) {
+        this.engineManager = manager;
+    }
     private interface SoundIoLib extends Library {
         SoundIoLib INSTANCE = Native.load("soundlib", SoundIoLib.class);
+
+        /* this is a callback type */
+        interface sig_t extends Callback { void invoke(int signal); }
+        /* test callback function */
+        void make_callback(sig_t func);
 
         int lib_startSession();
         int lib_initializeEnvironment();
@@ -46,6 +57,10 @@ public class SoundIoInterface {
         double lib_getCurrentRmsVolume(int deviceIndex);
     }
 
+    /* test callback */
+    private final SoundIoLib.sig_t fn = sig -> engineManager.audioLibCallback();
+    /* exposed function to test callback function */
+    public void make_callback() { SoundIoLib.INSTANCE.make_callback(fn); }
 
     public int lib_startSession() { return SoundIoLib.INSTANCE.lib_startSession(); }
     public int lib_initializeEnvironment() { return SoundIoLib.INSTANCE.lib_initializeEnvironment(); }

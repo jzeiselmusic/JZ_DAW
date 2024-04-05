@@ -4,25 +4,23 @@ import org.jzeisel.app_test.audio.*
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.util.Logger
 
-class AudioViewModel(viewModelController: ViewModelController) {
+class AudioViewModel(private val viewModelController: ViewModelController) {
 
     private val audioStateFlow = AudioStateFlow()
-    private val audioEngineManager = AudioEngineManager()
+    private val audioEngineManager = AudioEngineManager(this)
     private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController)
 
     fun initialize() {
-        audioEngineManager.initialize()
-        audioStateFlow._state = audioStateFlow._state.copy(
-            isInitialized = true,
-            backend = audioEngineManager.getCurrentBackend()!!)
-        Logger.debug(javaClass.simpleName,
-            "connected to ${audioStateFlow._state.backend.readable}", 5)
+        audioEngineManager.initialize().whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioStartupError(it)
+        }
 
-        audioStateFlow._state =
-            audioStateFlow._state.copy(outputDevice =
+        audioEngineManager.getCurrentBackend()?.let {
+            audioStateFlow._state = audioStateFlow._state.copy(isInitialized = true, backend = it)
+        } ?: viewModelController.throwAudioStartupError(AudioError.SoundIoErrorInitAudioBackend)
+
+        audioStateFlow._state = audioStateFlow._state.copy(outputDevice =
             audioEngineManager.getOutputDeviceFromIndex(audioEngineManager.defaultOutputIndex))
-        Logger.debug(javaClass.simpleName,
-            "default output: ${audioStateFlow._state.outputDevice.toString()}", 5)
     }
 
     fun deinitialize() {

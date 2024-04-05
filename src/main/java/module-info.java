@@ -15,4 +15,5 @@ module org.jzeisel.app_test {
 
     opens org.jzeisel.app_test to javafx.fxml;
     exports org.jzeisel.app_test;
+    exports org.jzeisel.app_test.audio;
 }

@@ -33,8 +33,7 @@ class AudioWaveform : Application() {
                    scrollbars - 50-60
                      -   ephemerals (textbox, dropboxes) - 61-69
                    mixer - 70-80
-                   plugin boxes - 100-200
-
+                   error msgs - 100-120
          */
         stage.title = "JZ Digital Audio Workstation"
         stage.width = INIT_STAGE_WIDTH

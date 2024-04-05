@@ -1,9 +1,11 @@
 package org.jzeisel.app_test.audio
 
+import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.error.AudioError
+import org.jzeisel.app_test.util.Logger
 
-class AudioEngineManager {
-    private val soundInterface = SoundIoInterface()
+class AudioEngineManager(private val viewModel: AudioViewModel) {
+    private val soundInterface = SoundIoInterface(this)
     private var initialized = false
 
     private var inputDevicesLoaded = false
@@ -12,6 +14,7 @@ class AudioEngineManager {
     val defaultOutputIndex: Int get() { return soundInterface.lib_getDefaultOutputDeviceIndex() }
 
     fun initialize() : AudioError {
+        soundInterface.make_callback()
         var returnError = soundInterface.lib_startSession()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             initialized = false
@@ -144,6 +147,7 @@ class AudioEngineManager {
 
     fun startInputStream(deviceIndex: Int): AudioError {
         if (initialized && inputDevicesLoaded) {
+            Logger.debug(javaClass.simpleName, "creating input stream", 5)
             val err: Int = soundInterface.lib_createAndStartInputStream(
                 deviceIndex, 0.01, 44100)
             if (err != 0) {
@@ -162,5 +166,9 @@ class AudioEngineManager {
 
     fun getCurrentRMSVolume(deviceIndex: Int): Double {
         return soundInterface.lib_getCurrentRmsVolume(deviceIndex)
+    }
+
+    fun audioLibCallback() {
+        Logger.debug(javaClass.simpleName, "callback called", 5)
     }
 }

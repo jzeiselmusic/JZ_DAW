@@ -24,7 +24,6 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
     private val trackListState = trackListViewModel._trackListStateFlow.state
-    private var isDropDownBoxActive = false
     private val inputSelectRectangle = Rectangle(trackListState.buttonSize,
                                                 trackListState.buttonSize,
                                                 trackListState.generalPurple)
@@ -75,7 +74,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectArrow.stroke = trackListState.strokeColor
         inputSelectArrow.strokeWidth = 1.5
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
-        inputSelectRectangle.viewOrder = viewOrderFlip - 0.32
+        inputSelectArrow.viewOrder = viewOrderFlip - 0.32
     }
 
     init {

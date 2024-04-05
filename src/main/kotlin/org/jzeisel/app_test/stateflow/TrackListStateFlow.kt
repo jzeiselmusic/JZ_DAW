@@ -3,6 +3,7 @@ package org.jzeisel.app_test.stateflow
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.paint.Color
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.util.Observable
 
 data class TrackListState(
@@ -40,7 +41,8 @@ data class TrackListState(
     val observableStageHeight: Observable<Double> = Observable(stageHeightProperty.value),
     val waveFormScrollDeltaX: Observable<Double> = Observable(0.0),
     val numChildren: Int = 0,
-    val trackSelected: Track? = null
+    val trackSelected: Track? = null,
+    val panicErrorMessage: PanicErrorMessage? = null
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {

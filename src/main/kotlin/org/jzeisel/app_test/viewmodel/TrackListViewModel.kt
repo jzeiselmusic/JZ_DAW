@@ -2,12 +2,19 @@ package org.jzeisel.app_test.viewmodel
 
 import javafx.animation.PauseTransition
 import javafx.beans.property.ReadOnlyDoubleProperty
+import javafx.scene.Cursor
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
+import org.jzeisel.app_test.audio.whenIs
+import org.jzeisel.app_test.audio.whenNot
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
@@ -16,8 +23,11 @@ import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
+import org.jzeisel.app_test.error.ErrorType
+import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.ObservableListener
 import org.jzeisel.app_test.util.runLater
 import kotlin.properties.Delegates
@@ -179,16 +189,20 @@ class TrackListViewModel(val root: StackPane,
     }
 
     private fun moveVerticalScrollBar(deltaY: Double, amountOfRoom: Double) {
-        showVerticalScrollBar()
-        VerticalScrollBar.moveScrollBar(deltaY, amountOfRoom)
+        _trackListStateFlow.state.panicErrorMessage?.let {} ?: run {
+            showVerticalScrollBar()
+            VerticalScrollBar.moveScrollBar(deltaY, amountOfRoom)
+        }
     }
 
     fun scrollSceneVertically(deltaY: Double) {
-        val newTranslate = (root.translateY + deltaY)
-        val amountOfRoom = (_trackListStateFlow.totalHeightOfAllTracks - _trackListStateFlow.state.observableStageHeight.getValue()).saturateAt(0.0, null)
-        if (amountOfRoom < 1.0) root.translateY = newTranslate.saturateAt(-amountOfRoom, 0.0)
-        else root.translateY = newTranslate.saturateAt(-amountOfRoom - 30.0, 0.0)
-        moveVerticalScrollBar(deltaY, amountOfRoom)
+        _trackListStateFlow.state.panicErrorMessage?.let {} ?: run {
+            val newTranslate = (root.translateY + deltaY)
+            val amountOfRoom = (_trackListStateFlow.totalHeightOfAllTracks - _trackListStateFlow.state.observableStageHeight.getValue()).saturateAt(0.0, null)
+            if (amountOfRoom < 1.0) root.translateY = newTranslate.saturateAt(-amountOfRoom, 0.0)
+            else root.translateY = newTranslate.saturateAt(-amountOfRoom - 30.0, 0.0)
+            moveVerticalScrollBar(deltaY, amountOfRoom)
+        }
     }
 
     fun registerForWidthChanges(listener: ObservableListener<Double>) {
@@ -223,11 +237,16 @@ class TrackListViewModel(val root: StackPane,
         _trackListStateFlow.state.waveFormScrollDeltaX.removeListener(listener)
     }
 
-    fun setTrackAudioInput(index: Int, child: Widget) {
-    }
-
-    fun setTrackEnabled(child: Widget): AudioError {
-        return audioViewModel.startInputStream((child as? NormalTrack)?.index!!.getValue().toInt())
+    fun setTrackEnabled(child: Widget) {
+        (child as NormalTrack).let {
+            it.audioInputEnabled = true
+            it.enableVUMeterRunning()
+        }
+        val err = audioViewModel.startInputStream(child.index.getValue().toInt())
+        err.whenNot(AudioError.SoundIoErrorNone) {
+            child.audioInputEnabled = false
+            createAudioErrorMessage(it)
+        }
     }
 
     fun setTrackDisabled(child: Widget) {
@@ -240,6 +259,20 @@ class TrackListViewModel(val root: StackPane,
     fun updateTrackRMSVolume(volume: Double, trackIndex: Int) {
         children.firstOrNull { (it as NormalTrack).index.getValue().toInt() == trackIndex }?.let {
             (it as NormalTrack).updateVUMeter(volume)
+        }
+    }
+
+    fun createAudioErrorMessage(error: AudioError) {
+        val errorMessage = PanicErrorMessage(ErrorType.AudioEngineError,
+            _trackListStateFlow.state, this, error.readable)
+        errorMessage.addMeToScene(root)
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(panicErrorMessage = errorMessage)
+    }
+
+    fun removeErrorMessage() {
+        _trackListStateFlow.state.panicErrorMessage?.let {
+            it.removeMeFromScene(root)
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(panicErrorMessage = null)
         }
     }
 }

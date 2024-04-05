@@ -98,8 +98,11 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         addChild(volumeSlider)
     }
 
-    var audioInputIndex: Int? = null
     var audioInputEnabled = false
+        set(new) {
+            field = new
+            inputEnableButton.isEnabled = new
+        }
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -162,13 +165,12 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         index.removeListener(listener)
     }
 
-    fun audioInputEnable(): AudioError {
-        val err = trackListViewModel.setTrackEnabled(this)
-        if (err == AudioError.SoundIoErrorNone) {
-            audioInputEnabled = true
-            vuMeter.isVUMeterRunning = true
-        }
-        return err
+    fun audioInputEnable() {
+        trackListViewModel.setTrackEnabled(this)
+    }
+
+    fun enableVUMeterRunning() {
+        vuMeter.isVUMeterRunning = true
     }
 
     fun audioInputDisable() {
