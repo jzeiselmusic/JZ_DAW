@@ -18,10 +18,11 @@ open class DropDownBox(val root: StackPane,
                        val clickCallback: (indexes: List<Int>) -> Unit,
                        translateX: Double, translateY: Double,
                        private val trackListViewModel: TrackListViewModel,
+                       private val trackIndex: Int,
                        val isSublist: Boolean, parentList: DropDownBox? = null)
             : SingularWidget, TrackElement, WindowElement {
     val trackListState = trackListViewModel._trackListStateFlow.state
-    val boxEntryListNames = boxEntryList.map { it.name }
+    val boxEntryListNames = boxEntryList.map { it.name }.toMutableList()
     val rectangleList = mutableListOf<Rectangle>()
     val textList = mutableListOf<Text>()
     private val buttonOffsetX = translateX
@@ -31,9 +32,12 @@ open class DropDownBox(val root: StackPane,
     var isHovering = false
     init {
         /* find the largest text and conform width */
-        for ( string in boxEntryList.map{it.name} ) {
+        for ((idx,string) in boxEntryListNames.withIndex() ) {
+            if (!isSublist && idx == trackListViewModel.getTrackInputDeviceIndex(trackIndex)) {
+                boxEntryListNames[idx] = "\u29BF   $string"
+            }
             val testText = Text(string)
-            if (testText.boundsInLocal.width > (rectangleWidth - 8)) rectangleWidth = testText.boundsInLocal.width + 40
+            if (testText.boundsInLocal.width > (rectangleWidth - 8)) rectangleWidth = testText.boundsInLocal.width + 50
             if (testText.boundsInLocal.height > (rectangleHeight - 8)) rectangleHeight = testText.boundsInLocal.height + 8
         }
         for ( (idx,string) in boxEntryListNames.withIndex() ) {

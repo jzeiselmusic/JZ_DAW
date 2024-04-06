@@ -21,7 +21,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             : NodeWidget, TrackElement, WindowElement {
 
     override val children: MutableList<Widget> = mutableListOf()
-    private val parentTrack = parent as Track
+    private val parentTrack = parent as NormalTrack
     private val trackListViewModel = parentTrack.trackListViewModel
     private val trackListState = trackListViewModel._trackListStateFlow.state
     private val inputSelectRectangle = Rectangle(trackListState.buttonSize,
@@ -47,11 +47,11 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
                 deviceBoxEntryList.forEachIndexed { index, element ->
                     element.name = deviceList[index].name
                     element.boxEntrySubList =
-                        deviceList[index].channels!!.map { BoxEntry(it.name, null) }
+                        deviceList[index].channels.map { BoxEntry(it.name, null) }
                 }
 
                 dropDownBox = ExpandableDropDownBox(
-                    root, deviceBoxEntryList, ::selectionChosen,
+                    root, deviceBoxEntryList, parentTrack.index.getValue().toInt(), ::selectionChosen,
                     inputSelectRectangle.translateX, inputSelectRectangle.translateY,
                     trackListViewModel, false)
                 dropDownBox!!.addMeToScene(root)
@@ -95,17 +95,13 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
     override fun registerForBroadcasts() {
         trackListViewModel.registerForHeightChanges(this)
         trackListViewModel.registerForWidthChanges(this)
-        if (parentTrack is NormalTrack) {
-            parentTrack.registerForIndexChanges(this)
-        }
+        parentTrack.registerForIndexChanges(this)
     }
 
     override fun unregisterForBroadcasts() {
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForHeightChanges(this)
-        if (parentTrack is NormalTrack) {
-            parentTrack.unregisterForIndexChanges(this)
-        }
+        parentTrack.unregisterForIndexChanges(this)
     }
 
     override fun addChild(child: Widget) {
@@ -143,7 +139,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
 
     private fun selectionChosen(index: List<Int>) {
         trackListViewModel.setTrackDeviceAndChannel(
-            (parentTrack as NormalTrack).index.getValue().toInt(), index[0], index[1])
+            parentTrack.index.getValue().toInt(), index[0], index[1])
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {

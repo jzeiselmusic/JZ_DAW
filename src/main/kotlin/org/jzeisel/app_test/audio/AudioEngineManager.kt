@@ -11,6 +11,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     private var inputDevicesLoaded = false
     private var outputDevicesLoaded = false
 
+    val defaultInputIndex: Int get() { return soundInterface.lib_getDefaultInputDeviceIndex() }
     val defaultOutputIndex: Int get() { return soundInterface.lib_getDefaultOutputDeviceIndex() }
 
     fun initialize() : AudioError {
@@ -170,5 +171,9 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun audioLibCallback() {
         Logger.debug(javaClass.simpleName, "callback called", 5)
+    }
+
+    fun getNameOfChannelFromIndex(deviceIndex: Int, channelIndex: Int) : String{
+        return soundInterface.lib_getNameOfChannelOfInputDevice(deviceIndex, channelIndex)
     }
 }

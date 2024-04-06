@@ -9,6 +9,7 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
     private val audioStateFlow = AudioStateFlow()
     private val audioEngineManager = AudioEngineManager(this)
     private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController)
+    val defaultInputIndex: Int get() { return audioEngineManager.defaultInputIndex }
 
     fun initialize() {
         audioEngineManager.initialize().whenNot(AudioError.SoundIoErrorNone) {
@@ -51,7 +52,10 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
     fun addTrack(trackIndex: Int, trackName: String) {
         val nTracks = audioStateFlow._state.numTracks
         val tList = audioStateFlow._state.trackList
-        tList.add(trackIndex, TrackData(trackName, trackIndex, 0.0, 0))
+        val device = audioEngineManager.getInputDeviceFromIndex(audioEngineManager.defaultInputIndex)
+        val defaultChannel = Channel(0, audioEngineManager.getNameOfChannelFromIndex(device.index, 0))
+        tList.add(trackIndex, TrackData(trackName, trackIndex, 0.0, 0,
+            inputDevice = device, inputChannel = defaultChannel))
         audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks + 1, trackList = tList)
     }
 
@@ -93,7 +97,7 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
                 if (otherTrack.trackIndex != chosenTrack.trackIndex) {
                     if (otherTrack.audioStream != null) {
                         if (otherTrack.audioStream!!.device == chosenTrack.inputDevice) {
-                            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice!!)
+                            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice)
                             tList[trackIndex] = chosenTrack
                             audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
                             vuMeterThread.addToTracksStreaming(chosenTrack)
@@ -102,7 +106,7 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
                     }
                 }
             }
-            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice!!)
+            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice)
             tList[trackIndex] = chosenTrack
             audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
             val err = audioEngineManager.startInputStream(it.index)
@@ -135,5 +139,11 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
             audioEngineManager.stopInputStream(it.device.index)
             vuMeterThread.removeFromTracksStreaming(chosenTrack)
         }
+    }
+
+    fun getTrackInputDeviceIndex(trackIndex: Int): Int {
+        val tList = audioStateFlow._state.trackList
+        val track = tList[trackIndex]
+        return track.inputDevice.index
     }
 }

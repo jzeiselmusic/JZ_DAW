@@ -33,7 +33,6 @@ abstract class Track(val root: StackPane, parent: Widget) : WindowElement {
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
     abstract val inputEnableButton: InputEnableButton
-    abstract val inputSelectArrow: InputSelectArrow
     abstract val waveFormBox: WaveFormBox
     abstract val inputNameBox: InputNameBox
     abstract val volumeSlider: VolumeSlider

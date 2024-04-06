@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 
 class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
+                            val trackIndex: Int,
                             val myClickCallback: (indexes: List<Int>) -> Unit,
                             translateX: Double, translateY: Double,
                             private val trackListViewModel: TrackListViewModel,
@@ -24,7 +25,7 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
                             val parentList: DropDownBox? = null,
                             val parentIndex: Int? = null)
         : DropDownBox(root, boxEntryList, myClickCallback, translateX, translateY,
-                        trackListViewModel, isSubList, parentList) {
+                        trackListViewModel, trackIndex, isSubList, parentList) {
 
     private val expansionArrows = mutableListOf<Polygon?>()
     private val mouseCheckedInFlags = Collections.synchronizedList(mutableListOf<Boolean>())
@@ -81,6 +82,7 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
                     expandableDropDownBoxChild.set(ExpandableDropDownBox(
                         root,
                         boxEntryList[index].boxEntrySubList!!,
+                        trackIndex,
                         clickCallback,
                         rectangleList[index].translateX,
                         rectangleList[index].translateY,

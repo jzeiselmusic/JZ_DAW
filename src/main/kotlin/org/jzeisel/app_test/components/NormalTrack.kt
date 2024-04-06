@@ -33,7 +33,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val vuMeter = VUMeter(this)
     override val addButton = AddButton(this)
     override val inputEnableButton = InputEnableButton(this)
-    override val inputSelectArrow = InputSelectArrow(root, this)
+    val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)

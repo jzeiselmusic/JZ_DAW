@@ -7,7 +7,7 @@ data class Device(
     var name: String,
     var id: String,
     var direction: Direction,
-    var channels: List<Channel>? = null
+    var channels: List<Channel>
 )
 data class Channel(
     var index: Int,
@@ -19,8 +19,8 @@ data class TrackData(
     var trackIndex: Int,
     var volume: Double,
     var panning: Int,
-    var inputDevice: Device? = null,
-    var inputChannel: Channel? = null,
+    var inputDevice: Device,
+    var inputChannel: Channel,
     var audioStream: AudioStream? = null,
 )
 data class AudioStream(

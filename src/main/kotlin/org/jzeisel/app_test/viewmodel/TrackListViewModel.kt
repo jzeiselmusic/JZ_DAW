@@ -275,4 +275,12 @@ class TrackListViewModel(val root: StackPane,
             _trackListStateFlow.state = _trackListStateFlow.state.copy(panicErrorMessage = null)
         }
     }
+
+    fun getDefaultInputIndex(): Int {
+        return audioViewModel.defaultInputIndex
+    }
+
+    fun getTrackInputDeviceIndex(trackIndex: Int): Int {
+        return audioViewModel.getTrackInputDeviceIndex(trackIndex)
+    }
 }
