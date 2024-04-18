@@ -28,6 +28,7 @@ application {
     mainModule = 'org.jzeisel.app_test'
     mainClass = 'org.jzeisel.app_test.HelloApplication'
 }
+
 kotlin {
     jvmToolchain(20)
 }
