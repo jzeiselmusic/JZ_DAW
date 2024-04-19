@@ -11,11 +11,16 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     private var inputDevicesLoaded = false
     private var outputDevicesLoaded = false
 
+    private val microphoneLatency = 0.01
+    private val defaultSampleRate = 44100
+
     val defaultInputIndex: Int get() { return soundInterface.lib_getDefaultInputDeviceIndex() }
     val defaultOutputIndex: Int get() { return soundInterface.lib_getDefaultOutputDeviceIndex() }
 
     fun initialize() : AudioError {
-        soundInterface.make_callback()
+        soundInterface.registerAudioLogCallback()
+        soundInterface.registerAudioPanicCallback()
+
         var returnError = soundInterface.lib_startSession()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             initialized = false
@@ -32,6 +37,13 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
             outputDevicesLoaded = false
             return AudioError.values()[returnError]
         }
+
+        returnError = soundInterface.lib_createAndStartOutputStream(
+            defaultOutputIndex, microphoneLatency, defaultSampleRate)
+        if (returnError != AudioError.SoundIoErrorNone.ordinal) {
+            return AudioError.values()[returnError]
+        }
+
         outputDevicesLoaded = true
         initialized = true
         return AudioError.SoundIoErrorNone
@@ -150,7 +162,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         if (initialized && inputDevicesLoaded) {
             Logger.debug(javaClass.simpleName, "creating input stream", 5)
             val err: Int = soundInterface.lib_createAndStartInputStream(
-                deviceIndex, 0.01, 44100)
+                deviceIndex, microphoneLatency, defaultSampleRate)
             if (err != 0) {
                 return AudioError.InputStreamError
             }
@@ -169,11 +181,15 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         return soundInterface.lib_getCurrentRmsVolume(deviceIndex)
     }
 
-    fun audioLibCallback() {
-        Logger.debug(javaClass.simpleName, "callback called", 5)
-    }
-
     fun getNameOfChannelFromIndex(deviceIndex: Int, channelIndex: Int) : String{
         return soundInterface.lib_getNameOfChannelOfInputDevice(deviceIndex, channelIndex)
+    }
+
+    fun audioPanic(message: String) {
+        Logger.debug("AUDIO PANIC", message, 1)
+    }
+
+    fun audioLog(message: String) {
+        Logger.debug("AUDIO LOG", message, 3)
     }
 }

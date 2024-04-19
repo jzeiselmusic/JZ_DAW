@@ -12,11 +12,11 @@ public class SoundIoInterface {
     }
     private interface SoundIoLib extends Library {
         SoundIoLib INSTANCE = Native.load("soundlib", SoundIoLib.class);
-
         /* this is a callback type */
-        interface sig_t extends Callback { void invoke(int signal); }
-        /* test callback function */
-        void make_callback(sig_t func);
+        interface soundLibCallback extends Callback { void invoke(String message); }
+
+        void registerAudioPanicCallback(soundLibCallback callbackFunc);
+        void registerAudioLogCallback(soundLibCallback callbackFunc);
 
         int lib_startSession();
         int lib_initializeEnvironment();
@@ -53,14 +53,18 @@ public class SoundIoInterface {
         int lib_createAndStartInputStream(int deviceIndex, double microphone_latency, int sample_rate);
         int lib_createAllInputStreams(double microphone_latency, int sample_rate);
         int lib_stopInputStream(int deviceIndex);
+        int lib_createOutputStream(int device_index, double microphone_latency, int sample_rate);
+        int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate);
         int lib_stopOutputStream(int deviceIndex);
         double lib_getCurrentRmsVolume(int deviceIndex);
     }
 
-    /* test callback */
-    private final SoundIoLib.sig_t fn = sig -> engineManager.audioLibCallback();
-    /* exposed function to test callback function */
-    public void make_callback() { SoundIoLib.INSTANCE.make_callback(fn); }
+    private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
+    private final SoundIoLib.soundLibCallback audioLog = message -> engineManager.audioLog(message);
+
+    public void registerAudioPanicCallback() { SoundIoLib.INSTANCE.registerAudioPanicCallback(audioPanic); }
+    public void registerAudioLogCallback() { SoundIoLib.INSTANCE.registerAudioLogCallback(audioLog); }
+
 
     public int lib_startSession() { return SoundIoLib.INSTANCE.lib_startSession(); }
     public int lib_initializeEnvironment() { return SoundIoLib.INSTANCE.lib_initializeEnvironment(); }
@@ -104,6 +108,12 @@ public class SoundIoInterface {
         return SoundIoLib.INSTANCE.lib_createAllInputStreams(deviceIndex, sample_rate);
     }
     public int lib_stopInputStream(int deviceIndex) { return SoundIoLib.INSTANCE.lib_stopInputStream(deviceIndex); }
+    public int lib_createOutputStream(int device_index, double microphone_latency, int sample_rate) {
+        return SoundIoLib.INSTANCE.lib_createOutputStream(device_index, microphone_latency, sample_rate);
+    }
+    public int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate) {
+        return SoundIoLib.INSTANCE.lib_createAndStartOutputStream(deviceIndex, microphone_latency, sample_rate);
+    }
     public int lib_stopOutputStream(int deviceIndex) { return SoundIoLib.INSTANCE.lib_stopOutputStream(deviceIndex); }
     public double lib_getCurrentRmsVolume(int deviceIndex) { return SoundIoLib.INSTANCE.lib_getCurrentRmsVolume(deviceIndex); }
 }

@@ -27,4 +27,15 @@ float envelopeFollower(double input, double attack, double release) {
     return envelope;
 }
 
+void memadd(void *dest, void *src, size_t n) {
+    /* same as memcpy except add to data location instead of overwrite */
+    char *csrc = (char *)src;
+    char *cdest = (char *)dest;
+
+    // Copy contents of src[] to dest[]
+    for (int i=0; i<n; i++) {
+        cdest[i] += csrc[i];
+    }
+}
+
 #endif

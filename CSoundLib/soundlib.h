@@ -1,12 +1,18 @@
 #ifndef SOUND_LIB_H
 #define SOUND_LIB_H
 
+typedef void (*soundLibCallback) (char*);
+
 int lib_startSession();
 int lib_initializeEnvironment();
 int lib_destroySession();
 int lib_deinitializeEnvironment();
 int lib_getCurrentBackend();
 int lib_checkEnvironmentAndBackendConnected();
+
+/* callback function helpers */
+void registerAudioPanicCallback(soundLibCallback func);
+void registerAudioLogCallback(soundLibCallback func);
 
 /* functions for input devices */
 int lib_loadInputDevices();
