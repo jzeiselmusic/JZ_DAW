@@ -20,6 +20,8 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     fun initialize() : AudioError {
         soundInterface.registerAudioLogCallback()
         soundInterface.registerAudioPanicCallback()
+        soundInterface.registerInputStreamCallback()
+        soundInterface.registerOutputStreamCallback()
 
         var returnError = soundInterface.lib_startSession()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
@@ -191,5 +193,13 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun audioLog(message: String) {
         Logger.debug("AUDIO LOG", message, 3)
+    }
+
+    fun inputStreamCallback(message: String, index: Int) {
+        Logger.debug("INPUT STREAM", "device $index: $message", 2)
+    }
+
+    fun outputStreamCallback(message: String, index: Int) {
+        Logger.debug("OUTPUT STREAM", "device $index: $message", 4)
     }
 }

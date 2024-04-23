@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -62,6 +63,8 @@ double MAX_24_BIT_SIGNED = 8388607.0;
 
 static soundLibCallback logCallback;
 static soundLibCallback panicCallback;
+static soundStreamCallback inputStreamCallback;
+static soundStreamCallback outputStreamCallback;
 
 __attribute__ ((cold))
 __attribute__ ((noreturn))
@@ -69,6 +72,12 @@ __attribute__ ((format (printf, 1, 2)))
 static void _panic(const char *format, ...) {
     panicCallback(format);
     abort();
+}
+
+__attribute__ ((cold))
+__attribute__ ((format (printf, 1, 2)))
+static void _formatPanic(const char *format, ...) {
+    panicCallback(format);
 }
 
 static void _underflowCallback(struct SoundIoOutStream *outstream) {
@@ -82,6 +91,14 @@ void registerAudioPanicCallback(soundLibCallback func) {
 
 void registerAudioLogCallback(soundLibCallback func) {
     logCallback = func;
+}
+
+void registerInputStreamCallback(soundStreamCallback func) {
+    inputStreamCallback = func;
+}
+
+void registerOutputStreamCallback(soundStreamCallback func) {
+    outputStreamCallback = func;
 }
 
 /********************/
@@ -356,6 +373,9 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     /* once all input streams have written to the mix buffer, increment write pointer */
     /* the write callback then has to take that data, read it, and send it to the output stream, and increment read ptr */
     int device_index = -1;
+    inputStreamCallback("sample rate", instream->sample_rate);
+    inputStreamCallback("bytes per frame", instream->bytes_per_frame);
+    inputStreamCallback("bytes per sample", instream->bytes_per_sample);
     for (int i = 0; i < lib_getNumInputDevices(); i++) {
         if (input_devices[i]->id == instream->device->id) {
             device_index = i;
@@ -368,9 +388,12 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     if (output_stream_initialized == false) {
         _panic("output device not initialized");
     }
-    struct SoundIoRingBuffer* ring_buffer = mixed_output_buffer;
-    /* get the write ptr for the mix buffer */
+    inputStreamCallback("input device read data", device_index);
+
+    struct SoundIoRingBuffer* ring_buffer = input_buffers[device_index];
+    /* get the write ptr for this inputs ring buffer */
     char *write_ptr = soundio_ring_buffer_write_ptr(ring_buffer);
+    inputStreamCallback("current pointer address to write", (unsigned long)write_ptr);
     int bytes_count = soundio_ring_buffer_free_count(ring_buffer);
     int frame_count = bytes_count / instream->bytes_per_frame;
 
@@ -379,10 +402,14 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     }
 
     int write_frames = min_int(frame_count, frame_count_max);
+    inputStreamCallback("frames to write", write_frames);
     int frames_left = write_frames;
 
     struct SoundIoChannelArea *areas;
     int err;
+    while(input_stream_read_write_counter == num_input_streams) {
+
+    }
     for (;;) {
         int frame_count = frames_left;
         if ((err = soundio_instream_begin_read(instream, &areas, &frame_count))) {
@@ -395,7 +422,7 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
             /* Due to an overflow there is a hole. Fill the ring buffer with
                silence for the size of the hole.  */
             memset(write_ptr, 0, frame_count * instream->bytes_per_frame);
-            fprintf(stderr, "Dropped %d frames due to internal overflow\n", frame_count);
+            _formatPanic("Dropped %d frames due to internal overflow\n", frame_count);
         } 
         else {
             /* normal operation */
@@ -404,11 +431,8 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
             for (int frame = 0; frame < frame_count; frame += 1) {
                 for (int ch = 0; ch < instream->layout.channel_count; ch += 1) {
                     char* bytes = areas[ch].ptr;
-                    if (input_stream_read_write_counter == 0) {
-                        /* first input stream to contribute */
-                        memset(write_ptr, 0, instream->bytes_per_sample);
-                    }
-                    memadd(write_ptr, bytes, instream->bytes_per_sample);
+
+                    memcpy(write_ptr, bytes, instream->bytes_per_sample);
 
                     /* ***************************** */
                     /* calculate rms value of current sample in channel */
@@ -422,8 +446,8 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
                     /* ***************************** */
 
                     areas[ch].ptr += areas[ch].step;
-                    write_ptr += instream->bytes_per_sample;
                 }
+                write_ptr += instream->bytes_per_sample;
             }
             rms_value /= frame_count;
             double_value /= frame_count;
@@ -441,15 +465,11 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
         }
     }
     int advance_bytes = write_frames * instream->bytes_per_frame;
-    if (input_stream_read_write_counter < (num_input_streams-1)) {
-        /* reset counter, tell driver audio is ready for output */
-        input_stream_read_write_counter = 0;
-        soundio_ring_buffer_advance_write_ptr(ring_buffer, advance_bytes);
-    }
-    else {
-        input_stream_read_write_counter += 1;
-    }
-    // soundio_ring_buffer_advance_read_ptr(ring_buffer, advance_bytes);
+    inputStreamCallback("wrote frames", write_frames);
+    inputStreamCallback("advancing bytes", advance_bytes);
+    soundio_ring_buffer_advance_write_ptr(ring_buffer, advance_bytes);
+    inputStreamCallback("posted my audio", device_index);
+    input_stream_read_write_counter += 1;
 }
 
 static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int frame_count_min, int frame_count_max) {
@@ -457,11 +477,15 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
     /* this function takes the data in the mix buffer and places it into the stream associated with the output device */
     /* we then will increment the read ptr because we read the data placed in by the input streams */
-    int device_index = -1;
     int frames_left;
     int frame_count;
     int err;
     struct SoundIoChannelArea *areas;
+    outputStreamCallback("sample rate", outstream->sample_rate);
+    outputStreamCallback("bytes per frame", outstream->bytes_per_frame);
+    outputStreamCallback("bytes per sample", outstream->bytes_per_sample);
+
+    int device_index = -1;
     for (int i = 0; i < lib_getNumInputDevices(); i++) {
         if (output_devices[i]->id == outstream->device->id) {
             device_index = i;
@@ -474,59 +498,75 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     if (output_stream_initialized == false) {
         _panic("output stream not initialized");
     }
-
-    char *read_ptr = soundio_ring_buffer_read_ptr(mixed_output_buffer);
-    int fill_bytes = soundio_ring_buffer_fill_count(mixed_output_buffer);
-    int fill_count = fill_bytes / outstream->bytes_per_frame;
-    if (frame_count_min > fill_count) {
-        // Ring buffer does not have enough data, fill with zeroes.
-        frames_left = frame_count_min;
-        for (;;) {
-            frame_count = frames_left;
-            if (frame_count <= 0)
-              return;
-            if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count)))
-                _panic("begin write error: %s", soundio_strerror(err));
-            if (frame_count <= 0)
-                return;
-            for (int frame = 0; frame < frame_count; frame += 1) {
-                for (int ch = 0; ch < outstream->layout.channel_count; ch += 1) {
-                    memset(areas[ch].ptr, 0, outstream->bytes_per_sample);
-                    areas[ch].ptr += areas[ch].step;
+    outputStreamCallback("ready for audio", device_index);
+    if (input_stream_read_write_counter < num_input_streams) {
+        outputStreamCallback("waiting for more streams to post", device_index);
+    }
+    while(input_stream_read_write_counter < num_input_streams) {}
+    input_stream_read_write_counter = 0;
+    for (int inputStreamIdx = 0; inputStreamIdx < lib_getNumInputDevices(); inputStreamIdx++) {
+        if (input_streams_started[inputStreamIdx] == true) {
+            outputStreamCallback("collecting audio from stream: ", inputStreamIdx);
+            struct SoundIoRingBuffer* ring_buffer = input_buffers[inputStreamIdx];
+            char *read_ptr = soundio_ring_buffer_read_ptr(ring_buffer);
+            outputStreamCallback("current pointer address to read", (unsigned long)read_ptr);
+            int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
+            outputStreamCallback("fill bytes is: ", fill_bytes);
+            int fill_count = fill_bytes / 4;
+            outputStreamCallback("fill count is: ", fill_count);
+            outputStreamCallback("frame count min", frame_count_min);
+            if (frame_count_min > fill_count) {
+                // Ring buffer does not have enough data, fill with zeroes
+                outputStreamCallback("uh oh, not enough data to fill", device_index);
+                frames_left = frame_count_min;
+                for (;;) {
+                    frame_count = frames_left;
+                    if (frame_count <= 0)
+                      return;
+                    if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count)))
+                        _panic("begin write error: %s", soundio_strerror(err));
+                    for (int frame = 0; frame < frame_count; frame += 1) {
+                        for (int ch = 0; ch < outstream->layout.channel_count; ch += 1) {
+                            memset(areas[ch].ptr, 0, outstream->bytes_per_sample);
+                            areas[ch].ptr += areas[ch].step;
+                        }
+                    }
+                    if ((err = soundio_outstream_end_write(outstream)))
+                        _panic("end write error: %s", soundio_strerror(err));
+                    frames_left -= frame_count;
                 }
             }
-            if ((err = soundio_outstream_end_write(outstream)))
-                _panic("end write error: %s", soundio_strerror(err));
-            frames_left -= frame_count;
-        }
-    }
+            outputStreamCallback("frame count max is", frame_count_max);
+            int read_count = min_int(frame_count_max, fill_count);
+            frames_left = read_count;
+            outputStreamCallback("frames left to read: ", frames_left);
 
-    int read_count = min_int(frame_count_max, fill_count);
-    frames_left = read_count;
+            /* take all the data from all the mixed buffer and copy it into the output stream */
+            /* the output buffer should also be polled for VU Meter levels */
+            if (num_input_streams != 0) {
+                outputStreamCallback("posting audio to output", device_index);
+                while (frames_left > 0) {
+                    int frame_count = frames_left;
+                    if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count)))
+                        _panic("begin write error: %s", soundio_strerror(err));
+                    if (frame_count <= 0)
+                        break;
 
-    /* take all the data from all the mixed buffer and copy it into the output stream */
-    /* the output buffer should also be polled for VU Meter levels */
-    while (frames_left > 0) {
-        int frame_count = frames_left;
-        if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count)))
-            _panic("begin write error: %s", soundio_strerror(err));
-        if (frame_count <= 0)
-            break;
+                    for (int frame = 0; frame < frame_count; frame += 1) {
+                        for (int ch = 0; ch < outstream->layout.channel_count; ch += 1) {
+                            memcpy(areas[ch].ptr, read_ptr, outstream->bytes_per_sample);
+                            areas[ch].ptr += areas[ch].step;
+                        }
+                        read_ptr += outstream->bytes_per_sample;
+                    }
+                    if ((err = soundio_outstream_end_write(outstream)))
+                        _panic("end write error: %s", soundio_strerror(err));
 
-        for (int frame = 0; frame < frame_count; frame += 1) {
-            for (int ch = 0; ch < outstream->layout.channel_count; ch += 1) {
-                memcpy(areas[ch].ptr, read_ptr, outstream->bytes_per_sample);
-                areas[ch].ptr += areas[ch].step;
-                read_ptr += outstream->bytes_per_sample;
+                    frames_left -= frame_count;
+                }
             }
+            soundio_ring_buffer_advance_read_ptr(ring_buffer, read_count * 4);
         }
-        if ((err = soundio_outstream_end_write(outstream)))
-            _panic("end write error: %s", soundio_strerror(err));
-
-        frames_left -= frame_count;
-    }
-    if (num_input_streams != 0) {
-        soundio_ring_buffer_advance_read_ptr(mixed_output_buffer, read_count * outstream->bytes_per_frame);
     }
 }
 
@@ -557,7 +597,7 @@ int lib_createInputStream(int device_index, double microphone_latency, int sampl
     char *buf = soundio_ring_buffer_write_ptr(ring_buffer);
     int fill_count = microphone_latency * instream->sample_rate * instream->bytes_per_frame;
     memset(buf, 0, fill_count);
-    soundio_ring_buffer_advance_write_ptr(ring_buffer, fill_count);
+    // soundio_ring_buffer_advance_write_ptr(ring_buffer, fill_count);
     input_buffers[device_index] = ring_buffer;
     return SoundIoErrorNone;
 }

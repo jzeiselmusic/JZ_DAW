@@ -2,6 +2,7 @@
 #define SOUND_LIB_H
 
 typedef void (*soundLibCallback) (char*);
+typedef void (*soundStreamCallback) (char*, int);
 
 int lib_startSession();
 int lib_initializeEnvironment();
@@ -13,6 +14,8 @@ int lib_checkEnvironmentAndBackendConnected();
 /* callback function helpers */
 void registerAudioPanicCallback(soundLibCallback func);
 void registerAudioLogCallback(soundLibCallback func);
+void registerInputStreamCallback(soundStreamCallback func);
+void registerOutputStreamCallback(soundStreamCallback func);
 
 /* functions for input devices */
 int lib_loadInputDevices();
