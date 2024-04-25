@@ -46,14 +46,16 @@ class AddButton(override val parent: Widget)
     private val verticalLine = Line(buttonOffsetX, buttonOffsetY - buttonWidth / 4,
                                         buttonOffsetX, buttonOffsetY + buttonWidth / 4)
 
-    private val mousePressEvent = EventHandler<MouseEvent> { mousePress() }
-    private val mouseReleaseEvent = EventHandler<MouseEvent> {
-                                        if (it.button == MouseButton.SECONDARY) {
-                                            mouseReleaseRight()
-                                        } else {
-                                            mouseReleaseLeft()
-                                            }
-                                        }
+    private val mousePressEvent =
+        EventHandler<MouseEvent> { mousePress() }
+    private val mouseReleaseEvent =
+        EventHandler<MouseEvent> {
+            if (it.button == MouseButton.SECONDARY) {
+                mouseReleaseRight()
+            } else {
+                mouseReleaseLeft()
+                }
+        }
 
     init {
         buttonRect.translateY = buttonOffsetY
@@ -99,12 +101,14 @@ class AddButton(override val parent: Widget)
     }
 
     private fun mousePress() {
+        animateObjectScale(1.0, 0.95, buttonRect, 25.0)
         buttonRect.opacity = 0.6
         horizontalLine.opacity = 0.4
         verticalLine.opacity = 0.4
     }
 
     private fun mouseReleaseLeft() {
+        animateObjectScale(0.95, 1.0, buttonRect, 25.0)
         buttonRect.opacity = 1.0
         horizontalLine.opacity = 1.0
         verticalLine.opacity = 1.0
@@ -112,6 +116,7 @@ class AddButton(override val parent: Widget)
     }
 
     private fun mouseReleaseRight() {
+        animateObjectScale(0.95, 1.0, buttonRect, 25.0)
         buttonRect.opacity = 1.0
         horizontalLine.opacity = 1.0
         verticalLine.opacity = 1.0

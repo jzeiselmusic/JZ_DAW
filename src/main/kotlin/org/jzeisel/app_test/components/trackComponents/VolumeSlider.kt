@@ -29,12 +29,12 @@ class VolumeSlider(override val parent: Widget)
         sliderCircle.translateX = sliderBar.translateX + sliderBar.width / 4.0
         sliderCircle.stroke = trackListState.strokeColor
         sliderCircle.strokeLineJoin = StrokeLineJoin.MITER
-        sliderCircle.strokeWidth = trackListState.strokeSize - 0.3
+        sliderCircle.strokeWidth = trackListState.strokeSize
         sliderBar.strokeWidth = trackListState.strokeSize
         sliderBar.stroke = trackListState.strokeColor
         sliderBar.strokeLineJoin = StrokeLineJoin.MITER
-        sliderBar.arcWidth = 7.0
-        sliderBar.arcHeight = 7.0
+        sliderBar.arcWidth = 3.0
+        sliderBar.arcHeight = 3.0
         sliderBar.viewOrder = viewOrderFlip - 0.31
         sliderCircle.viewOrder = viewOrderFlip - 0.32
 

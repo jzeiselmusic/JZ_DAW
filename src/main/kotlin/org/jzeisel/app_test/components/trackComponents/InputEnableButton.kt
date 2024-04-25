@@ -56,6 +56,10 @@ class InputEnableButton(override val parent: Widget?)
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.TRANSPARENT)
     private val iLetter = Text()
 
+    private val mousePressEvent = EventHandler<MouseEvent> {
+        mousePress()
+    }
+
     private val mouseReleaseEvent = EventHandler<MouseEvent> {
         mouseReleaseLeft()
     }
@@ -75,8 +79,10 @@ class InputEnableButton(override val parent: Widget?)
         buttonRect.arcHeight = trackListState.arcSize
         buttonRect.stroke = trackListState.strokeColor
         buttonRect.strokeWidth = trackListState.strokeSize
-        buttonRect.onMouseReleased = mouseReleaseEvent
         buttonRect.viewOrder = viewOrderFlip - 0.31
+
+        buttonRect.onMouseReleased = mouseReleaseEvent
+        buttonRect.onMousePressed = mousePressEvent
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
@@ -105,7 +111,12 @@ class InputEnableButton(override val parent: Widget?)
         }
     }
 
+    private fun mousePress() {
+        animateObjectScale(1.0, 0.9, buttonRect, 50.0)
+    }
+
     private fun mouseReleaseLeft() {
+        animateObjectScale(0.9, 1.0, buttonRect, 20.0)
         when (isEnabled) {
             true -> (parentTrack as NormalTrack).audioInputDisable()
             false -> (parentTrack as NormalTrack).audioInputEnable()
