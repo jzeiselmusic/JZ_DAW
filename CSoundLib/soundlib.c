@@ -63,12 +63,13 @@ static bool environment_initialized = false;
 static bool backend_connected = false;
 
 static char emptyString[] = "";
-double MAX_24_BIT_SIGNED = 8388607.0;
 
 static soundLibCallback logCallback;
 static soundLibCallback panicCallback;
 static soundStreamCallback inputStreamCallback;
 static soundStreamCallback outputStreamCallback;
+static floatPrintCallback audioStreamCallback;
+static charCallback audioStreamCallbackChar;
 
 __attribute__ ((cold))
 __attribute__ ((noreturn))
@@ -103,6 +104,14 @@ void registerInputStreamCallback(soundStreamCallback func) {
 
 void registerOutputStreamCallback(soundStreamCallback func) {
     outputStreamCallback = func;
+}
+
+void registerFloatPrintCallback(floatPrintCallback func) {
+    audioStreamCallback = func;
+}
+
+void registerCharCallback(charCallback func) {
+    audioStreamCallbackChar = func;
 }
 
 /********************/
@@ -488,7 +497,6 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
     /* this function takes the data in the mix buffer and places it into the stream associated with the output device */
     /* we then will increment the read ptr because we read the data placed in by the input streams */
-    outputStreamCallback("here-1", 0);
     int frames_left;
     int frame_count;
     int err;
@@ -530,17 +538,19 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             /* number of bytes available for reading */
             int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
+            outputStreamCallback("reading bytes for: ", inputStreamIdx);
+            outputStreamCallback("number of bytes to read: ", fill_bytes);
             if (fill_count > max_fill_count) max_fill_count = fill_count;
 
-            memadd(mixed_input_buffer, read_ptr, fill_bytes);
+            add_audio_buffers_24bitNE(mixed_input_buffer, read_ptr, fill_bytes);
         }
     }
 
     /* now place data from mixed input buffer into output stream */
     int read_count = min_int(frame_count_max, max_fill_count);
     frames_left = read_count;
+    outputStreamCallback("frames to read: ", read_count);
     char* mixed_read_ptr = mixed_input_buffer;
-    outputStreamCallback("here0", 0);
     while (frames_left > 0) {
         int frame_count = frames_left;
         if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count)))
@@ -560,15 +570,12 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
         frames_left -= frame_count;
     }
-    outputStreamCallback("here", 0);
     for (int inputStreamIdx = 0; inputStreamIdx < lib_getNumInputDevices(); inputStreamIdx++) {
         if (input_streams_started[inputStreamIdx] == true) {
-            outputStreamCallback("here1", 0);
             ring_buffer = input_buffers[inputStreamIdx];
             soundio_ring_buffer_advance_read_ptr(ring_buffer, read_count * BYTES_PER_FRAME_MONO);
             input_streams_written[inputStreamIdx] = false;
         }
-        outputStreamCallback("here2", 0);
     }
 }
 

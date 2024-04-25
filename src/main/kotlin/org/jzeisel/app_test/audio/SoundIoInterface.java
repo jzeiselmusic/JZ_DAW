@@ -15,11 +15,15 @@ public class SoundIoInterface {
         /* this is a callback type */
         interface soundLibCallback extends Callback { void invoke(String message); }
         interface soundStreamCallback extends Callback { void invoke(String message, int deviceIndex); }
+        interface floatPrintCallback extends Callback { void invoke(String message, float value); }
+        interface charCallback extends Callback { void invoke(char value, int offset); }
 
         void registerAudioPanicCallback(soundLibCallback callbackFunc);
         void registerAudioLogCallback(soundLibCallback callbackFunc);
         void registerInputStreamCallback(soundStreamCallback callbackFunc);
         void registerOutputStreamCallback(soundStreamCallback callbackFunc);
+        void registerFloatPrintCallback(floatPrintCallback callbackFunc);
+        void registerCharCallback(charCallback callbackFunc);
 
         int lib_startSession();
         int lib_initializeEnvironment();
@@ -66,12 +70,15 @@ public class SoundIoInterface {
     private final SoundIoLib.soundLibCallback audioLog = message -> engineManager.audioLog(message);
     private final SoundIoLib.soundStreamCallback inputStreamCallback = (message, index) -> engineManager.inputStreamCallback(message, index);
     private final SoundIoLib.soundStreamCallback outputStreamCallback = (message, index) -> engineManager.outputStreamCallback(message, index);
+    private final SoundIoLib.floatPrintCallback floatPrintCallback = (message, value) -> engineManager.floatPrintCallback(message, value);
+    private final SoundIoLib.charCallback charCallback = (value, offset) -> engineManager.charPrintCallback(value, offset);
 
     public void registerAudioPanicCallback() { SoundIoLib.INSTANCE.registerAudioPanicCallback(audioPanic); }
     public void registerAudioLogCallback() { SoundIoLib.INSTANCE.registerAudioLogCallback(audioLog); }
     public void registerInputStreamCallback() { SoundIoLib.INSTANCE.registerInputStreamCallback(inputStreamCallback); }
     public void registerOutputStreamCallback() { SoundIoLib.INSTANCE.registerOutputStreamCallback(outputStreamCallback); }
-
+    public void registerFloatPrintCallback() { SoundIoLib.INSTANCE.registerFloatPrintCallback(floatPrintCallback); }
+    public void registerCharCallback() { SoundIoLib.INSTANCE.registerCharCallback(charCallback); }
 
     public int lib_startSession() { return SoundIoLib.INSTANCE.lib_startSession(); }
     public int lib_initializeEnvironment() { return SoundIoLib.INSTANCE.lib_initializeEnvironment(); }

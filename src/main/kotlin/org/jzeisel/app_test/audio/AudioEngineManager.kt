@@ -22,6 +22,8 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         soundInterface.registerAudioPanicCallback()
         soundInterface.registerInputStreamCallback()
         soundInterface.registerOutputStreamCallback()
+        soundInterface.registerFloatPrintCallback()
+        soundInterface.registerCharCallback()
 
         var returnError = soundInterface.lib_startSession()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
@@ -201,5 +203,13 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun outputStreamCallback(message: String, index: Int) {
         Logger.debug("OUTPUT STREAM", "device $index: $message", 4)
+    }
+
+    fun floatPrintCallback(message: String, value: Float) {
+        Logger.debug("AUDIO STREAM", "$message: $value", 5)
+    }
+
+    fun charPrintCallback(value: Char, offset: Int) {
+        Logger.debug("CHAR", "value at offset $offset is ${value.code}", 1)
     }
 }

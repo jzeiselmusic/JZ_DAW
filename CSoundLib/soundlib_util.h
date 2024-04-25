@@ -33,8 +33,20 @@ void memadd(void *dest, void *src, size_t n) {
     char *cdest = (char *)dest;
 
     // Copy contents of src[] to dest[]
-    for (int i=0; i<n; i++) {
+    for (int i = 0; i < n; i++) {
         cdest[i] += csrc[i];
+    }
+}
+
+void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes) {
+    for (int idx = 0; idx < num_bytes; idx += 4) {
+        char* dest_ptr = dest + idx;
+        char* src_ptr = source + idx;
+
+        int32_t dest_sample = *(int32_t*)dest_ptr;
+        int32_t source_sample = *(int32_t*)src_ptr;
+        int32_t sum = dest_sample + source_sample;
+        memcpy(dest + idx, &sum, 4);
     }
 }
 
