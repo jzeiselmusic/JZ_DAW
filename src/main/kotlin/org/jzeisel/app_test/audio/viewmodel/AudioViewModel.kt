@@ -62,6 +62,7 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
     fun removeTrack(trackIndex: Int) {
         val nTracks = audioStateFlow._state.numTracks
         val tList = audioStateFlow._state.trackList
+        stopInputStream(trackIndex)
         tList.firstOrNull { it.trackIndex == trackIndex }?.let { tList.remove(it) }
         audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks - 1, trackList = tList)
     }
