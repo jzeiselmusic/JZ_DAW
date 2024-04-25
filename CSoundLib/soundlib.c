@@ -532,6 +532,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     int max_fill_count = 0;
     for (int inputStreamIdx = 0; inputStreamIdx < lib_getNumInputDevices(); inputStreamIdx++) {
         if (input_streams_started[inputStreamIdx] == true) {
+            while (input_streams_written[inputStreamIdx] == false) {};
             ring_buffer = input_buffers[inputStreamIdx];
             char *read_ptr = soundio_ring_buffer_read_ptr(ring_buffer);
             /* number of bytes available for reading */
@@ -547,6 +548,8 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
     /* now place data from mixed input buffer into output stream */
     int read_count = min_int(frame_count_max, max_fill_count);
+    if (read_count == 0) read_count = frame_count_min;
+    /* there is data to be read to output */
     frames_left = read_count;
     outputStreamCallback("frames to read: ", read_count);
     char* mixed_read_ptr = mixed_input_buffer;
@@ -633,10 +636,10 @@ int lib_createAndStartInputStream(int device_index, double microphone_latency, i
 }
 
 int lib_stopInputStream(int device_index) {
-    soundio_instream_destroy(input_streams[device_index]);
     input_streams_started[device_index] = false;
     input_streams_written[device_index] = false;
     num_input_streams -= 1;
+    soundio_instream_destroy(input_streams[device_index]);
     return SoundIoErrorNone;
 }
 
@@ -682,9 +685,9 @@ int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, i
 }
 
 int lib_stopOutputStream(int deviceIndex) {
-    soundio_outstream_destroy(output_streams[deviceIndex]);
     output_stream_started = -1;
     output_stream_initialized = false;
+    soundio_outstream_destroy(output_streams[deviceIndex]);
     return SoundIoErrorNone;
 }
 
