@@ -390,6 +390,9 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     /* once all input streams have written to the mix buffer, increment write pointer */
     /* the write callback then has to take that data, read it, and send it to the output stream, and increment read ptr */
     int device_index = -1;
+    while(input_streams_written[device_index] == true) {
+
+    }
     inputStreamCallback("sample rate", instream->sample_rate);
     inputStreamCallback("bytes per frame", instream->bytes_per_frame);
     inputStreamCallback("bytes per sample", instream->bytes_per_sample);
@@ -424,10 +427,6 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
 
     struct SoundIoChannelArea *areas;
     int err;
-
-    while(input_streams_written[device_index] == true) {
-
-    }
 
     for (;;) {
         int frame_count = frames_left;
