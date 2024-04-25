@@ -40,7 +40,7 @@ class AddButton(override val parent: Widget)
         return Color.rgb(red, green, blue)
     }
 
-    private val buttonRect = Rectangle(buttonWidth, buttonHeight, getRandomColor())
+    private val buttonRect = Rectangle(buttonWidth, buttonHeight, trackListState.generalPurple)
     private val horizontalLine = Line(buttonOffsetX - buttonWidth / 4, buttonOffsetY,
                                         buttonOffsetX + buttonWidth / 4, buttonOffsetY)
     private val verticalLine = Line(buttonOffsetX, buttonOffsetY - buttonWidth / 4,

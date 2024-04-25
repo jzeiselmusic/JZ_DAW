@@ -393,9 +393,9 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     while(input_streams_written[device_index] == true) {
 
     }
-    inputStreamCallback("sample rate", instream->sample_rate);
-    inputStreamCallback("bytes per frame", instream->bytes_per_frame);
-    inputStreamCallback("bytes per sample", instream->bytes_per_sample);
+    // inputStreamCallback("sample rate", instream->sample_rate);
+    // inputStreamCallback("bytes per frame", instream->bytes_per_frame);
+    // inputStreamCallback("bytes per sample", instream->bytes_per_sample);
     for (int i = 0; i < lib_getNumInputDevices(); i++) {
         if (input_devices[i]->id == instream->device->id) {
             device_index = i;
@@ -408,12 +408,12 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     if (output_stream_initialized == false) {
         _panic("output device not initialized");
     }
-    inputStreamCallback("input device read data", device_index);
+    // inputStreamCallback("input device read data", device_index);
 
     struct SoundIoRingBuffer* ring_buffer = input_buffers[device_index];
     /* get the write ptr for this inputs ring buffer */
     char *write_ptr = soundio_ring_buffer_write_ptr(ring_buffer);
-    inputStreamCallback("current pointer address to write", (unsigned long)write_ptr);
+    // inputStreamCallback("current pointer address to write", (unsigned long)write_ptr);
     int bytes_count = soundio_ring_buffer_free_count(ring_buffer);
     int frame_count = bytes_count / BYTES_PER_FRAME_MONO;
 
@@ -422,7 +422,7 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     }
 
     int write_frames = min_int(frame_count, frame_count_max);
-    inputStreamCallback("frames to write", write_frames);
+    // inputStreamCallback("frames to write", write_frames);
     int frames_left = write_frames;
 
     struct SoundIoChannelArea *areas;
@@ -483,10 +483,10 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
         }
     }
     int advance_bytes = write_frames * BYTES_PER_FRAME_MONO;
-    inputStreamCallback("wrote frames", write_frames);
-    inputStreamCallback("advancing bytes", advance_bytes);
+    // inputStreamCallback("wrote frames", write_frames);
+    // inputStreamCallback("advancing bytes", advance_bytes);
     soundio_ring_buffer_advance_write_ptr(ring_buffer, advance_bytes);
-    inputStreamCallback("posted my audio", device_index);
+    // inputStreamCallback("posted my audio", device_index);
     input_streams_written[device_index] = true;
     input_stream_read_write_counter += 1;
 }
@@ -516,9 +516,9 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     if (output_stream_initialized == false) {
         _panic("output stream not initialized");
     }
-    outputStreamCallback("ready for audio", device_index);
+    // outputStreamCallback("ready for audio", device_index);
     if (input_stream_read_write_counter < num_input_streams) {
-        outputStreamCallback("waiting for more streams to post", device_index);
+        // outputStreamCallback("waiting for more streams to post", device_index);
     }
     /* wait for streams to be finished writing to their buffers */
     while(input_stream_read_write_counter < num_input_streams) {}
@@ -532,14 +532,16 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     int max_fill_count = 0;
     for (int inputStreamIdx = 0; inputStreamIdx < lib_getNumInputDevices(); inputStreamIdx++) {
         if (input_streams_started[inputStreamIdx] == true) {
+            /* wait for input stream to be written before reading */
             while (input_streams_written[inputStreamIdx] == false) {};
+
             ring_buffer = input_buffers[inputStreamIdx];
             char *read_ptr = soundio_ring_buffer_read_ptr(ring_buffer);
             /* number of bytes available for reading */
             int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
-            outputStreamCallback("reading bytes for: ", inputStreamIdx);
-            outputStreamCallback("number of bytes to read: ", fill_bytes);
+            // outputStreamCallback("reading bytes for: ", inputStreamIdx);
+            // outputStreamCallback("number of bytes to read: ", fill_bytes);
             if (fill_count > max_fill_count) max_fill_count = fill_count;
 
             add_audio_buffers_24bitNE(mixed_input_buffer, read_ptr, fill_bytes);
@@ -548,10 +550,11 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
     /* now place data from mixed input buffer into output stream */
     int read_count = min_int(frame_count_max, max_fill_count);
+    /* handle case of no input streams */
     if (read_count == 0) read_count = frame_count_min;
     /* there is data to be read to output */
     frames_left = read_count;
-    outputStreamCallback("frames to read: ", read_count);
+    // outputStreamCallback("frames to read: ", read_count);
     char* mixed_read_ptr = mixed_input_buffer;
     while (frames_left > 0) {
         int frame_count = frames_left;

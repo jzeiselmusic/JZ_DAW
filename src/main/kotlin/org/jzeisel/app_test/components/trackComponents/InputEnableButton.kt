@@ -7,6 +7,9 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import javafx.scene.text.Font
+import javafx.scene.text.FontWeight
+import javafx.scene.text.Text
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.widget.Widget
@@ -27,14 +30,16 @@ class InputEnableButton(override val parent: Widget?)
             field = new
             if (new) {
                 runLater {
-                    buttonRect.fill = Color.rgb(0xFF, 0x64, 0x40)
+                    buttonRect.fill = Color.rgb(255, 0, 0)
                     buttonRect.opacity = 0.9
+                    iLetter.stroke = trackListState.generalGray
                 }
             }
             else {
                 runLater {
                     buttonRect.fill = Color.TRANSPARENT
                     buttonRect.opacity = 1.0
+                    iLetter.stroke = Color.BLACK
                 }
             }
         }
@@ -49,18 +54,21 @@ class InputEnableButton(override val parent: Widget?)
     }
 
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.TRANSPARENT)
-    private val iImage = Image("images/i_image.png")
-    private var iImageView: ImageView = ImageView(iImage)
+    private val iLetter = Text()
 
     private val mouseReleaseEvent = EventHandler<MouseEvent> {
         mouseReleaseLeft()
     }
 
     init {
-        iImageView.fitHeight = trackListState.buttonSize - 5.0
-        iImageView.isPreserveRatio = true
-        iImageView.translateY = buttonOffsetY
-        iImageView.translateX = buttonOffsetX
+        iLetter.text = "I"
+        iLetter.font = Font.font("Times New Roman", FontWeight.THIN, 12.0)
+        iLetter.stroke = trackListState.strokeColor
+        iLetter.strokeWidth = trackListState.strokeSize
+        iLetter.translateY = buttonOffsetY
+        iLetter.translateX = buttonOffsetX
+        iLetter.isMouseTransparent = true
+        iLetter.viewOrder = viewOrderFlip - 0.32
         buttonRect.translateY = buttonOffsetY
         buttonRect.translateX = buttonOffsetX
         buttonRect.arcWidth = trackListState.arcSize
@@ -69,8 +77,6 @@ class InputEnableButton(override val parent: Widget?)
         buttonRect.strokeWidth = trackListState.strokeSize
         buttonRect.onMouseReleased = mouseReleaseEvent
         buttonRect.viewOrder = viewOrderFlip - 0.31
-        iImageView.onMouseReleased = mouseReleaseEvent
-        iImageView.viewOrder = viewOrderFlip - 0.32
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
@@ -109,34 +115,34 @@ class InputEnableButton(override val parent: Widget?)
     override fun addMeToScene(root: StackPane) {
         registerForBroadcasts()
         root.children.add(buttonRect)
-        root.children.add(iImageView)
+        root.children.add(iLetter)
     }
 
     override fun removeMeFromScene(root: StackPane) {
         runLater {
             unregisterForBroadcasts()
             root.children.remove(buttonRect)
-            root.children.remove(iImageView)
+            root.children.remove(iLetter)
         }
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {
         ((new - old)/2.0).let {
             buttonRect.translateY -= it
-            iImageView.translateY -= it
+            iLetter.translateY -= it
         }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
         ((new - old)/2.0).let {
             buttonRect.translateX -= it
-            iImageView.translateX -= it
+            iLetter.translateX -= it
         }
     }
 
     override fun respondToIndexChange(old: Double, new: Double) {
         buttonOffsetY = parentTrack.trackOffsetY - trackListState.verticalDistancesBetweenWidgets
-        iImageView.translateY = buttonOffsetY
+        iLetter.translateY = buttonOffsetY
         buttonRect.translateY = buttonOffsetY
     }
 
