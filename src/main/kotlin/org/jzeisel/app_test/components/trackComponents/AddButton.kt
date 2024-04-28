@@ -101,7 +101,7 @@ class AddButton(override val parent: Widget)
     }
 
     private fun mousePress() {
-        animateObjectScale(1.0, 0.95, buttonRect, 25.0)
+        animateObjectScale(1.0, 0.95, buttonRect, 10.0)
         buttonRect.opacity = 0.6
         horizontalLine.opacity = 0.4
         verticalLine.opacity = 0.4

@@ -2,13 +2,16 @@ package org.jzeisel.app_test.audio.viewmodel
 
 import org.jzeisel.app_test.audio.*
 import org.jzeisel.app_test.error.AudioError
+import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.Logger
 
-class AudioViewModel(private val viewModelController: ViewModelController) {
+class AudioViewModel(
+    private val viewModelController: ViewModelController,
+    private val viewModelState: TrackListStateFlow) {
 
     private val audioStateFlow = AudioStateFlow()
     private val audioEngineManager = AudioEngineManager(this)
-    private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController)
+    private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController, audioStateFlow)
     val defaultInputIndex: Int get() { return audioEngineManager.defaultInputIndex }
 
     fun initialize() {
@@ -33,7 +36,6 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
         Logger.debug(javaClass.simpleName, "tracks: ${audioStateFlow._state.numTracks}", 1)
         for (t in audioStateFlow._state.trackList) {
             Logger.debug(javaClass.simpleName, "index: ${t.trackIndex}", 1)
-            Logger.debug(javaClass.simpleName, "\tname: ${t.trackName}", 1)
             Logger.debug(javaClass.simpleName, "\tdevice: ${t.inputDevice}", 1)
             Logger.debug(javaClass.simpleName, "\tchannel: ${t.inputChannel}", 1)
         }
@@ -49,22 +51,34 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
         else return null
     }
 
-    fun addTrack(trackIndex: Int, trackName: String) {
-        val nTracks = audioStateFlow._state.numTracks
-        val tList = audioStateFlow._state.trackList
+    fun addTrack(trackIndex: Int) {
+        val nTracks = viewModelState.numTracks
         val device = audioEngineManager.getInputDeviceFromIndex(audioEngineManager.defaultInputIndex)
         val defaultChannel = Channel(0, audioEngineManager.getNameOfChannelFromIndex(device.index, 0))
-        tList.add(trackIndex, TrackData(trackName, trackIndex, 0.0, 0,
-            inputDevice = device, inputChannel = defaultChannel))
-        audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks + 1, trackList = tList)
+        val tList = audioStateFlow._state.trackList
+        tList.forEach { if(it.trackIndex >= trackIndex) it.trackIndex += 1 }
+        val trackData = TrackData(trackIndex, 0.0, 0, inputDevice = device, inputChannel = defaultChannel)
+        tList.add(trackIndex, trackData)
+        audioStateFlow._state = audioStateFlow._state.copy(
+            numTracks = nTracks,
+            trackList = tList
+        )
+        /* then make sure the vu meter thread has the same information */
+        vuMeterThread.updateSynchronizedTrackList(trackList = tList)
     }
 
     fun removeTrack(trackIndex: Int) {
         val nTracks = audioStateFlow._state.numTracks
         val tList = audioStateFlow._state.trackList
         stopInputStream(trackIndex)
-        tList.firstOrNull { it.trackIndex == trackIndex }?.let { tList.remove(it) }
-        audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks - 1, trackList = tList)
+        tList.remove(tList.first { it.trackIndex == trackIndex })
+        tList.forEach { if(it.trackIndex >= trackIndex) it.trackIndex -= 1 }
+        audioStateFlow._state = audioStateFlow._state.copy(
+            numTracks = nTracks,
+            trackList = tList
+        )
+        audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks, trackList = tList)
+        vuMeterThread.updateSynchronizedTrackList(tList)
     }
 
     fun setTrackDeviceAndChannel(trackIndex: Int, deviceIndex: Int, channelIndex: Int) {
@@ -75,18 +89,6 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
             inputDevice = device
             inputChannel = channel
         }
-        audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-    }
-
-    fun updateTrackName(trackIndex: Int, newName: String) {
-        val tList = audioStateFlow._state.trackList
-        tList.firstOrNull { it.trackIndex == trackIndex }?.apply { trackName = newName }
-        audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-    }
-
-    fun updateTrackIndex(name: String, newIndex: Int) {
-        val tList = audioStateFlow._state.trackList
-        tList.firstOrNull { it.trackName == name }?.apply { trackIndex = newIndex }
         audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
     }
 
@@ -135,10 +137,10 @@ class AudioViewModel(private val viewModelController: ViewModelController) {
                 }
             }
             chosenTrack.audioStream = null
+            vuMeterThread.removeFromTracksStreaming(chosenTrack)
             tList[trackIndex] = chosenTrack
             audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
             audioEngineManager.stopInputStream(it.device.index)
-            vuMeterThread.removeFromTracksStreaming(chosenTrack)
         }
     }
 

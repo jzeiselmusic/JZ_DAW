@@ -1,5 +1,6 @@
 package org.jzeisel.app_test.audio.viewmodel
 
+import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 
@@ -15,5 +16,9 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
 
     fun sendTrackRMSVolume(volume: Double, trackIndex: Int) {
         viewModel.updateTrackRMSVolume(volume, trackIndex)
+    }
+
+    fun getCopyOfTracks(): List<NormalTrack> {
+        return viewModel.getCopyOfTracks()
     }
 }

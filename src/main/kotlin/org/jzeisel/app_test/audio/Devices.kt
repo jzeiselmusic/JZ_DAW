@@ -15,13 +15,13 @@ data class Channel(
 )
 
 data class TrackData(
-    var trackName: String,
     var trackIndex: Int,
     var volume: Double,
     var panning: Int,
     var inputDevice: Device,
     var inputChannel: Channel,
     var audioStream: AudioStream? = null,
+    var isStreaming: Boolean = false
 )
 data class AudioStream(
     var device: Device

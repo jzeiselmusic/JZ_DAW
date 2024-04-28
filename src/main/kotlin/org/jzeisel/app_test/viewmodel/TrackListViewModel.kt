@@ -77,6 +77,10 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
+    fun getCopyOfTracks(): List<NormalTrack> {
+        return children.map { it as NormalTrack }
+    }
+
     override fun addMeToScene(root: StackPane) {
         /* TrackList does not need to be added to scene */
         masterTrack.addMeToScene(root)
@@ -93,14 +97,14 @@ class TrackListViewModel(val root: StackPane,
                 (child as NormalTrack).index.getValue().toInt() + 1, child as Track)
         newTrack.addMeToScene(root)
         addChild(newTrack)
-        audioViewModel.addTrack(newTrack.index.getValue().toInt(), newTrack.name)
+        audioViewModel.addTrack(newTrack.index.getValue().toInt())
     }
 
     fun addTrackFromMaster() {
         val newTrack = NormalTrack(root, this, 0, masterTrack)
         newTrack.addMeToScene(root)
         addChild(newTrack)
-        audioViewModel.addTrack(newTrack.index.getValue().toInt(), newTrack.name)
+        audioViewModel.addTrack(newTrack.index.getValue().toInt())
     }
 
     fun removeTrack(child: Widget) {
@@ -113,14 +117,6 @@ class TrackListViewModel(val root: StackPane,
                 remove(child)
             }
         }
-    }
-
-    fun updateTrackName(trackIndex: Int, newName: String) {
-        audioViewModel.updateTrackName(trackIndex, newName)
-    }
-
-    fun updateTrackIndex(name: String, newIndex: Int) {
-        audioViewModel.updateTrackIndex(name, newIndex)
     }
 
     fun setTrackDeviceAndChannel(trackIndex: Int, deviceIndex: Int, channelIndex: Int) {

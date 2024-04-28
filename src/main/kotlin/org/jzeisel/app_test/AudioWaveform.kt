@@ -56,8 +56,7 @@ class AudioWaveform : Application() {
         stage.scene = scene
 
         trackListViewModel = TrackListViewModel(everythingPane, stage, verticalScrollBarPane)
-        viewModelController = ViewModelController(trackListViewModel)
-        audioViewModel = AudioViewModel(viewModelController)
+        audioViewModel = AudioViewModel(ViewModelController(trackListViewModel), trackListViewModel._trackListStateFlow)
         trackListViewModel.addAudioEngine(audioViewModel)
 
         MouseEventBroadcaster.initializeBroadcasts(everythingPane, scene, trackListViewModel)

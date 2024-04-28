@@ -1,6 +1,5 @@
 package org.jzeisel.app_test.components.trackComponents
 
-import javafx.animation.ParallelTransition
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -30,7 +29,6 @@ class VUMeter(override val parent: Widget)
     private val volumeRectangle = Rectangle(vuMeterWidth - 4.0, volumeMinimumHeight, Color.GREEN)
     override val children = mutableListOf<Widget>()
     var currentVolume: Double = -100.0
-    lateinit var parallelTransition: ParallelTransition
     var isVUMeterRunning = false
 
     init {
@@ -86,9 +84,18 @@ class VUMeter(override val parent: Widget)
     }
 
     override fun respondToIndexChange(old: Double, new: Double) {
+        isVUMeterRunning = false
         vuMeterOffsetY = parentTrack.trackOffsetY
         vuMeterRectangle.translateY = vuMeterOffsetY
-        volumeRectangle.translateY = volumeRectangleY
+
+        runLater {
+            val oldHeight = volumeRectangle.height
+            val newHeight = scaleNumber(-100.0, volumeMaximumHeight, volumeMinimumHeight)
+            volumeRectangle.translateY += (oldHeight - newHeight) / 2.0
+            volumeRectangle.height = newHeight
+            volumeRectangle.translateY = volumeRectangleY
+            isVUMeterRunning = true
+        }
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
