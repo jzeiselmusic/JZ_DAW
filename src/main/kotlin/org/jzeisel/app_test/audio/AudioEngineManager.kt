@@ -12,18 +12,23 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     private var outputDevicesLoaded = false
 
     private val microphoneLatency = 0.01
-    private val defaultSampleRate = 44100
 
     val defaultInputIndex: Int get() { return soundInterface.lib_getDefaultInputDeviceIndex() }
     val defaultOutputIndex: Int get() { return soundInterface.lib_getDefaultOutputDeviceIndex() }
 
-    fun initialize() : AudioError {
+    fun registerAllCallbackFuncs() {
         soundInterface.registerAudioLogCallback()
         soundInterface.registerAudioPanicCallback()
         soundInterface.registerInputStreamCallback()
         soundInterface.registerOutputStreamCallback()
         soundInterface.registerFloatPrintCallback()
         soundInterface.registerCharCallback()
+        soundInterface.registerOutputProcessedCallback()
+    }
+
+    fun initialize() : AudioError {
+
+        registerAllCallbackFuncs()
 
         var returnError = soundInterface.lib_startSession()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
@@ -43,7 +48,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
 
         returnError = soundInterface.lib_createAndStartOutputStream(
-            defaultOutputIndex, microphoneLatency, defaultSampleRate)
+            defaultOutputIndex, microphoneLatency, viewModel.sampleRate)
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             return AudioError.values()[returnError]
         }
@@ -166,7 +171,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         if (initialized && inputDevicesLoaded) {
             Logger.debug(javaClass.simpleName, "creating input stream", 5)
             val err: Int = soundInterface.lib_createAndStartInputStream(
-                deviceIndex, microphoneLatency, defaultSampleRate)
+                deviceIndex, microphoneLatency, viewModel.sampleRate)
             if (err != 0) {
                 return AudioError.InputStreamError
             }
@@ -175,6 +180,14 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         else {
             return AudioError.EnvironmentNotInitialized
         }
+    }
+
+    fun startPlayback() {
+        soundInterface.lib_startPlayback()
+    }
+
+    fun stopPlayback() {
+        soundInterface.lib_stopPlayback()
     }
 
     fun stopInputStream(deviceIndex: Int) {
@@ -211,5 +224,9 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun charPrintCallback(value: Char, offset: Int) {
         Logger.debug("CHAR", "value at offset $offset is ${value.code}", 1)
+    }
+
+    fun outputProcessedCallback(numSamples: Int) {
+        viewModel.outputSamplesProcessed(numSamples)
     }
 }

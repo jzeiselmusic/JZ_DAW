@@ -42,7 +42,10 @@ data class TrackListState(
     val waveFormScrollDeltaX: Observable<Double> = Observable(0.0),
     val numChildren: Int = 0,
     val trackSelected: Track? = null,
-    val panicErrorMessage: PanicErrorMessage? = null
+    val panicErrorMessage: PanicErrorMessage? = null,
+
+    val pixelsInABeat: Double = 25.0,
+    val playBackStarted: Boolean = false
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {

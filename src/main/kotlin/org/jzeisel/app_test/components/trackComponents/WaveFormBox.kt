@@ -65,10 +65,13 @@ class WaveFormBox(override val parent: Widget) :
         trackRectangle.strokeLineJoin = StrokeLineJoin.MITER
         trackRectangle.viewOrder = zValBase
         trackRectangle.onMousePressed = EventHandler {
-            trackListViewModel.broadcastMouseClickOnWaveFormBox(it.x)
+            /* calculate the nearest allowable x offset given increments of 25 / 22050 */
+            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat)
+            trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
         }
         trackRectangle.onMouseDragged = EventHandler {
-            trackListViewModel.broadcastMouseClickOnWaveFormBox(it.x)
+            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat)
+            trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
         }
 
         for (i in 0..(waveFormWidth/100).toInt()) {
@@ -76,7 +79,7 @@ class WaveFormBox(override val parent: Widget) :
             measure.opacity = 0.6
             measure.strokeWidth = 0.8
             measure.translateY = parentTrack.trackOffsetY
-            measure.translateX = trackRectangle.translateX - waveFormWidth/2.0 + i*100.0
+            measure.translateX = trackRectangle.translateX - waveFormWidth/2.0 + i*(trackListState.pixelsInABeat * 4)
             measure.isMouseTransparent = true
             measure.viewOrder = zValMeasures
             measureDividers.add(measure)
@@ -99,7 +102,7 @@ class WaveFormBox(override val parent: Widget) :
                 beat.opacity = 0.5
                 beat.strokeWidth = 0.2
                 beat.translateY = parentTrack.trackOffsetY
-                beat.translateX = measure.translateX + (j * 100.0/4.0)
+                beat.translateX = measure.translateX + (j * trackListState.pixelsInABeat)
                 beat.isMouseTransparent = true
                 beat.viewOrder = zValMeasures
                 beatDividers.add(beat)

@@ -14,6 +14,10 @@ class AudioViewModel(
     private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController, audioStateFlow)
     val defaultInputIndex: Int get() { return audioEngineManager.defaultInputIndex }
 
+    val tempo: Double get() { return audioStateFlow._state.tempo }
+    val sampleRate: Int get() { return audioStateFlow._state.sampleRate }
+    val numBeats: UInt get() { return audioStateFlow._state.tSignatureTop }
+
     fun initialize() {
         audioEngineManager.initialize().whenNot(AudioError.SoundIoErrorNone) {
             viewModelController.throwAudioStartupError(it)
@@ -148,5 +152,17 @@ class AudioViewModel(
         val tList = audioStateFlow._state.trackList
         val track = tList[trackIndex]
         return track.inputDevice.index
+    }
+
+    fun outputSamplesProcessed(numSamples: Int) {
+        viewModelController.reportAudioSamplesProcessed(numSamples)
+    }
+
+    fun startPlayback() {
+        audioEngineManager.startPlayback()
+    }
+
+    fun stopPlayback() {
+        audioEngineManager.stopPlayback()
     }
 }

@@ -21,4 +21,8 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
     fun getCopyOfTracks(): List<NormalTrack> {
         return viewModel.getCopyOfTracks()
     }
+
+    fun reportAudioSamplesProcessed(numSamples: Int) {
+        viewModel.onAudioSamplesProcessed(numSamples)
+    }
 }

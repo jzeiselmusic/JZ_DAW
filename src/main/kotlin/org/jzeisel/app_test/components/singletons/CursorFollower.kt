@@ -33,7 +33,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
 
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
-    private var currentOffsetX = 0.0
+    var currentOffsetX = 0.0
 
     override fun addMeToScene(root:StackPane) {}
 
@@ -80,6 +80,16 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         if (isShowing) {
             runLater {
                 currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
+                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
+                cursorPointer.translateX = cursorRectangle.translateX
+            }
+        }
+    }
+
+    fun moveLocationForward(shiftX: Double) {
+        if (isShowing) {
+            runLater {
+                currentOffsetX += shiftX
                 cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
@@ -158,6 +168,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         if (isShowing) {
             cursorRectangle.translateX -= deltaX
             cursorPointer.translateX -= deltaX
+            currentOffsetX = cursorRectangle.translateX
         }
     }
 }

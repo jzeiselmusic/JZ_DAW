@@ -17,6 +17,7 @@ public class SoundIoInterface {
         interface soundStreamCallback extends Callback { void invoke(String message, int deviceIndex); }
         interface floatPrintCallback extends Callback { void invoke(String message, float value); }
         interface charCallback extends Callback { void invoke(char value, int offset); }
+        interface outputProcessedCallback extends Callback { void invoke(int numSamples); }
 
         void registerAudioPanicCallback(soundLibCallback callbackFunc);
         void registerAudioLogCallback(soundLibCallback callbackFunc);
@@ -24,6 +25,7 @@ public class SoundIoInterface {
         void registerOutputStreamCallback(soundStreamCallback callbackFunc);
         void registerFloatPrintCallback(floatPrintCallback callbackFunc);
         void registerCharCallback(charCallback callbackFunc);
+        void registerOutputProcessedCallback(outputProcessedCallback callbackFunc);
 
         int lib_startSession();
         int lib_initializeEnvironment();
@@ -31,6 +33,9 @@ public class SoundIoInterface {
         int lib_deinitializeEnvironment();
         int lib_getCurrentBackend();
         int lib_checkEnvironmentAndBackendConnected();
+
+        void lib_startPlayback();
+        void lib_stopPlayback();
 
 
         /* functions for input devices */
@@ -72,6 +77,7 @@ public class SoundIoInterface {
     private final SoundIoLib.soundStreamCallback outputStreamCallback = (message, index) -> engineManager.outputStreamCallback(message, index);
     private final SoundIoLib.floatPrintCallback floatPrintCallback = (message, value) -> engineManager.floatPrintCallback(message, value);
     private final SoundIoLib.charCallback charCallback = (value, offset) -> engineManager.charPrintCallback(value, offset);
+    private final SoundIoLib.outputProcessedCallback outputCallback = (numSamples) -> engineManager.outputProcessedCallback(numSamples);
 
     public void registerAudioPanicCallback() { SoundIoLib.INSTANCE.registerAudioPanicCallback(audioPanic); }
     public void registerAudioLogCallback() { SoundIoLib.INSTANCE.registerAudioLogCallback(audioLog); }
@@ -79,6 +85,7 @@ public class SoundIoInterface {
     public void registerOutputStreamCallback() { SoundIoLib.INSTANCE.registerOutputStreamCallback(outputStreamCallback); }
     public void registerFloatPrintCallback() { SoundIoLib.INSTANCE.registerFloatPrintCallback(floatPrintCallback); }
     public void registerCharCallback() { SoundIoLib.INSTANCE.registerCharCallback(charCallback); }
+    public void registerOutputProcessedCallback() { SoundIoLib.INSTANCE.registerOutputProcessedCallback(outputCallback); }
 
     public int lib_startSession() { return SoundIoLib.INSTANCE.lib_startSession(); }
     public int lib_initializeEnvironment() { return SoundIoLib.INSTANCE.lib_initializeEnvironment(); }
@@ -86,6 +93,9 @@ public class SoundIoInterface {
     public int lib_deinitializeEnvironment() { return SoundIoLib.INSTANCE.lib_deinitializeEnvironment(); }
     public int lib_getCurrentBackend() { return SoundIoLib.INSTANCE.lib_getCurrentBackend(); }
     public int lib_checkEnvironmentAndBackendConnected() { return SoundIoLib.INSTANCE.lib_checkEnvironmentAndBackendConnected(); }
+    public void lib_startPlayback() { SoundIoLib.INSTANCE.lib_startPlayback(); }
+    public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
+
 
 
     public int lib_loadInputDevices() { return SoundIoLib.INSTANCE.lib_loadInputDevices(); }

@@ -107,6 +107,25 @@ class TrackListViewModel(val root: StackPane,
         audioViewModel.addTrack(newTrack.index.getValue().toInt())
     }
 
+    fun onAudioSamplesProcessed(numSamples: Int) {
+        if (_trackListStateFlow.state.playBackStarted) {
+            val secondsInABeat = 1.0 / (audioViewModel.tempo * (1.0 / 60.0))
+            val pixelsToMove = numSamples * _trackListStateFlow.state.pixelsInABeat * (1.0 / secondsInABeat) * (1.0 / audioViewModel.sampleRate)
+            CursorFollower.moveLocationForward(pixelsToMove)
+        }
+    }
+
+    fun spacePressed() {
+        if (!_trackListStateFlow.state.playBackStarted) {
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = true)
+            audioViewModel.startPlayback()
+        }
+        else {
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
+            audioViewModel.stopPlayback()
+        }
+    }
+
     fun removeTrack(child: Widget) {
         /* same comment as above */
         runLater {

@@ -25,6 +25,7 @@
 
 #define BYTES_PER_FRAME_MONO                      4
 #define BYTES_PER_FRAME_STEREO                    8
+#define DEFAULT_BUFFER_SIZE                       64
 #define MAX_BUFFER_SIZE_BYTES                     8192
 
 /* local static function declarations */
@@ -64,12 +65,15 @@ static bool backend_connected = false;
 
 static char emptyString[] = "";
 
+static bool playback_started = false;
+
 static soundLibCallback logCallback;
 static soundLibCallback panicCallback;
 static soundStreamCallback inputStreamCallback;
 static soundStreamCallback outputStreamCallback;
 static floatPrintCallback audioStreamCallback;
 static charCallback audioStreamCallbackChar;
+static outputProcessedCallback outputProcessed;
 
 __attribute__ ((cold))
 __attribute__ ((noreturn))
@@ -112,6 +116,10 @@ void registerFloatPrintCallback(floatPrintCallback func) {
 
 void registerCharCallback(charCallback func) {
     audioStreamCallbackChar = func;
+}
+
+void registerOutputProcessedCallback(outputProcessedCallback func) {
+    outputProcessed = func;
 }
 
 /********************/
@@ -213,6 +221,14 @@ int lib_checkEnvironmentAndBackendConnected() {
         return SoundIoOutputMemoryNotAllocated;
     }
     return SoundIoErrorNone;
+}
+
+void lib_startPlayback() {
+    playback_started = true;
+}
+
+void lib_stopPlayback() {
+    playback_started = false;
 }
 
 /********************/
@@ -540,8 +556,6 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             /* number of bytes available for reading */
             int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
-            // outputStreamCallback("reading bytes for: ", inputStreamIdx);
-            // outputStreamCallback("number of bytes to read: ", fill_bytes);
             if (fill_count > max_fill_count) max_fill_count = fill_count;
 
             add_audio_buffers_24bitNE(mixed_input_buffer, read_ptr, fill_bytes);
@@ -554,7 +568,6 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     if (read_count == 0) read_count = frame_count_min;
     /* there is data to be read to output */
     frames_left = read_count;
-    // outputStreamCallback("frames to read: ", read_count);
     char* mixed_read_ptr = mixed_input_buffer;
     while (frames_left > 0) {
         int frame_count = frames_left;
@@ -582,6 +595,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             input_streams_written[inputStreamIdx] = false;
         }
     }
+    if (playback_started) outputProcessed(read_count);
 }
 
 int lib_createInputStream(int device_index, double microphone_latency, int sample_rate) {
@@ -604,14 +618,13 @@ int lib_createInputStream(int device_index, double microphone_latency, int sampl
     err = soundio_instream_open(instream);
     if (err != SoundIoErrorNone) return err;
 
-    int capacity = microphone_latency * 2.0 * instream->sample_rate * instream->bytes_per_frame;
+    int capacity = DEFAULT_BUFFER_SIZE * instream->bytes_per_sample;
     struct SoundIoRingBuffer* ring_buffer = soundio_ring_buffer_create(soundio, capacity);
     if (!ring_buffer) return SoundIoErrorNoMem;
 
     char *buf = soundio_ring_buffer_write_ptr(ring_buffer);
-    int fill_count = microphone_latency * instream->sample_rate * instream->bytes_per_frame;
+    int fill_count = soundio_ring_buffer_capacity(ring_buffer);
     memset(buf, 0, fill_count);
-    // soundio_ring_buffer_advance_write_ptr(ring_buffer, fill_count);
     input_buffers[device_index] = ring_buffer;
     return SoundIoErrorNone;
 }

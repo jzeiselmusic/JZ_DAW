@@ -23,6 +23,11 @@ object MouseEventBroadcaster {
         scene.addEventFilter(KeyEvent.KEY_PRESSED) {
             broadcastKeyPressForTyping(it)
         }
+        scene.addEventFilter(KeyEvent.KEY_RELEASED) {
+            if (it.code == KeyCode.SPACE) {
+                trackListViewModel.spacePressed()
+            }
+        }
         scene.addEventFilter(ScrollEvent.SCROLL) {
             trackListViewModel.scrollSceneVertically(it.deltaY)
         }

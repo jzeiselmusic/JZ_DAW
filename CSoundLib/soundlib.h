@@ -1,21 +1,26 @@
 #ifndef SOUND_LIB_H
 #define SOUND_LIB_H
 
+#define MAX_24_BIT_SIGNED            8388607.0
+#define MAX_24_BIT_UNSIGNED          16777215.0
+
+/* print and error callback function helpers */
 typedef void (*soundLibCallback) (char*);
 typedef void (*soundStreamCallback) (char*, int);
 typedef void (*floatPrintCallback) (char*, float);
 typedef void (*charCallback) (char, int);
 
-#define MAX_24_BIT_SIGNED            8388607.0
-#define MAX_24_BIT_UNSIGNED          16777215.0
-
-/* callback function helpers */
 void registerAudioPanicCallback(soundLibCallback func);
 void registerAudioLogCallback(soundLibCallback func);
 void registerInputStreamCallback(soundStreamCallback func);
 void registerOutputStreamCallback(soundStreamCallback func);
 void registerFloatPrintCallback(floatPrintCallback func);
 void registerCharCallback(charCallback func);
+
+/* callback functions for audio playback */
+typedef void (*outputProcessedCallback) (int);
+
+void registerOutputProcessedCallback(outputProcessedCallback func);
 
 /* init and deinit functions */
 int lib_startSession();
@@ -24,6 +29,9 @@ int lib_destroySession();
 int lib_deinitializeEnvironment();
 int lib_getCurrentBackend();
 int lib_checkEnvironmentAndBackendConnected();
+
+void lib_startPlayback();
+void lib_stopPlayback();
 
 /* functions for input devices */
 int lib_loadInputDevices();
