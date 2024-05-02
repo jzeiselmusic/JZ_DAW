@@ -10,10 +10,7 @@ import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.SingularWidget
 import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.runLater
-import org.jzeisel.app_test.util.viewOrderFlip
+import org.jzeisel.app_test.util.*
 
 object CursorFollower: SingularWidget, TrackElement, WindowElement {
 
@@ -39,6 +36,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
 
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
+
     var currentOffsetX = 0.0
         set(value) {
             field = value
@@ -160,7 +158,8 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     fun moveLocationForward(shiftX: Double) {
         runLater {
             currentOffsetX += shiftX
-            cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
+            cursorRectangle.translateX =
+                trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
             cursorPointer.translateX = cursorRectangle.translateX
         }
     }
