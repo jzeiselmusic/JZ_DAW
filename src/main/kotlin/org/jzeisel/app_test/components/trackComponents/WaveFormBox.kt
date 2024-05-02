@@ -170,7 +170,7 @@ class WaveFormBox(override val parent: Widget) :
         for (beatTick in ticksForMasterTrack) {
             root.children.add(beatTick)
         }
-        if (!CursorFollower.isShowing)
+        if (!CursorFollower.isAdded)
             CursorFollower.addMeToScene(root, trackListState.waveFormOffset)
     }
 
