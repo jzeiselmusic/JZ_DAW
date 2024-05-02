@@ -55,3 +55,15 @@ fun quantizeNumber(value: Double, startingOffsetX: Double, increment: Double): D
     val quantizedValue = increment * (adjustedValue / increment).roundToInt()
     return startingOffsetX + quantizedValue
 }
+
+fun samplesToPixels(samples: Int, tempo: Double, sampleRate: Int, pixelsPerBeat: Double): Double {
+    val secondsInABeat = 1.0 / (tempo * (1.0 / 60.0))
+    val pixels = samples * pixelsPerBeat * (1.0 / secondsInABeat) * (1.0 / sampleRate)
+    return pixels
+}
+
+fun pixelsToSamples(pixels: Double, tempo: Double, sampleRate: Int, pixelsPerBeat: Double): Int {
+    val secondsInABeat = 1.0 / (tempo * (1.0 / 60.0))
+    val samples = pixels / (pixelsPerBeat * (1.0 / secondsInABeat) * (1.0 / sampleRate))
+    return samples.roundToInt()
+}

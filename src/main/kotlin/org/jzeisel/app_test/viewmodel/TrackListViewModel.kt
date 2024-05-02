@@ -26,10 +26,7 @@ import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.error.ErrorType
 import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
-import org.jzeisel.app_test.util.BroadcastType
-import org.jzeisel.app_test.util.Logger
-import org.jzeisel.app_test.util.ObservableListener
-import org.jzeisel.app_test.util.runLater
+import org.jzeisel.app_test.util.*
 import kotlin.properties.Delegates
 
 class TrackListViewModel(val root: StackPane,
@@ -109,8 +106,7 @@ class TrackListViewModel(val root: StackPane,
 
     fun onAudioSamplesProcessed(numSamples: Int) {
         if (_trackListStateFlow.state.playBackStarted) {
-            val secondsInABeat = 1.0 / (audioViewModel.tempo * (1.0 / 60.0))
-            val pixelsToMove = numSamples * _trackListStateFlow.state.pixelsInABeat * (1.0 / secondsInABeat) * (1.0 / audioViewModel.sampleRate)
+            val pixelsToMove = samplesToPixels(numSamples, audioViewModel.tempo, audioViewModel.sampleRate, _trackListStateFlow.state.pixelsInABeat)
             CursorFollower.moveLocationForward(pixelsToMove)
         }
     }
@@ -124,6 +120,13 @@ class TrackListViewModel(val root: StackPane,
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
             audioViewModel.stopPlayback()
         }
+    }
+
+    fun updateCursorOffset(value: Double) {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(cursorOffset = value)
+        val pixelOffsetFromStart = CursorFollower.currentOffsetX - _trackListStateFlow.state.waveFormOffset
+        val sampleOffsetFromStart = pixelsToSamples(pixelOffsetFromStart, audioViewModel.tempo, audioViewModel.sampleRate, _trackListStateFlow.state.pixelsInABeat)
+        audioViewModel.updateCursorOffsetSamples(sampleOffsetFromStart)
     }
 
     fun removeTrack(child: Widget) {
@@ -184,12 +187,7 @@ class TrackListViewModel(val root: StackPane,
     }
 
     fun broadcastMouseClickOnWaveFormBox(translateX: Double) {
-        if (!CursorFollower.isShowing) {
-            CursorFollower.addMeToScene(root, translateX)
-        }
-        else {
-            CursorFollower.updateLocation(translateX)
-        }
+        CursorFollower.updateLocation(translateX)
     }
 
     private fun showVerticalScrollBar() {

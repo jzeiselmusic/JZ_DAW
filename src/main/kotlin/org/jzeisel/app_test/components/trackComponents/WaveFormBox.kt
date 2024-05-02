@@ -13,6 +13,7 @@ import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
+import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.util.*
 
 class WaveFormBox(override val parent: Widget) :
@@ -169,6 +170,8 @@ class WaveFormBox(override val parent: Widget) :
         for (beatTick in ticksForMasterTrack) {
             root.children.add(beatTick)
         }
+        if (!CursorFollower.isShowing)
+            CursorFollower.addMeToScene(root, trackListState.waveFormOffset)
     }
 
     override fun removeMeFromScene(root: StackPane) {

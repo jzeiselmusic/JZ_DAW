@@ -165,4 +165,8 @@ class AudioViewModel(
     fun stopPlayback() {
         audioEngineManager.stopPlayback()
     }
+
+    fun updateCursorOffsetSamples(samples: Int) {
+        audioStateFlow._state = audioStateFlow._state.copy(cursorOffsetSamples = samples)
+    }
 }

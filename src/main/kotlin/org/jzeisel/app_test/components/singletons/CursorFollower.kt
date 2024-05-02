@@ -21,19 +21,29 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     private lateinit var trackListState: TrackListState
     private lateinit var trackListFlow: TrackListStateFlow
     private val waveFormOffset: Double
-        get() { return trackListViewModel._trackListStateFlow.state.waveFormOffset }
+        get() {
+            return trackListViewModel._trackListStateFlow.state.waveFormOffset
+        }
     var isShowing = false
     private var rectangleWidth = 1.8
-    private const val zValCursor = viewOrderFlip - 0.13
-    private const val zValCursorTriangle = viewOrderFlip - 0.14
+    private const val zValCursor = viewOrderFlip - 0.43
+    private const val zValCursorTriangle = viewOrderFlip - 0.44
     private val rectangleHeight: Double
-        get() { return trackListFlow.numTracks * trackListState.trackHeight }
+        get() {
+            return trackListFlow.numTracks * trackListState.trackHeight
+        }
     private val rectangleTranslateY: Double
-        get() { return trackListState.masterOffsetY - trackListState.trackHeight/2.0 + rectangleHeight /2.0 }
+        get() {
+            return trackListState.masterOffsetY - trackListState.trackHeight/2.0 + rectangleHeight /2.0
+        }
 
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
     var currentOffsetX = 0.0
+        set(value) {
+            field = value
+            trackListViewModel.updateCursorOffset(value)
+        }
 
     override fun addMeToScene(root:StackPane) {}
 

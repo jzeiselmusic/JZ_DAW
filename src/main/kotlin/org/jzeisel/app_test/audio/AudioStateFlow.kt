@@ -5,7 +5,7 @@ data class AudioState(
     var backend: AudioBackend = AudioBackend.SoundIoBackendNone,
     var isPlaying: Boolean = false,
     var playBackLocation: Double = 0.0,
-    var tempo: Double = 120.0,
+    var tempo: Double = 140.0,
     var tSignatureTop: UInt = 4U,
     var tSignatureBottom: UInt = 4U,
     var sampleRate: Int = 44100,
@@ -13,6 +13,7 @@ data class AudioState(
     var numTracks: Int = 0,
     var trackList: MutableList<TrackData> = mutableListOf(),
     var outputDevice: Device? = null,
+    var cursorOffsetSamples: Int = 0
 )
 class AudioStateFlow {
     var _state = AudioState()
