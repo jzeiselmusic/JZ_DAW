@@ -46,7 +46,8 @@ data class TrackListState(
 
     val pixelsInABeat: Double = 25.0,
     val playBackStarted: Boolean = false,
-    val cursorOffset: Double = 0.0
+    val cursorOffset: Double = 0.0,
+    val savedCursorPositionOffset: Double = 0.0
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {

@@ -17,6 +17,7 @@ class AudioViewModel(
     val tempo: Double get() { return audioStateFlow._state.tempo }
     val sampleRate: Int get() { return audioStateFlow._state.sampleRate }
     val numBeats: UInt get() { return audioStateFlow._state.tSignatureTop }
+    val cursorOffsetSamples: Int get() { return audioStateFlow._state.cursorOffsetSamples }
 
     fun initialize() {
         audioEngineManager.initialize().whenNot(AudioError.SoundIoErrorNone) {
@@ -168,5 +169,14 @@ class AudioViewModel(
 
     fun updateCursorOffsetSamples(samples: Int) {
         audioStateFlow._state = audioStateFlow._state.copy(cursorOffsetSamples = samples)
+    }
+
+    fun saveCurrentCursorOffsetSamples(samples: Int) {
+        audioStateFlow._state = audioStateFlow._state.copy(savedCursorOffsetSamples = samples)
+    }
+
+    fun resetCursorOffsetSamples() {
+        val savedOffset = audioStateFlow._state.savedCursorOffsetSamples
+        audioStateFlow._state = audioStateFlow._state.copy(cursorOffsetSamples = savedOffset)
     }
 }

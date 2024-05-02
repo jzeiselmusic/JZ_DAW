@@ -113,12 +113,21 @@ class TrackListViewModel(val root: StackPane,
 
     fun spacePressed() {
         if (!_trackListStateFlow.state.playBackStarted) {
-            _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = true)
+            val currentPositionPixels = _trackListStateFlow.state.cursorOffset
+            val currentPositionSamples = audioViewModel.cursorOffsetSamples
+
+            audioViewModel.saveCurrentCursorOffsetSamples(currentPositionSamples)
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = true, savedCursorPositionOffset = currentPositionPixels)
+
             audioViewModel.startPlayback()
         }
         else {
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
             audioViewModel.stopPlayback()
+
+            val savedPositionPixels = _trackListStateFlow.state.savedCursorPositionOffset
+            CursorFollower.updateLocation(savedPositionPixels)
+            audioViewModel.resetCursorOffsetSamples()
         }
     }
 
@@ -287,10 +296,6 @@ class TrackListViewModel(val root: StackPane,
             it.removeMeFromScene(root)
             _trackListStateFlow.state = _trackListStateFlow.state.copy(panicErrorMessage = null)
         }
-    }
-
-    fun getDefaultInputIndex(): Int {
-        return audioViewModel.defaultInputIndex
     }
 
     fun getTrackInputDeviceIndex(trackIndex: Int): Int {

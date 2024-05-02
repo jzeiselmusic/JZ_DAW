@@ -13,7 +13,8 @@ data class AudioState(
     var numTracks: Int = 0,
     var trackList: MutableList<TrackData> = mutableListOf(),
     var outputDevice: Device? = null,
-    var cursorOffsetSamples: Int = 0
+    var cursorOffsetSamples: Int = 0,
+    var savedCursorOffsetSamples: Int = 0
 )
 class AudioStateFlow {
     var _state = AudioState()
