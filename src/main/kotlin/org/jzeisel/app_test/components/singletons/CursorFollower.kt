@@ -37,6 +37,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
 
+    // pixel distance from start of track waveform
     var currentOffsetX = 0.0
         set(value) {
             field = value
@@ -142,9 +143,10 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     }
 
     fun respondToScrollChange(deltaX: Double) {
-        cursorRectangle.translateX -= deltaX
-        cursorPointer.translateX -= deltaX
-        currentOffsetX = cursorRectangle.translateX
+        runLater {
+            cursorRectangle.translateX -= deltaX
+            cursorPointer.translateX -= deltaX
+        }
     }
 
     fun updateLocation(offsetX: Double) {

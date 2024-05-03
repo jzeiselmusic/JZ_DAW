@@ -133,7 +133,7 @@ class TrackListViewModel(val root: StackPane,
 
     fun updateCursorOffset(value: Double) {
         _trackListStateFlow.state = _trackListStateFlow.state.copy(cursorOffset = value)
-        val pixelOffsetFromStart = CursorFollower.currentOffsetX - _trackListStateFlow.state.waveFormOffset
+        val pixelOffsetFromStart = CursorFollower.currentOffsetX
         val sampleOffsetFromStart = pixelsToSamples(pixelOffsetFromStart, audioViewModel.tempo, audioViewModel.sampleRate, _trackListStateFlow.state.pixelsInABeat)
         audioViewModel.updateCursorOffsetSamples(sampleOffsetFromStart)
     }
