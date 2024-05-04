@@ -10,7 +10,7 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
         viewModel.onPlaybackError(error)
     }
 
-    fun throwAudioStartupError(error: AudioError) {
+    fun throwAudioError(error: AudioError) {
         viewModel.createAudioErrorMessage(error)
     }
 

@@ -4,6 +4,7 @@ import org.jzeisel.app_test.audio.*
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.Logger
+import kotlin.contracts.contract
 import kotlin.random.Random
 
 class AudioViewModel(
@@ -22,12 +23,12 @@ class AudioViewModel(
 
     fun initialize() {
         audioEngineManager.initialize().whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioStartupError(it)
+            viewModelController.throwAudioError(it)
         }
 
         audioEngineManager.getCurrentBackend()?.let {
             audioStateFlow._state = audioStateFlow._state.copy(isInitialized = true, backend = it)
-        } ?: viewModelController.throwAudioStartupError(AudioError.SoundIoErrorInitAudioBackend)
+        } ?: viewModelController.throwAudioError(AudioError.SoundIoErrorInitAudioBackend)
 
         audioStateFlow._state = audioStateFlow._state.copy(outputDevice =
             audioEngineManager.getOutputDeviceFromIndex(audioEngineManager.defaultOutputIndex))
@@ -71,7 +72,10 @@ class AudioViewModel(
             trackList = tList
         )
         /* add track to audio library */
-        audioEngineManager.addNewTrack(randomId)
+        val error = audioEngineManager.addNewTrack(randomId)
+        error.whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
         /* then make sure the vu meter thread has the same information */
         vuMeterThread.updateSynchronizedTrackList(trackList = tList)
 
@@ -89,7 +93,10 @@ class AudioViewModel(
             numTracks = nTracks,
             trackList = tList
         )
-        audioEngineManager.deleteTrack(trackId)
+        val error = audioEngineManager.deleteTrack(trackId)
+        error.whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
         audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks, trackList = tList)
         vuMeterThread.updateSynchronizedTrackList(tList)
     }
@@ -98,11 +105,17 @@ class AudioViewModel(
         val device = audioEngineManager.getInputDeviceFromIndex(deviceIndex)
         val channel = audioEngineManager.getChannelsFromDeviceIndex(deviceIndex)!![channelIndex]
         val tList = audioStateFlow._state.trackList
-        tList.firstOrNull { it.trackIndex == trackIndex }?.apply {
+        val track = tList.first{ it.trackIndex == trackIndex }
+        track.apply {
             inputDevice = device
             inputChannel = channel
         }
         audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
+        audioEngineManager
+            .chooseInputIndexForTrack(track.trackId, deviceIndex)
+            .whenNot(AudioError.SoundIoErrorNone) {
+                viewModelController.throwAudioError(it)
+            }
     }
 
     fun startInputStream(trackIndex: Int): AudioError {

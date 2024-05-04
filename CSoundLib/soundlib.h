@@ -77,6 +77,7 @@ double lib_getCurrentRmsVolume(int deviceIndex);
 
 /* handling tracks */
 int lib_addNewTrack(int track_id);
-void lib_deleteTrack(int track_id);
+int lib_deleteTrack(int track_id);
+int lib_trackChooseInputDevice(int trackId, int device_index);
 
 #endif

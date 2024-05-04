@@ -25,5 +25,6 @@ enum class AudioError(val readable: String) {
     DevicesNotLoaded("Devices not loaded"),
     InputStreamError("Input stream error"),
     SoundIoInputMemoryNotAllocated("Input memory not allocated, cannot access data"),
-    SoundIoOutputMemoryNotAllocated("Output memory not allocated, cannot access data")
+    SoundIoOutputMemoryNotAllocated("Output memory not allocated, cannot access data"),
+    SoundIoErrorTrackNotFound("Track not found with that track ID")
 }

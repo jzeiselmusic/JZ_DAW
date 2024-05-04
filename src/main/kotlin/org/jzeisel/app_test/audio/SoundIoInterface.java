@@ -72,7 +72,8 @@ public class SoundIoInterface {
 
         /* handling tracks */
         int lib_addNewTrack(int trackId);
-        void lib_deleteTrack(int trackId);
+        int lib_deleteTrack(int trackId);
+        int lib_trackChooseInputDevice(int trackId, int device_index);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -146,5 +147,8 @@ public class SoundIoInterface {
     public double lib_getCurrentRmsVolume(int deviceIndex) { return SoundIoLib.INSTANCE.lib_getCurrentRmsVolume(deviceIndex); }
 
     public int lib_addNewTrack(int trackId) { return SoundIoLib.INSTANCE.lib_addNewTrack(trackId); }
-    public void lib_deleteTrack(int trackId) { SoundIoLib.INSTANCE.lib_deleteTrack(trackId); }
+    public int lib_deleteTrack(int trackId) { return SoundIoLib.INSTANCE.lib_deleteTrack(trackId); }
+    public int lib_trackChooseInputDevice(int trackId, int device_index) {
+        return SoundIoLib.INSTANCE.lib_trackChooseInputDevice(trackId, device_index);
+    }
 }

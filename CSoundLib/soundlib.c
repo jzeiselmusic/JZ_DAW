@@ -19,6 +19,7 @@
 #define SoundIoInputStreamError                   20
 #define SoundIoInputMemoryNotAllocated            21
 #define SoundIoOutputMemoryNotAllocated           22
+#define SoundIoErrorTrackNotFound                 23
 
 #define ATTACK                                    0.001
 #define RELEASE                                   0.15
@@ -735,7 +736,6 @@ static struct SoundIoInStream** _getInputStreams() {
 /* handling tracks */
 
 int lib_addNewTrack(int trackId) {
-    logCallback("adding new track...");
     FILE** file_ptrs = malloc(MAX_TRACKS * sizeof(FILE*));
     uint32_t* offset_ptrs = malloc(MAX_TRACKS * sizeof(uint32_t));
     uint32_t* byte_ptrs = malloc(MAX_TRACKS * sizeof(uint32_t));
@@ -758,15 +758,12 @@ int lib_addNewTrack(int trackId) {
 
     list_of_track_objects[num_tracks] = track;
     num_tracks += 1;
-    logCallback("success!");
-    return 1;
+    return SoundIoErrorNone;
 }
 
-void lib_deleteTrack(int trackId) {
-    logCallback("deleting track...");
+int lib_deleteTrack(int trackId) {
     for (int idx = 0; idx < num_tracks; idx++) {
         if (list_of_track_objects[idx].track_id == trackId) {
-            logCallback("track found...");
             trackObject track = list_of_track_objects[idx];
             free(track.files);
             free(track.file_sample_offsets);
@@ -774,11 +771,21 @@ void lib_deleteTrack(int trackId) {
             for (int jdx = idx+1; jdx < num_tracks; jdx++) {
                 memcpy(&list_of_track_objects[jdx-1], &list_of_track_objects[jdx], sizeof(trackObject));
             }
-            logCallback("success!");
             num_tracks -= 1;
-            break;
+            return SoundIoErrorNone;
         }
     }
+    return SoundIoErrorTrackNotFound;
+}
+
+int lib_trackChooseInputDevice(int trackId, int device_index) {
+    for (int idx = 0; idx < num_tracks; idx ++) {
+        if (list_of_track_objects[idx].track_id == trackId) {
+            list_of_track_objects[idx].input_device_index = device_index;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
 }
 
 

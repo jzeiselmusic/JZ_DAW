@@ -230,11 +230,18 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         viewModel.outputSamplesProcessed(numSamples)
     }
 
-    fun addNewTrack(trackId: Int) {
-        soundInterface.lib_addNewTrack(trackId)
+    fun addNewTrack(trackId: Int) : AudioError {
+        val error = soundInterface.lib_addNewTrack(trackId)
+        return AudioError.values()[error]
     }
 
-    fun deleteTrack(trackId: Int) {
-        soundInterface.lib_deleteTrack(trackId)
+    fun deleteTrack(trackId: Int) : AudioError {
+        val error = soundInterface.lib_deleteTrack(trackId)
+        return AudioError.values()[error]
+    }
+
+    fun chooseInputIndexForTrack(trackId: Int, deviceIndex: Int) : AudioError {
+        val error = soundInterface.lib_trackChooseInputDevice(trackId, deviceIndex)
+        return AudioError.values()[error]
     }
 }
