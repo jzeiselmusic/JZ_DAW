@@ -15,6 +15,7 @@ data class Channel(
 )
 
 data class TrackData(
+    var trackId: Int,
     var trackIndex: Int,
     var volume: Double,
     var panning: Int,

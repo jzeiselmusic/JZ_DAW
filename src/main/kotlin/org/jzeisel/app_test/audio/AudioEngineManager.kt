@@ -229,4 +229,12 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     fun outputProcessedCallback(numSamples: Int) {
         viewModel.outputSamplesProcessed(numSamples)
     }
+
+    fun addNewTrack(trackId: Int) {
+        soundInterface.lib_addNewTrack(trackId)
+    }
+
+    fun deleteTrack(trackId: Int) {
+        soundInterface.lib_deleteTrack(trackId)
+    }
 }

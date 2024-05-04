@@ -4,6 +4,18 @@
 #define MAX_24_BIT_SIGNED            8388607.0
 #define MAX_24_BIT_UNSIGNED          16777215.0
 
+typedef struct _trackObj {
+    uint32_t track_id; // unique identifier
+    FILE** files; // pointer to list of file pointers representing audio data to be read
+    uint32_t* file_sample_offsets; // sample offsets where these files begin
+    uint32_t* file_num_bytes; // number of bytes to read for each audio file
+    uint32_t num_files;
+
+    bool record_enabled;
+    uint8_t input_device_index; // input device currently attached to this track
+    double current_rms_volume;
+} trackObject;
+
 /* print and error callback function helpers */
 typedef void (*soundLibCallback) (char*);
 typedef void (*soundStreamCallback) (char*, int);
@@ -62,5 +74,9 @@ int lib_createOutputStream(int device_index, double microphone_latency, int samp
 int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate);
 int lib_stopOutputStream(int deviceIndex);
 double lib_getCurrentRmsVolume(int deviceIndex);
+
+/* handling tracks */
+int lib_addNewTrack(int track_id);
+void lib_deleteTrack(int track_id);
 
 #endif

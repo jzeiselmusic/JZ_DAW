@@ -69,6 +69,10 @@ public class SoundIoInterface {
         int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate);
         int lib_stopOutputStream(int deviceIndex);
         double lib_getCurrentRmsVolume(int deviceIndex);
+
+        /* handling tracks */
+        int lib_addNewTrack(int trackId);
+        void lib_deleteTrack(int trackId);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -140,4 +144,7 @@ public class SoundIoInterface {
     }
     public int lib_stopOutputStream(int deviceIndex) { return SoundIoLib.INSTANCE.lib_stopOutputStream(deviceIndex); }
     public double lib_getCurrentRmsVolume(int deviceIndex) { return SoundIoLib.INSTANCE.lib_getCurrentRmsVolume(deviceIndex); }
+
+    public int lib_addNewTrack(int trackId) { return SoundIoLib.INSTANCE.lib_addNewTrack(trackId); }
+    public void lib_deleteTrack(int trackId) { SoundIoLib.INSTANCE.lib_deleteTrack(trackId); }
 }

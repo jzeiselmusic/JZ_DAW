@@ -22,7 +22,6 @@ class AudioWaveform : Application() {
     private lateinit var verticalScrollBarPane: StackPane
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
-    private lateinit var viewModelController: ViewModelController
     private lateinit var audioViewModel: AudioViewModel
     override fun start(stage: Stage) {
         /* the z values of the nodes should be laid out in the following way

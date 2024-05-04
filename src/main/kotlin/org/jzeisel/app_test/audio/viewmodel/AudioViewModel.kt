@@ -4,6 +4,7 @@ import org.jzeisel.app_test.audio.*
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.Logger
+import kotlin.random.Random
 
 class AudioViewModel(
     private val viewModelController: ViewModelController,
@@ -61,27 +62,34 @@ class AudioViewModel(
         val device = audioEngineManager.getInputDeviceFromIndex(audioEngineManager.defaultInputIndex)
         val defaultChannel = Channel(0, audioEngineManager.getNameOfChannelFromIndex(device.index, 0))
         val tList = audioStateFlow._state.trackList
+        val randomId = Random.nextInt()
         tList.forEach { if(it.trackIndex >= trackIndex) it.trackIndex += 1 }
-        val trackData = TrackData(trackIndex, 0.0, 0, inputDevice = device, inputChannel = defaultChannel)
+        val trackData = TrackData(trackId = randomId, trackIndex, 0.0, 0, inputDevice = device, inputChannel = defaultChannel)
         tList.add(trackIndex, trackData)
         audioStateFlow._state = audioStateFlow._state.copy(
             numTracks = nTracks,
             trackList = tList
         )
+        /* add track to audio library */
+        audioEngineManager.addNewTrack(randomId)
         /* then make sure the vu meter thread has the same information */
         vuMeterThread.updateSynchronizedTrackList(trackList = tList)
+
     }
 
     fun removeTrack(trackIndex: Int) {
         val nTracks = audioStateFlow._state.numTracks
         val tList = audioStateFlow._state.trackList
         stopInputStream(trackIndex)
-        tList.remove(tList.first { it.trackIndex == trackIndex })
+        val track = tList.first { it.trackIndex == trackIndex }
+        val trackId = track.trackId
+        tList.remove(track)
         tList.forEach { if(it.trackIndex >= trackIndex) it.trackIndex -= 1 }
         audioStateFlow._state = audioStateFlow._state.copy(
             numTracks = nTracks,
             trackList = tList
         )
+        audioEngineManager.deleteTrack(trackId)
         audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks, trackList = tList)
         vuMeterThread.updateSynchronizedTrackList(tList)
     }

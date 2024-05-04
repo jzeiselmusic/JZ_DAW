@@ -27,6 +27,7 @@
 #define BYTES_PER_FRAME_STEREO                    8
 #define DEFAULT_BUFFER_SIZE                       64
 #define MAX_BUFFER_SIZE_BYTES                     8192
+#define MAX_TRACKS                                500
 
 /* local static function declarations */
 static void _deallocateAllMemory();
@@ -65,8 +66,6 @@ static bool backend_connected = false;
 
 static char emptyString[] = "";
 
-static bool playback_started = false;
-
 static soundLibCallback logCallback;
 static soundLibCallback panicCallback;
 static soundStreamCallback inputStreamCallback;
@@ -74,6 +73,10 @@ static soundStreamCallback outputStreamCallback;
 static floatPrintCallback audioStreamCallback;
 static charCallback audioStreamCallbackChar;
 static outputProcessedCallback outputProcessed;
+
+static bool playback_started = false;
+static int num_tracks = 0;
+static trackObject* list_of_track_objects;
 
 __attribute__ ((cold))
 __attribute__ ((noreturn))
@@ -137,7 +140,9 @@ int lib_initializeEnvironment() {
     logCallback("creating environment");
     soundio = soundio_create();
     mixed_input_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
-    if (soundio) {
+    list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));
+
+    if (soundio && mixed_input_buffer && list_of_track_objects) {
         environment_initialized = true;
         return 0;
     }
@@ -153,9 +158,10 @@ int lib_destroySession() {
     }
     for (int idx = 0; idx < lib_getNumOutputDevices(); idx++) {
         if (output_stream_started != -1) lib_stopOutputStream(idx);
-    } 
+    }
+    int ret = lib_deinitializeEnvironment();
     _deallocateAllMemory();
-    return lib_deinitializeEnvironment();
+    return ret;
 }
 
 int lib_deinitializeEnvironment() {
@@ -163,6 +169,11 @@ int lib_deinitializeEnvironment() {
     if (environment_initialized) {
         soundio_destroy(soundio);
         free(mixed_input_buffer);
+        /* delete all tracks */
+        for (int idx = num_tracks ; idx-- > 0 ; ) {
+            lib_deleteTrack(list_of_track_objects[idx].track_id);
+        }
+        free(list_of_track_objects);
         environment_initialized = false;
         backend_connected = false;
         return 0;
@@ -527,10 +538,10 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
         }
     }
     if (device_index == -1) {
-        _panic("error finding device");
+        return;
     }
     if (output_stream_initialized == false) {
-        _panic("output stream not initialized");
+        return;
     }
     // outputStreamCallback("ready for audio", device_index);
     if (input_stream_read_write_counter < num_input_streams) {
@@ -720,6 +731,56 @@ static struct SoundIoRingBuffer** _getInputBuffers() {
 static struct SoundIoInStream** _getInputStreams() {
     return input_streams;
 }
+
+/* handling tracks */
+
+int lib_addNewTrack(int trackId) {
+    logCallback("adding new track...");
+    FILE** file_ptrs = malloc(MAX_TRACKS * sizeof(FILE*));
+    uint32_t* offset_ptrs = malloc(MAX_TRACKS * sizeof(uint32_t));
+    uint32_t* byte_ptrs = malloc(MAX_TRACKS * sizeof(uint32_t));
+    if (!file_ptrs || !offset_ptrs || !byte_ptrs) {
+        return SoundIoErrorNoMem;
+    }
+
+    trackObject track =
+        {
+            .track_id = trackId,
+            .files = file_ptrs,
+            .file_sample_offsets = offset_ptrs,
+            .file_num_bytes = byte_ptrs,
+            .num_files = 0,
+
+            .record_enabled = false,
+            .input_device_index = lib_getDefaultInputDeviceIndex(),
+            .current_rms_volume = 0.0
+        };
+
+    list_of_track_objects[num_tracks] = track;
+    num_tracks += 1;
+    logCallback("success!");
+    return 1;
+}
+
+void lib_deleteTrack(int trackId) {
+    logCallback("deleting track...");
+    for (int idx = 0; idx < num_tracks; idx++) {
+        if (list_of_track_objects[idx].track_id == trackId) {
+            logCallback("track found...");
+            trackObject track = list_of_track_objects[idx];
+            free(track.files);
+            free(track.file_sample_offsets);
+            free(track.file_num_bytes);
+            for (int jdx = idx+1; jdx < num_tracks; jdx++) {
+                memcpy(&list_of_track_objects[jdx-1], &list_of_track_objects[jdx], sizeof(trackObject));
+            }
+            logCallback("success!");
+            num_tracks -= 1;
+            break;
+        }
+    }
+}
+
 
 
 
