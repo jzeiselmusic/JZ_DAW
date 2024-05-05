@@ -8,9 +8,7 @@
 #include "audio_devices.h"
 #include "string.h"
 
-trackObject* list_of_track_objects;
-
-int num_tracks = 0;
+#include "audio_state.h"
 
 int lib_addNewTrack(int trackId) {
     FILE** file_ptrs = malloc(MAX_TRACKS * sizeof(FILE*));
@@ -33,22 +31,22 @@ int lib_addNewTrack(int trackId) {
             .current_rms_volume = 0.0
         };
 
-    list_of_track_objects[num_tracks] = track;
-    num_tracks += 1;
+    csoundlib_state->list_of_track_objects[csoundlib_state->num_tracks] = track;
+    csoundlib_state->num_tracks += 1;
     return SoundIoErrorNone;
 }
 
 int lib_deleteTrack(int trackId) {
-    for (int idx = 0; idx < num_tracks; idx++) {
-        if (list_of_track_objects[idx].track_id == trackId) {
-            trackObject track = list_of_track_objects[idx];
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            trackObject track = csoundlib_state->list_of_track_objects[idx];
             free(track.files);
             free(track.file_sample_offsets);
             free(track.file_num_bytes);
-            for (int jdx = idx+1; jdx < num_tracks; jdx++) {
-                memcpy(&list_of_track_objects[jdx-1], &list_of_track_objects[jdx], sizeof(trackObject));
+            for (int jdx = idx+1; jdx < csoundlib_state->num_tracks; jdx++) {
+                memcpy(&(csoundlib_state->list_of_track_objects[jdx-1]), &(csoundlib_state->list_of_track_objects[jdx]), sizeof(trackObject));
             }
-            num_tracks -= 1;
+            csoundlib_state->num_tracks -= 1;
             return SoundIoErrorNone;
         }
     }
@@ -56,9 +54,9 @@ int lib_deleteTrack(int trackId) {
 }
 
 int lib_trackChooseInputDevice(int trackId, int device_index) {
-    for (int idx = 0; idx < num_tracks; idx ++) {
-        if (list_of_track_objects[idx].track_id == trackId) {
-            list_of_track_objects[idx].input_device_index = device_index;
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx ++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            csoundlib_state->list_of_track_objects[idx].input_device_index = device_index;
             return SoundIoErrorNone;
         }
     }

@@ -6,47 +6,56 @@
 #include "audio_devices.h"
 #include "callbacks.h"
 #include <stdlib.h>
+#include "audio_state.h"
 
 static int _connectToBackend() {
-    int ret = soundio_connect(soundio);
+    int ret = soundio_connect(csoundlib_state->soundio);
     if (ret == 0) {
-        backend_connected = true;
-        soundio_flush_events(soundio);
+        csoundlib_state->backend_connected = true;
+        soundio_flush_events(csoundlib_state->soundio);
     }
     return ret;
 }
 
 static void _deallocateAllMemory() {
     logCallback("deallocating memory");
-    if (input_memory_allocated) {
-        free(input_buffers);
-        free(input_streams);
-        free(input_streams_started);
-        free(input_streams_started);
-        free(input_devices);
-        free(list_of_rms_volume_decibel);
+    if (csoundlib_state->input_memory_allocated) {
+        free(csoundlib_state->input_buffers);
+        free(csoundlib_state->input_streams);
+        free(csoundlib_state->input_streams_started);
+        free(csoundlib_state->input_streams_started);
+        free(csoundlib_state->input_devices);
+        free(csoundlib_state->list_of_rms_volume_decibel);
     }
-    if (output_memory_allocated) {
-        free(output_streams);
+    if (csoundlib_state->output_memory_allocated) {
+        free(csoundlib_state->output_streams);
     }
+    free(csoundlib_state);
 }
 
 int lib_startSession() {
+    // called by host, which in turn calls initialize environment 
     logCallback("creating session");
     int err = lib_initializeEnvironment();
-    if (err != SoundIoErrorNone) return err;
-    return  _connectToBackend();
+    if (err != SoundIoErrorNone) 
+        return err;
+    return  SoundIoErrorNone;
 }
 
 int lib_initializeEnvironment() {
     logCallback("creating environment");
-    soundio = soundio_create();
-    mixed_input_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
-    list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));
 
-    if (soundio && mixed_input_buffer && list_of_track_objects) {
-        environment_initialized = true;
-        return 0;
+    csoundlib_state = malloc( 1 * sizeof(audio_state) );
+    struct SoundIo* soundio = soundio_create();
+    char* mixed_input_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
+    trackObject* list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));
+
+    if (soundio && mixed_input_buffer && list_of_track_objects && csoundlib_state) {
+        csoundlib_state->soundio = soundio;
+        csoundlib_state->mixed_input_buffer = mixed_input_buffer;
+        csoundlib_state->list_of_track_objects = list_of_track_objects;
+        csoundlib_state->environment_initialized = true;
+        return _connectToBackend();
     }
     else {
         return SoundIoErrorNoMem;
@@ -54,13 +63,17 @@ int lib_initializeEnvironment() {
 }
 
 int lib_destroySession() {
+    // called by host, which in turn calls deinitialize environment 
     logCallback("destroying session");
+
     for (int idx = 0; idx < lib_getNumInputDevices(); idx++) {
-        if (input_streams_started[idx] == true) lib_stopInputStream(idx);
+        if (csoundlib_state->input_streams_started[idx] == true) lib_stopInputStream(idx);
     }
+
     for (int idx = 0; idx < lib_getNumOutputDevices(); idx++) {
-        if (output_stream_started != -1) lib_stopOutputStream(idx);
+        if (csoundlib_state->output_stream_started == idx) lib_stopOutputStream(idx);
     }
+
     int ret = lib_deinitializeEnvironment();
     _deallocateAllMemory();
     return ret;
@@ -68,16 +81,17 @@ int lib_destroySession() {
 
 int lib_deinitializeEnvironment() {
     logCallback("deinitializing environment");
-    if (environment_initialized) {
-        soundio_destroy(soundio);
-        free(mixed_input_buffer);
+    if (csoundlib_state->environment_initialized) {
+        soundio_destroy(csoundlib_state->soundio);
+        free(csoundlib_state->mixed_input_buffer);
         /* delete all tracks */
-        for (int idx = num_tracks ; idx-- > 0 ; ) {
-            lib_deleteTrack(list_of_track_objects[idx].track_id);
+        for (int idx = csoundlib_state->num_tracks ; idx-- > 0 ; ) {
+            lib_deleteTrack(csoundlib_state->list_of_track_objects[idx].track_id);
         }
-        free(list_of_track_objects);
-        environment_initialized = false;
-        backend_connected = false;
+
+        free(csoundlib_state->list_of_track_objects);
+        csoundlib_state->environment_initialized = false;
+        csoundlib_state->backend_connected = false;
         return 0;
     }
     else {
@@ -86,9 +100,9 @@ int lib_deinitializeEnvironment() {
 }
 
 int lib_getCurrentBackend() {
-    if (backend_connected) {
-        soundio_flush_events(soundio);
-        return soundio->current_backend;
+    if (csoundlib_state->backend_connected) {
+        soundio_flush_events(csoundlib_state->soundio);
+        return csoundlib_state->soundio->current_backend;
     }
     else {
         return -1;
@@ -96,16 +110,16 @@ int lib_getCurrentBackend() {
 }
 
 int lib_checkEnvironmentAndBackendConnected() {
-    if (!environment_initialized) {
+    if (!csoundlib_state->environment_initialized) {
         return SoundIoErrorEnvironmentNotInitialized;
     }
-    if (!backend_connected) {
+    if (!csoundlib_state->backend_connected) {
         return SoundIoErrorBackendDisconnected;
     }
-    if (!input_memory_allocated) {
+    if (!csoundlib_state->input_memory_allocated) {
         return SoundIoInputMemoryNotAllocated;
     }
-    if (!output_memory_allocated) {
+    if (!csoundlib_state->output_memory_allocated) {
         return SoundIoOutputMemoryNotAllocated;
     }
     return SoundIoErrorNone;

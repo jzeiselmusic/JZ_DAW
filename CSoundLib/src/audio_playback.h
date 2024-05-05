@@ -3,8 +3,6 @@
 
 #include <stdbool.h>
 
-extern bool playback_started;
-
 void lib_startPlayback();
 
 void lib_stopPlayback();

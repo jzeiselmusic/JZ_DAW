@@ -19,10 +19,6 @@ typedef struct _trackObj {
     double current_rms_volume;
 } trackObject;
 
-extern trackObject* list_of_track_objects;
-
-extern int num_tracks;
-
 int lib_addNewTrack(int track_id);
 
 int lib_deleteTrack(int track_id);
