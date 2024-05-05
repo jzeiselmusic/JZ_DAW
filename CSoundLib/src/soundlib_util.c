@@ -1,7 +1,8 @@
-#ifndef SOUNDLIB_UTIL_H 
-#define SOUNDLIB_UTIL_H
+#include "soundlib_util.h"
 
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 int min_int(int a, int b) {
     return (a < b) ? a : b;
@@ -49,5 +50,3 @@ void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes) {
         memcpy(dest + idx, &sum, 4);
     }
 }
-
-#endif

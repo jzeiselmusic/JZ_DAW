@@ -55,9 +55,6 @@ static struct SoundIoDevice** output_devices;
         static bool output_stream_initialized = false;
 static char* mixed_input_buffer; // allocate to max buffer size in bytes
 
-struct SoundIoDevice* default_input_device;
-struct SoundIoDevice* default_output_device;
-
 static double* list_of_rms_volume_decibel;
 
 static bool input_memory_allocated = false;
@@ -197,7 +194,6 @@ static void _deallocateAllMemory() {
     if (output_memory_allocated) {
         free(output_streams);
     }
-
 }
 
 static int _connectToBackend() {
@@ -278,7 +274,6 @@ int lib_loadInputDevices() {
         }
     }
     int index = lib_getDefaultInputDeviceIndex();
-    default_input_device = input_devices[index];
     return SoundIoErrorNone;
 }
 
@@ -356,7 +351,6 @@ int lib_loadOutputDevices() {
         }
     }
     int index = lib_getDefaultOutputDeviceIndex();
-    default_output_device = output_devices[index];
     return SoundIoErrorNone;
 }
 
