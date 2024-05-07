@@ -40,6 +40,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             return listOf()
         }
     private val clickEvent = EventHandler<MouseEvent> {
+        animateObjectScale(0.9, 1.0, inputSelectRectangle, 80.0)
         runLater(50.0) {
             val deviceList = trackListViewModel.audioViewModel.getInputDeviceList()
             deviceList?.let {devices ->
@@ -66,6 +67,9 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectRectangle.stroke = trackListState.strokeColor
         inputSelectRectangle.strokeWidth = trackListState.strokeSize
         inputSelectRectangle.viewOrder = viewOrderFlip - 0.31
+        inputSelectRectangle.onMousePressed =
+            EventHandler { animateObjectScale(1.0, 0.9, inputSelectRectangle, 80.0) }
+        inputSelectRectangle.onMouseReleased = clickEvent
 
         inputSelectArrow.fill = Color.BLACK
         inputSelectArrow.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListState.inputButtonsOffset - 0.5
@@ -75,11 +79,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectArrow.strokeWidth = 1.5
         inputSelectArrow.strokeLineJoin = StrokeLineJoin.ROUND
         inputSelectArrow.viewOrder = viewOrderFlip - 0.32
-    }
-
-    init {
-        inputSelectRectangle.onMouseReleased = clickEvent
-        inputSelectArrow.onMouseReleased = clickEvent
+        inputSelectArrow.isMouseTransparent = true
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {

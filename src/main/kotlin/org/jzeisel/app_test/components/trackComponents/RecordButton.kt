@@ -148,9 +148,9 @@ class RecordButton(override val parent: Widget)
     }
 
     private fun mouseReleaseLeft() {
-        animateObjectScale(0.7, 1.0, buttonInside, 60.0)
-        animateObjectScale(0.85, 1.0, buttonMiddle, 60.0)
-        animateObjectScale(0.85, 1.0, buttonOutside, 60.0)
+        animateObjectScale(0.7, 1.0, buttonInside, 80.0)
+        animateObjectScale(0.85, 1.0, buttonMiddle, 80.0)
+        animateObjectScale(0.85, 1.0, buttonOutside, 80.0)
         if (enabled)
             (parentTrack as NormalTrack).disarmRecording()
         else
