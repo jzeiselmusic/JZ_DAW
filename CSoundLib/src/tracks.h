@@ -25,4 +25,8 @@ int lib_deleteTrack(int track_id);
 
 int lib_trackChooseInputDevice(int trackId, int device_index);
 
+int lib_armTrackForRecording(int trackId);
+
+int lib_disarmTrackForRecording(int trackId);
+
 #endif

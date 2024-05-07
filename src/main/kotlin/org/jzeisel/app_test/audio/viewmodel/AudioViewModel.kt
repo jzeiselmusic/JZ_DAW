@@ -190,6 +190,10 @@ class AudioViewModel(
         track.armedForRecording = true
         audioStateFlow._state = audioStateFlow._state.copy( trackList = tList )
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
+
+        audioEngineManager.armTrackForRecording(trackId).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
     }
 
     fun disarmRecording(trackId: Int) {
@@ -198,5 +202,9 @@ class AudioViewModel(
         track.armedForRecording = false
         audioStateFlow._state = audioStateFlow._state.copy( trackList = tList )
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
+
+        audioEngineManager.disarmTrackForRecording(trackId).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
     }
 }

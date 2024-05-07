@@ -74,6 +74,8 @@ public class SoundIoInterface {
         int lib_addNewTrack(int trackId);
         int lib_deleteTrack(int trackId);
         int lib_trackChooseInputDevice(int trackId, int device_index);
+        int lib_armTrackForRecording(int trackId);
+        int lib_disarmTrackForRecording(int trackId);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -150,5 +152,11 @@ public class SoundIoInterface {
     public int lib_deleteTrack(int trackId) { return SoundIoLib.INSTANCE.lib_deleteTrack(trackId); }
     public int lib_trackChooseInputDevice(int trackId, int device_index) {
         return SoundIoLib.INSTANCE.lib_trackChooseInputDevice(trackId, device_index);
+    }
+    public int lib_armTrackForRecording(int trackId) {
+        return SoundIoLib.INSTANCE.lib_armTrackForRecording(trackId);
+    }
+    public int lib_disarmTrackForRecording(int trackId) {
+        return SoundIoLib.INSTANCE.lib_disarmTrackForRecording(trackId);
     }
 }

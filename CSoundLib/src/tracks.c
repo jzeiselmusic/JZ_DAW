@@ -62,3 +62,23 @@ int lib_trackChooseInputDevice(int trackId, int device_index) {
     }
     return SoundIoErrorTrackNotFound;
 }
+
+int lib_armTrackForRecording(int trackId) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            csoundlib_state->list_of_track_objects[idx].record_enabled = true;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
+}
+
+int lib_disarmTrackForRecording(int trackId) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            csoundlib_state->list_of_track_objects[idx].record_enabled = false;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
+}

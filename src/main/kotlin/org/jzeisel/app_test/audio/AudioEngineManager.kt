@@ -244,4 +244,14 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         val error = soundInterface.lib_trackChooseInputDevice(trackId, deviceIndex)
         return AudioError.values()[error]
     }
+
+    fun armTrackForRecording(trackId: Int) : AudioError {
+        val error = soundInterface.lib_armTrackForRecording(trackId)
+        return AudioError.values()[error]
+    }
+
+    fun disarmTrackForRecording(trackId: Int) : AudioError {
+        val error = soundInterface.lib_disarmTrackForRecording(trackId)
+        return AudioError.values()[error]
+    }
 }
