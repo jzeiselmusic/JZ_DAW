@@ -7,6 +7,7 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
+import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
@@ -18,7 +19,7 @@ open class DropDownBox(val root: StackPane,
                        val clickCallback: (indexes: List<Int>) -> Unit,
                        translateX: Double, translateY: Double,
                        private val trackListViewModel: TrackListViewModel,
-                       private val trackIndex: Int,
+                       private val parentTrack: NormalTrack,
                        val isSublist: Boolean, parentList: DropDownBox? = null)
             : SingularWidget, TrackElement, WindowElement {
     val trackListState = trackListViewModel._trackListStateFlow.state
@@ -33,7 +34,7 @@ open class DropDownBox(val root: StackPane,
     init {
         /* find the largest text and conform width */
         for ((idx,string) in boxEntryListNames.withIndex() ) {
-            if (!isSublist && idx == trackListViewModel.getTrackInputDeviceIndex(trackIndex)) {
+            if (!isSublist && idx == trackListViewModel.getTrackInputDeviceIndex(parentTrack.trackId)) {
                 boxEntryListNames[idx] = "\u29BF   $string"
             }
             val testText = Text(string)

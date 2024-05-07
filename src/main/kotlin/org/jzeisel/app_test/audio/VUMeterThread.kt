@@ -2,7 +2,6 @@ package org.jzeisel.app_test.audio
 
 import kotlinx.coroutines.*
 import org.jzeisel.app_test.audio.viewmodel.ViewModelController
-import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.loop
 import java.util.*
 
@@ -19,27 +18,27 @@ class VUMeterThread(private val audioEngineManager: AudioEngineManager,
     }
 
     fun addToTracksStreaming(track: TrackData) {
-        if (synchronizedTrackList.any { it.trackIndex == track.trackIndex && it.isStreaming })
+        if (synchronizedTrackList.any { it.trackId == track.trackId && it.streamingEnabled })
             return
 
-        if (!synchronizedTrackList.any { it.isStreaming })
+        if (!synchronizedTrackList.any { it.streamingEnabled })
             startVUMeterThread()
 
-        val index = track.trackIndex
+        val id = track.trackId
         val tList = audioStateFlow._state.trackList
-        tList.forEach { if (it.trackIndex == index) it.isStreaming = true }
+        tList.forEach { if (it.trackId == id) it.streamingEnabled = true }
         audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
         updateSynchronizedTrackList(tList)
     }
 
     fun removeFromTracksStreaming(track: TrackData) {
-        val index = track.trackIndex
+        val id = track.trackId
         val tList = audioStateFlow._state.trackList
-        tList.forEach { if (it.trackIndex == index) it.isStreaming = false }
+        tList.forEach { if (it.trackId == id) it.streamingEnabled = false }
         audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
         updateSynchronizedTrackList(tList)
 
-        if (!tList.any { it.isStreaming }) stopVUMeterThread()
+        if (!tList.any { it.streamingEnabled }) stopVUMeterThread()
     }
 
     private fun startVUMeterThread() {
@@ -50,7 +49,7 @@ class VUMeterThread(private val audioEngineManager: AudioEngineManager,
                         synchronizedTrackList.forEach { track ->
                             track.audioStream?.let {
                                 val rmsVolume = audioEngineManager.getCurrentRMSVolume(it.device.index)
-                                viewModelController.sendTrackRMSVolume(rmsVolume, track.trackIndex)
+                                viewModelController.sendTrackRMSVolume(rmsVolume, track.trackId)
                             }
                         }
                     }
@@ -65,7 +64,7 @@ class VUMeterThread(private val audioEngineManager: AudioEngineManager,
     fun removeAllTracksFromStreaming() {
         val tList = audioStateFlow._state.trackList
         tList.forEach {
-            it.isStreaming = false
+            it.streamingEnabled = false
             it.audioStream = null
         }
         audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)

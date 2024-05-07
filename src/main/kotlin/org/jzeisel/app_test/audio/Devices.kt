@@ -1,7 +1,5 @@
 package org.jzeisel.app_test.audio
 
-import org.jzeisel.app_test.error.AudioError
-
 data class Device(
     var index: Int,
     var name: String,
@@ -16,13 +14,13 @@ data class Channel(
 
 data class TrackData(
     var trackId: Int,
-    var trackIndex: Int,
     var volume: Double,
     var panning: Int,
     var inputDevice: Device,
     var inputChannel: Channel,
     var audioStream: AudioStream? = null,
-    var isStreaming: Boolean = false
+    var streamingEnabled: Boolean = false,
+    var armedForRecording: Boolean = false
 )
 data class AudioStream(
     var device: Device

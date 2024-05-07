@@ -7,13 +7,8 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
-import org.jzeisel.app_test.audio.whenIs
 import org.jzeisel.app_test.audio.whenNot
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
@@ -28,6 +23,7 @@ import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.*
 import kotlin.properties.Delegates
+import kotlin.random.Random
 
 class TrackListViewModel(val root: StackPane,
                          val stage: Stage, extraPane: StackPane): NodeWidget {
@@ -46,6 +42,7 @@ class TrackListViewModel(val root: StackPane,
         }
         CursorFollower.updateFromTrackList(root)
     }
+    var listOfTrackIds: MutableList<Int> = mutableListOf()
     /*      *****      */
 
     val _trackListStateFlow = TrackListStateFlow(stageWidthProperty, stageHeightProperty)
@@ -87,21 +84,32 @@ class TrackListViewModel(val root: StackPane,
         /* TrackList should never be removed */
     }
 
+    fun findNewTrackId(): Int {
+        var newTrackId = Random.nextInt()
+        while (listOfTrackIds.contains(newTrackId)) {
+            newTrackId = Random.nextInt()
+        }
+        listOfTrackIds.add(newTrackId)
+        return newTrackId
+    }
+
     fun addTrack(child: Widget) {
         /* tell this function which child called it */
         /* if called by index -1, then called by master */
-        val newTrack = NormalTrack(root, this,
+        val trackId = findNewTrackId()
+        val newTrack = NormalTrack(root, this, trackId,
                 (child as NormalTrack).index.getValue().toInt() + 1, child as Track)
         newTrack.addMeToScene(root)
         addChild(newTrack)
-        audioViewModel.addTrack(newTrack.index.getValue().toInt())
+        audioViewModel.addTrack(trackId)
     }
 
     fun addTrackFromMaster() {
-        val newTrack = NormalTrack(root, this, 0, masterTrack)
+        val trackId = findNewTrackId()
+        val newTrack = NormalTrack(root, this, trackId, 0, masterTrack)
         newTrack.addMeToScene(root)
         addChild(newTrack)
-        audioViewModel.addTrack(newTrack.index.getValue().toInt())
+        audioViewModel.addTrack(trackId)
     }
 
     fun onAudioSamplesProcessed(numSamples: Int) {
@@ -141,17 +149,18 @@ class TrackListViewModel(val root: StackPane,
     fun removeTrack(child: Widget) {
         /* same comment as above */
         runLater {
-            val trackIndex = (child as NormalTrack).index
-            audioViewModel.removeTrack(trackIndex.getValue().toInt())
+            val trackId = (child as NormalTrack).trackId
+            audioViewModel.removeTrack(trackId)
             child.removeMeFromScene(root)
+            listOfTrackIds.remove(trackId)
             children = children.toMutableList().apply {
                 remove(child)
             }
         }
     }
 
-    fun setTrackDeviceAndChannel(trackIndex: Int, deviceIndex: Int, channelIndex: Int) {
-        audioViewModel.setTrackDeviceAndChannel(trackIndex, deviceIndex, channelIndex)
+    fun setTrackDeviceAndChannel(trackId: Int, deviceIndex: Int, channelIndex: Int) {
+        audioViewModel.setTrackDeviceAndChannel(trackId, deviceIndex, channelIndex)
     }
 
     fun updateWaveFormOffset(new: Double) {
@@ -264,7 +273,7 @@ class TrackListViewModel(val root: StackPane,
             it.audioInputEnabled = true
             it.enableVUMeterRunning()
         }
-        val err = audioViewModel.startInputStream(child.index.getValue().toInt())
+        val err = audioViewModel.startInputStream(child.trackId)
         err.whenNot(AudioError.SoundIoErrorNone) {
             child.audioInputEnabled = false
             createAudioErrorMessage(it)
@@ -272,14 +281,14 @@ class TrackListViewModel(val root: StackPane,
     }
 
     fun setTrackDisabled(child: Widget) {
-        audioViewModel.stopInputStream((child as? NormalTrack)?.index!!.getValue().toInt())
+        audioViewModel.stopInputStream((child as NormalTrack).trackId)
     }
 
     fun onPlaybackError(error: AudioError) {
     }
 
-    fun updateTrackRMSVolume(volume: Double, trackIndex: Int) {
-        children.firstOrNull { (it as NormalTrack).index.getValue().toInt() == trackIndex }?.let {
+    fun updateTrackRMSVolume(volume: Double, trackId: Int) {
+        children.firstOrNull { (it as NormalTrack).trackId == trackId }?.let {
             (it as NormalTrack).updateVUMeter(volume)
         }
     }
@@ -298,15 +307,17 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
-    fun getTrackInputDeviceIndex(trackIndex: Int): Int {
-        return audioViewModel.getTrackInputDeviceIndex(trackIndex)
+    fun getTrackInputDeviceIndex(trackId: Int): Int {
+        return audioViewModel.getTrackInputDeviceIndex(trackId)
     }
 
     fun setArmRecording(child: Widget) {
-
+        val id = (child as NormalTrack).trackId
+        audioViewModel.armRecording(id)
     }
 
     fun setDisarmRecording(child: Widget) {
-
+        val id = (child as NormalTrack).trackId
+        audioViewModel.disarmRecording(id)
     }
 }

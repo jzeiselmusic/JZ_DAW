@@ -52,7 +52,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
                 }
 
                 dropDownBox = ExpandableDropDownBox(
-                    root, deviceBoxEntryList, parentTrack.index.getValue().toInt(), ::selectionChosen,
+                    root, deviceBoxEntryList, parentTrack, ::selectionChosen,
                     inputSelectRectangle.translateX, inputSelectRectangle.translateY,
                     trackListViewModel, false)
                 dropDownBox!!.addMeToScene(root)
@@ -139,7 +139,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
 
     private fun selectionChosen(index: List<Int>) {
         trackListViewModel.setTrackDeviceAndChannel(
-            parentTrack.index.getValue().toInt(), index[0], index[1])
+            parentTrack.trackId, index[0], index[1])
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {

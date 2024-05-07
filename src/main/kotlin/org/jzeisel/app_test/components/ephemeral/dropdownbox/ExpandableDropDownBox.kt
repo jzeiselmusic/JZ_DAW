@@ -8,6 +8,7 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.scene.shape.StrokeLineJoin
 import kotlinx.coroutines.*
+import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.util.BoxEntry
 import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.max
 
 class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
-                            val trackIndex: Int,
+                            val parentTrack: NormalTrack,
                             val myClickCallback: (indexes: List<Int>) -> Unit,
                             translateX: Double, translateY: Double,
                             private val trackListViewModel: TrackListViewModel,
@@ -25,7 +26,7 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
                             val parentList: DropDownBox? = null,
                             val parentIndex: Int? = null)
         : DropDownBox(root, boxEntryList, myClickCallback, translateX, translateY,
-                        trackListViewModel, trackIndex, isSubList, parentList) {
+                        trackListViewModel, parentTrack, isSubList, parentList) {
 
     private val expansionArrows = mutableListOf<Polygon?>()
     private val mouseCheckedInFlags = Collections.synchronizedList(mutableListOf<Boolean>())
@@ -82,7 +83,7 @@ class ExpandableDropDownBox(root: StackPane, val boxEntryList: List<BoxEntry>,
                     expandableDropDownBoxChild.set(ExpandableDropDownBox(
                         root,
                         boxEntryList[index].boxEntrySubList!!,
-                        trackIndex,
+                        parentTrack,
                         clickCallback,
                         rectangleList[index].translateX,
                         rectangleList[index].translateY,

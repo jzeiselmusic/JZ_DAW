@@ -11,7 +11,7 @@ import org.jzeisel.app_test.util.*
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,
-                  initialIndex: Int, progenitor: Track)
+                  val trackId: Int, initialIndex: Int, progenitor: Track)
     : Track(root, parent), NodeWidget {
 
     override var name: String by Delegates.observable ((initialIndex + 1).toString()) {

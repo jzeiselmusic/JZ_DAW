@@ -14,8 +14,8 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
         viewModel.createAudioErrorMessage(error)
     }
 
-    fun sendTrackRMSVolume(volume: Double, trackIndex: Int) {
-        viewModel.updateTrackRMSVolume(volume, trackIndex)
+    fun sendTrackRMSVolume(volume: Double, trackId: Int) {
+        viewModel.updateTrackRMSVolume(volume, trackId)
     }
 
     fun getCopyOfTracks(): List<NormalTrack> {
