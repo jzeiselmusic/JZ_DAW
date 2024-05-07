@@ -183,4 +183,14 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     fun updateVUMeter(volume: Double) {
         vuMeter.setVUMeterCurrentRMS(volume)
     }
+
+    fun armRecording() {
+        trackListViewModel.setArmRecording(this)
+        recordButton.enabled = true
+    }
+
+    fun disarmRecording() {
+        trackListViewModel.setDisarmRecording(this)
+        recordButton.enabled = false
+    }
 }

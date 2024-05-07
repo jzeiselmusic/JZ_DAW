@@ -1,9 +1,11 @@
 package org.jzeisel.app_test.util
 
+import javafx.animation.Interpolator
 import javafx.animation.ParallelTransition
 import javafx.animation.PathTransition
 import javafx.animation.PauseTransition
 import javafx.animation.ScaleTransition
+import javafx.animation.Transition
 import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.shape.MoveTo
@@ -16,12 +18,13 @@ import kotlin.math.roundToInt
 
 
 fun animateObjectScale(from: Double, to: Double, obj: Shape, duration: Double = 100.0) {
-    val animate = ScaleTransition(Duration.millis(100.0), obj)
+    val animate = ScaleTransition(Duration.millis(duration), obj)
     animate.fromX = from
     animate.fromY = from
     animate.toX = to
     animate.toY = to
     animate.cycleCount = 1
+    animate.interpolator = Interpolator.EASE_IN
     animate.play()
 }
 

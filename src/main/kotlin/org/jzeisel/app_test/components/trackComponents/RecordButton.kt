@@ -1,5 +1,7 @@
 package org.jzeisel.app_test.components.trackComponents
 
+import javafx.event.EventHandler
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
@@ -10,6 +12,7 @@ import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.util.BroadcastType
+import org.jzeisel.app_test.util.animateObjectScale
 import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
@@ -27,8 +30,32 @@ class RecordButton(override val parent: Widget)
 
     /* create 3 concentric circles */
     private val buttonOutside = Circle(buttonWidth, Color.rgb(128, 15, 15))
-    private val buttonMiddle = Circle(buttonWidth - 2.0, Color.rgb(156, 156, 156))
-    private val buttonInside = Circle(buttonWidth - 5.5, Color.rgb(128, 15, 15))
+    private val buttonMiddle = Circle(buttonWidth - 2.2, Color.WHITESMOKE.darker().darker())
+    private val buttonInside = Circle(buttonWidth - 5.5, Color.rgb(108, 10, 10))
+
+    private val mousePressEvent = EventHandler<MouseEvent> {
+        mousePress()
+    }
+
+    private val mouseReleaseEvent = EventHandler<MouseEvent> {
+        mouseReleaseLeft()
+    }
+
+    var enabled: Boolean = false
+        set(value) {
+            if (value) {
+                buttonOutside.fill = Color.rgb(210,0,0)
+                buttonInside.fill = Color.rgb(210,0,0)
+                buttonMiddle.fill = Color.WHITESMOKE.darker()
+            }
+            else {
+                buttonOutside.fill = Color.rgb(128, 15, 15)
+                buttonInside.fill = Color.rgb(108, 10, 10)
+                buttonMiddle.fill = Color.WHITESMOKE.darker().darker()
+            }
+            field = value
+        }
+
     init {
         buttonOutside.translateX = buttonOffsetX
         buttonOutside.translateY = buttonOffsetY
@@ -41,6 +68,12 @@ class RecordButton(override val parent: Widget)
         buttonInside.translateX = buttonOffsetX
         buttonInside.translateY = buttonOffsetY
         buttonInside.viewOrder = viewOrderFlip - 0.33
+
+        buttonMiddle.isMouseTransparent = true
+        buttonInside.isMouseTransparent = true
+
+        buttonOutside.onMousePressed = mousePressEvent
+        buttonOutside.onMouseReleased = mouseReleaseEvent
     }
     override fun addChild(child: Widget) { }
     override fun addMeToScene(root: StackPane) {
@@ -106,5 +139,21 @@ class RecordButton(override val parent: Widget)
         if (parentTrack is NormalTrack) {
             parentTrack.unregisterForIndexChanges(this)
         }
+    }
+
+    private fun mousePress() {
+        animateObjectScale(1.0, 0.85, buttonOutside, 80.0)
+        animateObjectScale(1.0, 0.85, buttonMiddle, 80.0)
+        animateObjectScale(1.0, 0.7, buttonInside, 80.0)
+    }
+
+    private fun mouseReleaseLeft() {
+        animateObjectScale(0.7, 1.0, buttonInside, 60.0)
+        animateObjectScale(0.85, 1.0, buttonMiddle, 60.0)
+        animateObjectScale(0.85, 1.0, buttonOutside, 60.0)
+        if (enabled)
+            (parentTrack as NormalTrack).disarmRecording()
+        else
+            (parentTrack as NormalTrack).armRecording()
     }
 }

@@ -301,4 +301,12 @@ class TrackListViewModel(val root: StackPane,
     fun getTrackInputDeviceIndex(trackIndex: Int): Int {
         return audioViewModel.getTrackInputDeviceIndex(trackIndex)
     }
+
+    fun setArmRecording(child: Widget) {
+
+    }
+
+    fun setDisarmRecording(child: Widget) {
+
+    }
 }

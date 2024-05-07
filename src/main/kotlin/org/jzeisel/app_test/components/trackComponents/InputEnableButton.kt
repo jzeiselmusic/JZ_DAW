@@ -112,11 +112,11 @@ class InputEnableButton(override val parent: Widget?)
     }
 
     private fun mousePress() {
-        animateObjectScale(1.0, 0.9, buttonRect, 20.0)
+        animateObjectScale(1.0, 0.9, buttonRect, 100.0)
     }
 
     private fun mouseReleaseLeft() {
-        animateObjectScale(0.9, 1.0, buttonRect, 25.0)
+        animateObjectScale(0.9, 1.0, buttonRect, 80.0)
         when (isEnabled) {
             true -> (parentTrack as NormalTrack).audioInputDisable()
             false -> (parentTrack as NormalTrack).audioInputEnable()
