@@ -254,4 +254,8 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         val error = soundInterface.lib_disarmTrackForRecording(trackId)
         return AudioError.values()[error]
     }
+
+    fun updateCursorOffsetSamples(offset: Int) {
+        soundInterface.lib_updateCursorOffsetSamples(offset)
+    }
 }

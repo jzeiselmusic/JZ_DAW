@@ -173,6 +173,7 @@ class AudioViewModel(
 
     fun updateCursorOffsetSamples(samples: Int) {
         audioStateFlow._state = audioStateFlow._state.copy(cursorOffsetSamples = samples)
+        audioEngineManager.updateCursorOffsetSamples(samples)
     }
 
     fun saveCurrentCursorOffsetSamples(samples: Int) {

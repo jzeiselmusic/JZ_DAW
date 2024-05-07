@@ -29,4 +29,6 @@ int lib_armTrackForRecording(int trackId);
 
 int lib_disarmTrackForRecording(int trackId);
 
+int open_rec_file(int trackId);
+
 #endif

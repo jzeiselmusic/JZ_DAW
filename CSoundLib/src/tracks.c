@@ -82,3 +82,7 @@ int lib_disarmTrackForRecording(int trackId) {
     }
     return SoundIoErrorTrackNotFound;
 }
+
+int open_rec_file(int trackId) {
+    return 1;
+}

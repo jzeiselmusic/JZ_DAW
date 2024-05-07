@@ -36,6 +36,7 @@ public class SoundIoInterface {
 
         void lib_startPlayback();
         void lib_stopPlayback();
+        void lib_updateCursorOffsetSamples(int offset);
 
 
         /* functions for input devices */
@@ -102,7 +103,7 @@ public class SoundIoInterface {
     public int lib_checkEnvironmentAndBackendConnected() { return SoundIoLib.INSTANCE.lib_checkEnvironmentAndBackendConnected(); }
     public void lib_startPlayback() { SoundIoLib.INSTANCE.lib_startPlayback(); }
     public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
-
+    public void lib_updateCursorOffsetSamples(int offset) { SoundIoLib.INSTANCE.lib_updateCursorOffsetSamples(offset); }
 
 
     public int lib_loadInputDevices() { return SoundIoLib.INSTANCE.lib_loadInputDevices(); }
