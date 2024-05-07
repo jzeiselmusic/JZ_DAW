@@ -11,8 +11,7 @@ import org.jzeisel.app_test.util.*
 import kotlin.properties.Delegates
 
 class NormalTrack(root: StackPane, override val parent: Widget,
-                  initialIndex: Int, progenitor: Track
-)
+                  initialIndex: Int, progenitor: Track)
     : Track(root, parent), NodeWidget {
 
     override var name: String by Delegates.observable ((initialIndex + 1).toString()) {
@@ -36,6 +35,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val waveFormBox = WaveFormBox(this)
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
+    val recordButton = RecordButton(this)
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         when (broadcastType) {
@@ -87,6 +87,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         waveFormBox.addMeToScene(root)
         inputNameBox.addMeToScene(root)
         volumeSlider.addMeToScene(root)
+        recordButton.addMeToScene(root)
         addChild(vuMeter)
         addChild(addButton)
         addChild(inputEnableButton)
@@ -94,6 +95,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         addChild(waveFormBox)
         addChild(inputNameBox)
         addChild(volumeSlider)
+        addChild(recordButton)
     }
 
     var audioInputEnabled = false

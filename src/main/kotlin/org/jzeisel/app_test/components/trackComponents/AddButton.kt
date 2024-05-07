@@ -28,23 +28,11 @@ class AddButton(override val parent: Widget)
     private val buttonOffsetX = -(trackListViewModel.stage.width / 2) + trackListState.addButtonOffset
     override val children = mutableListOf<Widget>()
 
-    override fun addChild(child: Widget) {
-    }
-
-    private fun getRandomColor(): Color {
-        val random = Random()
-        val red = random.nextInt(256)
-        val green = random.nextInt(256)
-        val blue = random.nextInt(256)
-
-        return Color.rgb(red, green, blue)
-    }
-
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, trackListState.generalPurple)
     private val horizontalLine = Line(buttonOffsetX - buttonWidth / 4, buttonOffsetY,
-                                        buttonOffsetX + buttonWidth / 4, buttonOffsetY)
+        buttonOffsetX + buttonWidth / 4, buttonOffsetY)
     private val verticalLine = Line(buttonOffsetX, buttonOffsetY - buttonWidth / 4,
-                                        buttonOffsetX, buttonOffsetY + buttonWidth / 4)
+        buttonOffsetX, buttonOffsetY + buttonWidth / 4)
 
     private val mousePressEvent =
         EventHandler<MouseEvent> { mousePress() }
@@ -54,7 +42,7 @@ class AddButton(override val parent: Widget)
                 mouseReleaseRight()
             } else {
                 mouseReleaseLeft()
-                }
+            }
         }
 
     init {
@@ -79,6 +67,9 @@ class AddButton(override val parent: Widget)
         horizontalLine.onMouseReleased = mouseReleaseEvent
         verticalLine.onMousePressed = mousePressEvent
         verticalLine.onMouseReleased = mouseReleaseEvent
+    }
+
+    override fun addChild(child: Widget) {
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {

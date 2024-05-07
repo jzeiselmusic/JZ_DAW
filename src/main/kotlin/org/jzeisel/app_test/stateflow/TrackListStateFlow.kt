@@ -22,6 +22,7 @@ data class TrackListState(
     val verticalDistancesBetweenWidgets: Double = 15.0,
     val waveFormWidth: Double  = 5000.0,
     val initialTrackDividerWidth: Double = 310.0,
+    val recordButtonWidth: Double = 12.5,
     /* colors */
     val strokeColor: Color = Color.BLACK,
     val generalPurple: Color = Color.MEDIUMPURPLE.darker(),
@@ -33,6 +34,7 @@ data class TrackListState(
     val inputButtonsOffset: Double = addButtonOffset + 30.0,
     val inputNameBoxOffset: Double = inputButtonsOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0,
     val vuMeterOffset: Double  = inputNameBoxOffset + separationDistance + inputNameBoxWidth / 2.0 - vuMeterWidth / 2.0,
+    val recordButtonOffset: Double = vuMeterOffset + separationDistance + vuMeterWidth / 2.0 - recordButtonWidth / 2.0 - 6.0,
     val labelDividerOffset: Double = -stageWidthProperty.value / 2.0 + 20.0,
     val waveFormOffset: Double = 0.0,
     /* observable variables */

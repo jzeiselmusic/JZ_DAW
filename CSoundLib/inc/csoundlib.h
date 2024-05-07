@@ -8,5 +8,6 @@
 #include "callbacks.h"
 #include "tracks.h"
 #include "audio_playback.h"
+#include "audio_state.h"
 
 #endif
