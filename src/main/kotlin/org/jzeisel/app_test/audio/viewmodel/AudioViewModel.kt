@@ -164,7 +164,9 @@ class AudioViewModel(
     }
 
     fun startPlayback() {
-        audioEngineManager.startPlayback()
+        audioEngineManager.startPlayback().whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
     }
 
     fun stopPlayback() {

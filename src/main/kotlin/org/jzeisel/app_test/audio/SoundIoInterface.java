@@ -34,7 +34,7 @@ public class SoundIoInterface {
         int lib_getCurrentBackend();
         int lib_checkEnvironmentAndBackendConnected();
 
-        void lib_startPlayback();
+        int lib_startPlayback();
         void lib_stopPlayback();
         void lib_updateCursorOffsetSamples(int offset);
 
@@ -101,7 +101,7 @@ public class SoundIoInterface {
     public int lib_deinitializeEnvironment() { return SoundIoLib.INSTANCE.lib_deinitializeEnvironment(); }
     public int lib_getCurrentBackend() { return SoundIoLib.INSTANCE.lib_getCurrentBackend(); }
     public int lib_checkEnvironmentAndBackendConnected() { return SoundIoLib.INSTANCE.lib_checkEnvironmentAndBackendConnected(); }
-    public void lib_startPlayback() { SoundIoLib.INSTANCE.lib_startPlayback(); }
+    public int lib_startPlayback() { return SoundIoLib.INSTANCE.lib_startPlayback(); }
     public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
     public void lib_updateCursorOffsetSamples(int offset) { SoundIoLib.INSTANCE.lib_updateCursorOffsetSamples(offset); }
 

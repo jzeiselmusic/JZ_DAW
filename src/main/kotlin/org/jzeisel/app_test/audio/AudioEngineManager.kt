@@ -182,8 +182,9 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
     }
 
-    fun startPlayback() {
-        soundInterface.lib_startPlayback()
+    fun startPlayback(): AudioError {
+        val error = soundInterface.lib_startPlayback()
+        return AudioError.values()[error]
     }
 
     fun stopPlayback() {

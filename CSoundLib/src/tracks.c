@@ -11,19 +11,15 @@
 #include "audio_state.h"
 
 int lib_addNewTrack(int trackId) {
-    FILE** file_ptrs = malloc(MAX_TRACKS * sizeof(FILE*));
-    uint32_t* offset_ptrs = malloc(MAX_TRACKS * sizeof(uint32_t));
-    uint32_t* byte_ptrs = malloc(MAX_TRACKS * sizeof(uint32_t));
-    if (!file_ptrs || !offset_ptrs || !byte_ptrs) {
+    audioFile* files = malloc(MAX_FILES * sizeof(audioFile));
+    if (!files) {
         return SoundIoErrorNoMem;
     }
 
     trackObject track =
         {
             .track_id = trackId,
-            .files = file_ptrs,
-            .file_sample_offsets = offset_ptrs,
-            .file_num_bytes = byte_ptrs,
+            .files = files,
             .num_files = 0,
 
             .record_enabled = false,
@@ -40,9 +36,14 @@ int lib_deleteTrack(int trackId) {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
             trackObject track = csoundlib_state->list_of_track_objects[idx];
+            /* close any open files to free the memory */
+            for (int jdx = 0; jdx < track.num_files; jdx++) {
+                if (track.files[jdx].is_file_open) {
+                    fclose(track.files[jdx].fp);
+                }
+            }
+            /* free memory that was waiting for future audio files */
             free(track.files);
-            free(track.file_sample_offsets);
-            free(track.file_num_bytes);
             for (int jdx = idx+1; jdx < csoundlib_state->num_tracks; jdx++) {
                 memcpy(&(csoundlib_state->list_of_track_objects[jdx-1]), &(csoundlib_state->list_of_track_objects[jdx]), sizeof(trackObject));
             }
@@ -81,8 +82,4 @@ int lib_disarmTrackForRecording(int trackId) {
         }
     }
     return SoundIoErrorTrackNotFound;
-}
-
-int open_rec_file(int trackId) {
-    return 1;
 }
