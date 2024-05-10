@@ -27,29 +27,42 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     }
 
     fun initialize() : AudioError {
-
         registerAllCallbackFuncs()
-
         var returnError = soundInterface.lib_startSession()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
+            Logger.debug(javaClass.simpleName, "error starting session", 5)
             initialized = false
             return AudioError.values()[returnError]
         }
         returnError = soundInterface.lib_loadInputDevices()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
+            Logger.debug(javaClass.simpleName, "error loading input devices", 5)
             inputDevicesLoaded = false
             return AudioError.values()[returnError]
         }
+
+        returnError = soundInterface.lib_createAndStartInputStream(
+            defaultInputIndex, microphoneLatency, viewModel.sampleRate)
+
+        if (returnError != AudioError.SoundIoErrorNone.ordinal) {
+            Logger.debug(javaClass.simpleName, "error starting input stream", 5)
+            return AudioError.values()[returnError]
+        }
+
         inputDevicesLoaded = true
+
         returnError = soundInterface.lib_loadOutputDevices()
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
+            Logger.debug(javaClass.simpleName, "error loading output devices", 5)
             outputDevicesLoaded = false
             return AudioError.values()[returnError]
         }
 
         returnError = soundInterface.lib_createAndStartOutputStream(
             defaultOutputIndex, microphoneLatency, viewModel.sampleRate)
+
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
+            Logger.debug(javaClass.simpleName, "error starting output stream", 5)
             return AudioError.values()[returnError]
         }
 
@@ -192,11 +205,11 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     }
 
     fun stopInputStream(deviceIndex: Int) {
-        soundInterface.lib_stopInputStream(deviceIndex)
+        soundInterface.lib_stopInputStream()
     }
 
     fun getCurrentRMSVolume(deviceIndex: Int): Double {
-        return soundInterface.lib_getCurrentRmsVolume(deviceIndex)
+        return 1.0
     }
 
     fun getNameOfChannelFromIndex(deviceIndex: Int, channelIndex: Int) : String{
@@ -241,8 +254,13 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         return AudioError.values()[error]
     }
 
-    fun chooseInputIndexForTrack(trackId: Int, deviceIndex: Int) : AudioError {
+    fun chooseInputDeviceIndexForTrack(trackId: Int, deviceIndex: Int) : AudioError {
         val error = soundInterface.lib_trackChooseInputDevice(trackId, deviceIndex)
+        return AudioError.values()[error]
+    }
+
+    fun chooseInputChannelIndexForTrack(trackId: Int, channelIndex: Int) : AudioError {
+        val error = soundInterface.lib_trackChooseInputChannel(trackId, channelIndex)
         return AudioError.values()[error]
     }
 
@@ -258,5 +276,10 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun updateCursorOffsetSamples(offset: Int) {
         soundInterface.lib_updateCursorOffsetSamples(offset)
+    }
+
+    fun inputEnable(trackId: Int, enable: Boolean) : AudioError {
+        val error = soundInterface.lib_inputEnable(trackId, enable)
+        return AudioError.values()[error]
     }
 }

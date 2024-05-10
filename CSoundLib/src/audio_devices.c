@@ -16,37 +16,37 @@
 
 int lib_loadInputDevices() {
     soundio_flush_events(csoundlib_state->soundio);
-    logCallback("loading all input devices");
     int num_input_devices = lib_getNumInputDevices();
+    int default_input_device_index = lib_getDefaultInputDeviceIndex();
     if (num_input_devices > 0) {
         struct SoundIoDevice** input_devices = malloc(num_input_devices * sizeof( struct SoundIoDevice*) );
-        struct SoundIoRingBuffer** input_buffers = malloc(num_input_devices * sizeof( struct SoundIoRingBuffer*) );
-        struct SoundIoInStream** input_streams = malloc(num_input_devices * sizeof( struct SoundIoInStream*) );
-        bool* input_streams_started = malloc(num_input_devices * sizeof(bool));
-        bool* input_streams_written = malloc(num_input_devices * sizeof(bool));
-        double* list_of_rms_volume_decibel = calloc(num_input_devices, sizeof(double));
-        if (!input_devices || !input_buffers || !input_streams || !input_streams_started || !list_of_rms_volume_decibel) {
+        struct SoundIoInStream* input_stream = malloc(1 * sizeof( struct SoundIoInStream* ) );
+        if (!input_devices || !input_stream) {
             csoundlib_state->input_memory_allocated = false;
             return SoundIoErrorNoMem;
         }
-        else {
-            csoundlib_state->input_devices = input_devices;
-            csoundlib_state->input_buffers = input_buffers;
-            csoundlib_state->input_streams = input_streams;
-            csoundlib_state->input_streams_started = input_streams_started;
-            csoundlib_state->input_streams_written = input_streams_written;
-            csoundlib_state->list_of_rms_volume_decibel = list_of_rms_volume_decibel;
-            csoundlib_state->input_memory_allocated = true;
-            for (int i = 0; i < num_input_devices; i++) {
-                struct SoundIoDevice* device = soundio_get_input_device(csoundlib_state->soundio, i);
-                if (!device) {
-                    return SoundIoErrorInvalid;
-                }
-                else {
-                    csoundlib_state->input_devices[i] = soundio_get_input_device(csoundlib_state->soundio, i);
-                }
+        csoundlib_state->input_devices = input_devices;
+        csoundlib_state->input_stream = input_stream;
+        csoundlib_state->input_stream_started = false;
+        csoundlib_state->input_stream_written = false;
+        csoundlib_state->input_memory_allocated = true;
+        for (int i = 0; i < num_input_devices; i++) {
+            struct SoundIoDevice* device = soundio_get_input_device(csoundlib_state->soundio, i);
+            if (!device) {
+                return SoundIoErrorInvalid;
+            }
+            else {
+                csoundlib_state->input_devices[i] = soundio_get_input_device(csoundlib_state->soundio, i);
             }
         }
+        int num_channels_of_default_input = lib_getNumChannelsOfInputDevice(default_input_device_index);
+        struct SoundIoRingBuffer** channel_buffers = malloc(num_channels_of_default_input * sizeof( struct SoundIoRingBuffer*) );
+        if (!channel_buffers) {
+            csoundlib_state->input_memory_allocated = false;
+            return SoundIoErrorNoMem;
+        }
+        csoundlib_state->input_channel_buffers = channel_buffers;
+        csoundlib_state->num_channels_available = num_channels_of_default_input;
     }
     return SoundIoErrorNone;
 }
@@ -73,25 +73,25 @@ char* lib_getDefaultInputDeviceName() {
 
 char* lib_getInputDeviceName(int index) {
     /* returns "" on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
     return (csoundlib_state->input_devices)[index]->name;
 }
 
 char* lib_getInputDeviceId(int index) {
     /* returns "" on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
     return (csoundlib_state->input_devices)[index]->id;
 }
 
 int lib_getNumChannelsOfInputDevice(int index) {
     /* returns -1 on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return -1;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return -1;
     return (csoundlib_state->input_devices)[index]->current_layout.channel_count;
 }
 
 char* lib_getNameOfChannelOfInputDevice(int deviceIndex, int channelIndex) {
     /* returns "" on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
     return 
     soundio_get_channel_name(
         (csoundlib_state->input_devices)[deviceIndex]->current_layout.channels[channelIndex]
@@ -106,19 +106,20 @@ char* lib_getNameOfChannelOfInputDevice(int deviceIndex, int channelIndex) {
 
 int lib_loadOutputDevices() {
     soundio_flush_events(csoundlib_state->soundio);
+    logCallback("loading all output devices");
     int num_output_devices = lib_getNumOutputDevices();
     if (num_output_devices > 0) {
         struct SoundIoDevice** output_devices = malloc(num_output_devices * sizeof( struct SoundIoDevice*) );
-        struct SoundIoOutStream** output_streams = malloc(num_output_devices * sizeof( struct SoundIoOutStreams*) );
-        if (!output_devices || !output_streams) {
+        struct SoundIoOutStream* output_stream = malloc(1 * sizeof( struct SoundIoOutStreams*) );
+        if (!output_devices || !output_stream) {
             csoundlib_state->output_memory_allocated = false;
             return SoundIoErrorNoMem;
         }
         else {
             csoundlib_state->output_memory_allocated = true;
             csoundlib_state->output_devices = output_devices;
-            csoundlib_state->output_streams = output_streams;
-            csoundlib_state->output_stream_started = -1;
+            csoundlib_state->output_stream = output_stream;
+            csoundlib_state->output_stream_started = false;
             for (int i = 0; i < num_output_devices; i++) {
                 struct SoundIoDevice* device = soundio_get_output_device(csoundlib_state->soundio, i);
                 if (!device) {
@@ -147,32 +148,32 @@ int lib_getNumOutputDevices() {
 
 char* lib_getDefaultOutputDeviceName() {
     /* returns "" on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
     int default_output_device_index = lib_getDefaultOutputDeviceIndex();
     return (csoundlib_state->output_devices)[default_output_device_index]->name;
 }
 
 char* lib_getOutputDeviceName(int index) {
     /* returns "" on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
     return (csoundlib_state->output_devices)[index]->name;
 }
 
 char* lib_getOutputDeviceId(int index) {
     /* returns "" on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
     return (csoundlib_state->output_devices)[index]->id;
 }
 
 int lib_getNumChannelsOfOutputDevice(int index) {
     /* returns -1 on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return -1;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return -1;
     return (csoundlib_state->output_devices)[index]->current_layout.channel_count;
 }
 
 char* lib_getNameOfChannelOfOutputDevice(int deviceIndex, int channelIndex) {
     /* returns "" on error */
-    if (lib_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
+    if (_checkEnvironmentAndBackendConnected() != SoundIoErrorNone) return emptyString;
     return soundio_get_channel_name(
         (csoundlib_state->output_devices)[deviceIndex]->current_layout.channels[channelIndex]
     );

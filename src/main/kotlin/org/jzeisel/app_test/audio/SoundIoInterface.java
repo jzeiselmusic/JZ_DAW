@@ -64,19 +64,19 @@ public class SoundIoInterface {
         /* functions for starting and maintaining streams */
         int lib_createInputStream(int device_index, double microphone_latency, int sample_rate);
         int lib_createAndStartInputStream(int deviceIndex, double microphone_latency, int sample_rate);
-        int lib_createAllInputStreams(double microphone_latency, int sample_rate);
-        int lib_stopInputStream(int deviceIndex);
+        int lib_stopInputStream();
         int lib_createOutputStream(int device_index, double microphone_latency, int sample_rate);
         int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate);
-        int lib_stopOutputStream(int deviceIndex);
-        double lib_getCurrentRmsVolume(int deviceIndex);
+        int lib_stopOutputStream();
 
         /* handling tracks */
         int lib_addNewTrack(int trackId);
         int lib_deleteTrack(int trackId);
         int lib_trackChooseInputDevice(int trackId, int device_index);
+        int lib_trackChooseInputChannel(int trackId, int channel_index);
         int lib_armTrackForRecording(int trackId);
         int lib_disarmTrackForRecording(int trackId);
+        int lib_inputEnable(int trackId, boolean enable);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -96,11 +96,8 @@ public class SoundIoInterface {
     public void registerOutputProcessedCallback() { SoundIoLib.INSTANCE.registerOutputProcessedCallback(outputCallback); }
 
     public int lib_startSession() { return SoundIoLib.INSTANCE.lib_startSession(); }
-    public int lib_initializeEnvironment() { return SoundIoLib.INSTANCE.lib_initializeEnvironment(); }
     public int lib_destroySession() { return SoundIoLib.INSTANCE.lib_destroySession(); }
-    public int lib_deinitializeEnvironment() { return SoundIoLib.INSTANCE.lib_deinitializeEnvironment(); }
     public int lib_getCurrentBackend() { return SoundIoLib.INSTANCE.lib_getCurrentBackend(); }
-    public int lib_checkEnvironmentAndBackendConnected() { return SoundIoLib.INSTANCE.lib_checkEnvironmentAndBackendConnected(); }
     public int lib_startPlayback() { return SoundIoLib.INSTANCE.lib_startPlayback(); }
     public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
     public void lib_updateCursorOffsetSamples(int offset) { SoundIoLib.INSTANCE.lib_updateCursorOffsetSamples(offset); }
@@ -130,34 +127,29 @@ public class SoundIoInterface {
     }
 
 
-    public int lib_createInputStream(int device_index, double microphone_latency, int sample_rate) {
-        return SoundIoLib.INSTANCE.lib_createInputStream(device_index, microphone_latency, sample_rate);
-    }
     public int lib_createAndStartInputStream(int deviceIndex, double microphone_latency, int sample_rate) {
         return SoundIoLib.INSTANCE.lib_createAndStartInputStream(deviceIndex, microphone_latency, sample_rate);
     }
-    public int lib_createAllInputStreams(int deviceIndex, int sample_rate) {
-        return SoundIoLib.INSTANCE.lib_createAllInputStreams(deviceIndex, sample_rate);
-    }
-    public int lib_stopInputStream(int deviceIndex) { return SoundIoLib.INSTANCE.lib_stopInputStream(deviceIndex); }
-    public int lib_createOutputStream(int device_index, double microphone_latency, int sample_rate) {
-        return SoundIoLib.INSTANCE.lib_createOutputStream(device_index, microphone_latency, sample_rate);
-    }
+    public int lib_stopInputStream() { return SoundIoLib.INSTANCE.lib_stopInputStream(); }
     public int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate) {
         return SoundIoLib.INSTANCE.lib_createAndStartOutputStream(deviceIndex, microphone_latency, sample_rate);
     }
-    public int lib_stopOutputStream(int deviceIndex) { return SoundIoLib.INSTANCE.lib_stopOutputStream(deviceIndex); }
-    public double lib_getCurrentRmsVolume(int deviceIndex) { return SoundIoLib.INSTANCE.lib_getCurrentRmsVolume(deviceIndex); }
-
+    public int lib_stopOutputStream() { return SoundIoLib.INSTANCE.lib_stopOutputStream(); }
     public int lib_addNewTrack(int trackId) { return SoundIoLib.INSTANCE.lib_addNewTrack(trackId); }
     public int lib_deleteTrack(int trackId) { return SoundIoLib.INSTANCE.lib_deleteTrack(trackId); }
     public int lib_trackChooseInputDevice(int trackId, int device_index) {
         return SoundIoLib.INSTANCE.lib_trackChooseInputDevice(trackId, device_index);
+    }
+    public int lib_trackChooseInputChannel(int trackId, int channel_index) {
+        return SoundIoLib.INSTANCE.lib_trackChooseInputChannel(trackId, channel_index);
     }
     public int lib_armTrackForRecording(int trackId) {
         return SoundIoLib.INSTANCE.lib_armTrackForRecording(trackId);
     }
     public int lib_disarmTrackForRecording(int trackId) {
         return SoundIoLib.INSTANCE.lib_disarmTrackForRecording(trackId);
+    }
+    public int lib_inputEnable(int trackId, boolean enable) {
+        return SoundIoLib.INSTANCE.lib_inputEnable(trackId, enable);
     }
 }

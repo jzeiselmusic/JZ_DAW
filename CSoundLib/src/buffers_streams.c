@@ -12,6 +12,12 @@
 
 #include "audio_state.h"
 
+static int _createInputStream(int device_index, double microphone_latency, int sample_rate);
+
+static int _createOutputStream(int device_index, double microphone_latency, int sample_rate);
+
+static bool _sendChannelToOutput(int channel_index);
+
 __attribute__ ((cold))
 __attribute__ ((noreturn))
 __attribute__ ((format (printf, 1, 2)))
@@ -32,16 +38,15 @@ static void _underflowCallback(struct SoundIoOutStream *outstream) {
 }
 
 static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame_count_min, int frame_count_max) {
-    /* gets called repeatedly every time audio data is available to be read on this particular input stream */
+    /* gets called repeatedly every time audio data is available to be read on this particular input device */
 
     /* every input stream started gets a read callback associated with it that gets repeatedly called */
 
-    /* this function takes the data its received and writes it into the mix buffer */
-    /* once all input streams have written to the mix buffer, increment write pointer */
-    /* the write callback then has to take that data, read it, and send it to the output stream, and increment read ptr */
-    int device_index = -1;
-    while(csoundlib_state->input_streams_written[device_index] == true) {
+    /* when a device sends data, it interleaves the data based on how many channels there are */
 
+    int device_index = -1;
+    while(csoundlib_state->input_stream_written == true) {
+        /* wait until output is done to start reading again */
     }
 
     for (int i = 0; i < lib_getNumInputDevices(); i++) {
@@ -53,22 +58,23 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     if (device_index == -1) {
         _panic("error finding device");
     }
+
     if (csoundlib_state->output_stream_initialized == false) {
         _panic("output device not initialized");
     }
 
-    struct SoundIoRingBuffer* ring_buffer = csoundlib_state->input_buffers[device_index];
+    /* all should be the same */
+    struct SoundIoRingBuffer* ring_buffer = csoundlib_state->input_channel_buffers[0];
     /* get the write ptr for this inputs ring buffer */
-    char *write_ptr = soundio_ring_buffer_write_ptr(ring_buffer);
     int bytes_count = soundio_ring_buffer_free_count(ring_buffer);
-    int frame_count = bytes_count / BYTES_PER_FRAME_MONO;
+    int frame_count = bytes_count / BYTES_PER_FRAME_MONO; 
 
     if (frame_count_min > frame_count) {
         _panic("ring buffer writer overtook reader");
     }
 
     int write_frames = min_int(frame_count, frame_count_max);
-    // inputStreamCallback("frames to write", write_frames);
+
     int frames_left = write_frames;
 
     struct SoundIoChannelArea *areas;
@@ -85,40 +91,24 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
         if (!areas) {
             /* Due to an overflow there is a hole. Fill the ring buffer with
                silence for the size of the hole.  */
-            memset(write_ptr, 0, frame_count * BYTES_PER_FRAME_MONO);
             _formatPanic("Dropped %d frames due to internal overflow\n", frame_count);
         } 
         else {
-            /* normal operation */
             int rms_value = 0.0;
             double double_value = 0.0;
+
             for (int frame = 0; frame < frame_count; frame += 1) {
                 for (int ch = 0; ch < instream->layout.channel_count; ch += 1) {
+                    struct SoundIoRingBuffer* ring_buffer = csoundlib_state->input_channel_buffers[ch];
+                    char* write_ptr = soundio_ring_buffer_write_ptr(ring_buffer);
                     char* bytes = areas[ch].ptr;
-
                     memcpy(write_ptr, bytes, instream->bytes_per_sample);
-
-                    /* ***************************** */
-                    /* calculate rms value of current sample in channel */
-                    int sample_value = (int32_t)((bytes[3] << 24) 
-                                    | (bytes[2] << 16) 
-                                    | (bytes[1] << 8) 
-                                    | bytes[0]);
-                    double temp_value = sample_value / MAX_24_BIT_SIGNED;
-                    rms_value += sample_value*sample_value;
-                    double_value += temp_value*temp_value;
-                    /* ***************************** */
-
                     areas[ch].ptr += areas[ch].step;
+                    soundio_ring_buffer_advance_write_ptr(ring_buffer, instream->bytes_per_sample);
                 }
-                write_ptr += instream->bytes_per_sample;
             }
-            rms_value /= frame_count;
-            double_value /= frame_count;
-            double current_rms_volume_decibel = (double)doubleToDecibel(envelopeFollower(sqrt(double_value), ATTACK, RELEASE));
-            csoundlib_state->list_of_rms_volume_decibel[device_index] = current_rms_volume_decibel;
+            // double current_rms_volume_decibel = (double)doubleToDecibel(envelopeFollower(sqrt(double_value), ATTACK, RELEASE));
         }
-
         if ((err = soundio_instream_end_read(instream))) {
             _panic("end read error: %s\n", soundio_strerror(err));
         }
@@ -128,13 +118,7 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
             break;
         }
     }
-    int advance_bytes = write_frames * BYTES_PER_FRAME_MONO;
-    // inputStreamCallback("wrote frames", write_frames);
-    // inputStreamCallback("advancing bytes", advance_bytes);
-    soundio_ring_buffer_advance_write_ptr(ring_buffer, advance_bytes);
-    // inputStreamCallback("posted my audio", device_index);
-    csoundlib_state->input_streams_written[device_index] = true;
-    csoundlib_state->input_stream_read_write_counter += 1;
+    csoundlib_state->input_stream_written = true;
 }
 
 static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int frame_count_min, int frame_count_max) {
@@ -163,35 +147,26 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
         return;
     }
 
-    if (csoundlib_state->input_stream_read_write_counter < csoundlib_state->num_input_streams) {
-        // null
-    }
+    while (csoundlib_state->input_stream_written == false) {}
 
-    while(csoundlib_state->input_stream_read_write_counter < csoundlib_state->num_input_streams) {
-        // wait
-    }
-    
-    csoundlib_state->input_stream_read_write_counter = 0;
-    /* input streams are ready to read */
-
-    /* clear mixed input buffer */
-    memset(csoundlib_state->mixed_input_buffer, 0, MAX_BUFFER_SIZE_BYTES);
+    /* clear mix buffer */
+    memset(csoundlib_state->mixed_output_buffer, 0, MAX_BUFFER_SIZE_BYTES);
 
     /* go through each input stream and read to a buffer if it has been written */
     int max_fill_count = 0;
-    for (int inputStreamIdx = 0; inputStreamIdx < lib_getNumInputDevices(); inputStreamIdx++) {
-        if (csoundlib_state->input_streams_started[inputStreamIdx] == true) {
+    for (int channel = 0; channel < csoundlib_state->num_channels_available; channel++) {
+        if (csoundlib_state->input_stream_started == true) {
             /* wait for input stream to be written before reading */
-            while (csoundlib_state->input_streams_written[inputStreamIdx] == false) {};
-
-            ring_buffer = csoundlib_state->input_buffers[inputStreamIdx];
+            ring_buffer = csoundlib_state->input_channel_buffers[channel];
             char *read_ptr = soundio_ring_buffer_read_ptr(ring_buffer);
             /* number of bytes available for reading */
             int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
             if (fill_count > max_fill_count) max_fill_count = fill_count;
-
-            add_audio_buffers_24bitNE(csoundlib_state->mixed_input_buffer, read_ptr, fill_bytes);
+            if (_sendChannelToOutput(channel)) {
+                add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, read_ptr, fill_bytes);
+            }
+            soundio_ring_buffer_advance_read_ptr(ring_buffer, fill_bytes);
         }
     }
 
@@ -201,7 +176,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     if (read_count == 0) read_count = frame_count_min;
     /* there is data to be read to output */
     frames_left = read_count;
-    char* mixed_read_ptr = csoundlib_state->mixed_input_buffer;
+    char* mixed_read_ptr = csoundlib_state->mixed_output_buffer;
     while (frames_left > 0) {
         int frame_count = frames_left;
         if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count)))
@@ -221,19 +196,13 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
         frames_left -= frame_count;
     }
-    for (int inputStreamIdx = 0; inputStreamIdx < lib_getNumInputDevices(); inputStreamIdx++) {
-        if (csoundlib_state->input_streams_started[inputStreamIdx] == true) {
-            ring_buffer = csoundlib_state->input_buffers[inputStreamIdx];
-            soundio_ring_buffer_advance_read_ptr(ring_buffer, read_count * BYTES_PER_FRAME_MONO);
-            csoundlib_state->input_streams_written[inputStreamIdx] = false;
-        }
-    }
+    csoundlib_state->input_stream_written = false;
     if (csoundlib_state->playback_started) outputProcessed(read_count);
 }
 
-int lib_createInputStream(int device_index, double microphone_latency, int sample_rate) {
+static int _createInputStream(int device_index, double microphone_latency, int sample_rate) {
     int err;
-    err = lib_checkEnvironmentAndBackendConnected();
+    err = _checkEnvironmentAndBackendConnected();
     if (err != SoundIoErrorNone) return err;
 
     struct SoundIoDevice* input_device = csoundlib_state->input_devices[device_index];
@@ -243,63 +212,65 @@ int lib_createInputStream(int device_index, double microphone_latency, int sampl
     /* signed 24 bit native endian (macos is little endian) */
     instream->format = SoundIoFormatS24NE; 
     instream->sample_rate = sample_rate;
+
+    /* use whatever the default channel layout is (take all the channels available) */
+    /* data should come in interleaved based on how many channels are sending data */
     instream->layout = input_device->current_layout;
     instream->software_latency = microphone_latency;
     instream->read_callback = _inputStreamReadCallback;
-    csoundlib_state->input_streams[device_index] = instream;
+    csoundlib_state->input_stream = instream;
 
     err = soundio_instream_open(instream);
     if (err != SoundIoErrorNone) return err;
 
-    int capacity = DEFAULT_BUFFER_SIZE * instream->bytes_per_sample;
-    struct SoundIoRingBuffer* ring_buffer = soundio_ring_buffer_create(csoundlib_state->soundio, capacity);
-    if (!ring_buffer) return SoundIoErrorNoMem;
+    int num_channels = lib_getNumChannelsOfInputDevice(device_index);
+    /* reset channel buffers */
+    free(csoundlib_state->input_channel_buffers);
+    csoundlib_state->input_channel_buffers = malloc(num_channels * sizeof(struct SoundIoRingBuffer*));
 
-    char *buf = soundio_ring_buffer_write_ptr(ring_buffer);
-    int fill_count = soundio_ring_buffer_capacity(ring_buffer);
-    memset(buf, 0, fill_count);
-    csoundlib_state->input_buffers[device_index] = ring_buffer;
-    return SoundIoErrorNone;
-}
+    for (int idx = 0; idx < num_channels; idx++) {
+        int capacity = DEFAULT_BUFFER_SIZE * instream->bytes_per_sample;
+        struct SoundIoRingBuffer* ring_buffer = soundio_ring_buffer_create(csoundlib_state->soundio, capacity);
+        if (!ring_buffer) return SoundIoErrorNoMem;
 
-int lib_createAllInputStreams(double microphone_latency, int sample_rate) {
-    /* create input streams and ring buffers for every device */
-    for (int idx = 0; idx < lib_getNumInputDevices(); idx++) {
-        int err = lib_createInputStream(idx, microphone_latency, sample_rate);
-        if (err != SoundIoErrorNone) return err;
+        char *buf = soundio_ring_buffer_write_ptr(ring_buffer);
+        int fill_count = soundio_ring_buffer_capacity(ring_buffer);
+        memset(buf, 0, fill_count);
+        csoundlib_state->input_channel_buffers[idx] = ring_buffer;
+        csoundlib_state->num_channels_available = num_channels;
     }
     return SoundIoErrorNone;
 }
 
 int lib_createAndStartInputStream(int device_index, double microphone_latency, int sample_rate) {
     int err;
-    err = lib_createInputStream(device_index, microphone_latency, sample_rate);
+    err = _createInputStream(device_index, microphone_latency, sample_rate);
     if (err != SoundIoErrorNone) return err;
-    if ((err = soundio_instream_start(csoundlib_state->input_streams[device_index])) != SoundIoErrorNone) {
+    if ((err = soundio_instream_start(csoundlib_state->input_stream)) != SoundIoErrorNone) {
         return err;
     }
-    csoundlib_state->input_streams_started[device_index] = true;
-    csoundlib_state->input_streams_written[device_index] = false;
-    csoundlib_state->num_input_streams += 1;
+    csoundlib_state->input_stream_started = true;
+    csoundlib_state->input_stream_written = false;
     return SoundIoErrorNone;
 }
 
-int lib_stopInputStream(int device_index) {
-    csoundlib_state->input_streams_started[device_index] = false;
-    csoundlib_state->input_streams_written[device_index] = false;
-    csoundlib_state->num_input_streams -= 1;
-    soundio_instream_destroy(csoundlib_state->input_streams[device_index]);
+int lib_stopInputStream() {
+    if (csoundlib_state->input_stream_started) {
+        csoundlib_state->input_stream_started = false;
+        csoundlib_state->input_stream_written = false;
+        soundio_instream_destroy(csoundlib_state->input_stream);
+    }
     return SoundIoErrorNone;
 }
 
-int lib_createOutputStream(int device_index, double microphone_latency, int sample_rate) {
+static int _createOutputStream(int device_index, double microphone_latency, int sample_rate) {
     int err;
-    err = lib_checkEnvironmentAndBackendConnected();
+    err = _checkEnvironmentAndBackendConnected();
     if (err != SoundIoErrorNone) return err;
 
-    if (csoundlib_state->output_stream_started != -1) {
-        soundio_outstream_destroy(csoundlib_state->output_streams[csoundlib_state->output_stream_started]);
-        csoundlib_state->output_stream_started = -1;
+    if (csoundlib_state->output_stream_started) {
+        soundio_outstream_destroy(csoundlib_state->output_stream);
+        csoundlib_state->output_stream_started = false;
     }
 
     struct SoundIoDevice* output_device = csoundlib_state->output_devices[device_index];
@@ -312,7 +283,7 @@ int lib_createOutputStream(int device_index, double microphone_latency, int samp
     outstream->software_latency = microphone_latency;
     outstream->write_callback = _outputStreamWriteCallback;
     outstream->underflow_callback = _underflowCallback;
-    csoundlib_state->output_streams[device_index] = outstream;
+    csoundlib_state->output_stream = outstream;
 
     err = soundio_outstream_open(outstream);
     if (err != SoundIoErrorNone) return err;
@@ -323,23 +294,32 @@ int lib_createOutputStream(int device_index, double microphone_latency, int samp
 
 int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate) {
     int err;
-    err = lib_createOutputStream(deviceIndex, microphone_latency, sample_rate);
+    err = _createOutputStream(deviceIndex, microphone_latency, sample_rate);
     if (err != SoundIoErrorNone) return err;
 
-    if ((err = soundio_outstream_start(csoundlib_state->output_streams[deviceIndex])) != SoundIoErrorNone) {
+    if ((err = soundio_outstream_start(csoundlib_state->output_stream)) != SoundIoErrorNone) {
         return err;
     }
-    csoundlib_state->output_stream_started = deviceIndex;
+    csoundlib_state->output_stream_started = true;
     return SoundIoErrorNone;
 }
 
-int lib_stopOutputStream(int deviceIndex) {
-    csoundlib_state->output_stream_started = -1;
-    csoundlib_state->output_stream_initialized = false;
-    soundio_outstream_destroy(csoundlib_state->output_streams[deviceIndex]);
+int lib_stopOutputStream() {
+    if (csoundlib_state->output_stream_started) {
+        csoundlib_state->output_stream_started = false;
+        csoundlib_state->output_stream_initialized = false;
+        soundio_outstream_destroy(csoundlib_state->output_stream);
+    }
     return SoundIoErrorNone;
 }
 
-double lib_getCurrentRmsVolume(int deviceIndex) {
-    return csoundlib_state->list_of_rms_volume_decibel[deviceIndex];
+static bool _sendChannelToOutput(int channel_index) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx ++) {
+        if (
+            csoundlib_state->list_of_track_objects[idx].input_channel_index == channel_index
+            && csoundlib_state->list_of_track_objects[idx].input_enabled) {
+            return true;
+        }
+    }
+    return false;
 }

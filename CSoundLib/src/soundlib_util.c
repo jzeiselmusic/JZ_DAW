@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include "soundio_inc.h"
 
 int min_int(int a, int b) {
     return (a < b) ? a : b;
@@ -49,4 +50,13 @@ void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes) {
         int32_t sum = dest_sample + source_sample;
         memcpy(dest + idx, &sum, 4);
     }
+}
+
+double four_bytes_to_sample(const char* bytes) {
+    int sample_value = 
+            (int32_t)((bytes[3] << 24) 
+                    | (bytes[2] << 16) 
+                    | (bytes[1] << 8) 
+                    | bytes[0]);
+    return sample_value / MAX_24_BIT_SIGNED;
 }

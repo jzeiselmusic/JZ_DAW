@@ -20,24 +20,20 @@ typedef struct _audioState {
 
     /* input */
     struct SoundIoDevice** input_devices;
-    struct SoundIoRingBuffer** input_buffers;
-    struct SoundIoInStream** input_streams;
-    bool* input_streams_started;
-    bool* input_streams_written;
-    int num_input_streams; // defaults to 0
-    int input_stream_read_write_counter;
+    struct SoundIoRingBuffer** input_channel_buffers; // keep a ring buffer for every channel audio
+    int num_channels_available;
+    struct SoundIoInStream* input_stream;
+    bool input_stream_started;
+    bool input_stream_written;
 
     /* output */
     struct SoundIoDevice** output_devices;
-    struct SoundIoOutStream** output_streams;
-    int output_stream_started; // should intialize to -1
+    struct SoundIoOutStream* output_stream;
+    bool output_stream_started; // should intialize to -1
     bool output_stream_initialized;
 
     /* mixed inputs */
-    char* mixed_input_buffer; // allocate to max buffer size in bytes
-
-    /* volume */
-    double* list_of_rms_volume_decibel;
+    char* mixed_output_buffer; // every channel of data that is enabled gets mixed into output buffer
 
     /* tracks */
     trackObject* list_of_track_objects;

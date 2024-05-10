@@ -22,10 +22,11 @@ class AudioViewModel(
     val cursorOffsetSamples: Int get() { return audioStateFlow._state.cursorOffsetSamples }
 
     fun initialize() {
-        audioEngineManager.initialize().whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+        val error = audioEngineManager.initialize()
+        if (error != AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(error)
+            return
         }
-
         audioEngineManager.getCurrentBackend()?.let {
             audioStateFlow._state = audioStateFlow._state.copy(isInitialized = true, backend = it)
         } ?: viewModelController.throwAudioError(AudioError.SoundIoErrorInitAudioBackend)
@@ -73,7 +74,7 @@ class AudioViewModel(
     fun removeTrack(trackId: Int) {
         val nTracks = audioStateFlow._state.numTracks
         val tList = audioStateFlow._state.trackList
-        stopInputStream(trackId)
+        // stopInputStream(trackId)
         val track = tList.first { it.trackId == trackId }
         tList.remove(track)
         audioStateFlow._state = audioStateFlow._state.copy(
@@ -99,7 +100,7 @@ class AudioViewModel(
         }
         audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
         audioEngineManager
-            .chooseInputIndexForTrack(track.trackId, deviceIndex)
+            .chooseInputDeviceIndexForTrack(track.trackId, deviceIndex)
             .whenNot(AudioError.SoundIoErrorNone) {
                 viewModelController.throwAudioError(it)
             }
@@ -209,5 +210,23 @@ class AudioViewModel(
         audioEngineManager.disarmTrackForRecording(trackId).whenNot(AudioError.SoundIoErrorNone) {
             viewModelController.throwAudioError(it)
         }
+    }
+
+    fun enableInputForTrack(trackId: Int) : Boolean {
+        var ret : Boolean = true
+        audioEngineManager.inputEnable(trackId, true).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+            ret = false
+        }
+        return ret
+    }
+
+    fun disableInputForTrack(trackId: Int) : Boolean {
+        var ret: Boolean = true
+        audioEngineManager.inputEnable(trackId, false).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+            ret = false
+        }
+        return ret
     }
 }

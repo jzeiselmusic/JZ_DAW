@@ -2,6 +2,7 @@ package org.jzeisel.app_test.components
 
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
+import javafx.scene.shape.Polygon
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.error.AudioError

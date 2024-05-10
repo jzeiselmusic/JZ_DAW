@@ -43,14 +43,12 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         animateObjectScale(0.9, 1.0, inputSelectRectangle, 80.0)
         runLater(50.0) {
             val deviceList = trackListViewModel.audioViewModel.getInputDeviceList()
-            deviceList?.let {devices ->
-                val deviceBoxEntryList = List(devices.size) { BoxEntry() }
-                deviceBoxEntryList.forEachIndexed { index, element ->
-                    element.name = deviceList[index].name
-                    element.boxEntrySubList =
-                        deviceList[index].channels.map { BoxEntry(it.name, null) }
+            val inputDevice = deviceList?.get(trackListViewModel.audioViewModel.defaultInputIndex)
+            inputDevice?.let {device ->
+                val deviceBoxEntryList = List(1) {
+                    BoxEntry(name = device.name,
+                        boxEntrySubList = device.channels.map { BoxEntry(it.name, null)})
                 }
-
                 dropDownBox = ExpandableDropDownBox(
                     root, deviceBoxEntryList, parentTrack, ::selectionChosen,
                     inputSelectRectangle.translateX, inputSelectRectangle.translateY,

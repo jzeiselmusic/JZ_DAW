@@ -272,16 +272,16 @@ class TrackListViewModel(val root: StackPane,
         (child as NormalTrack).let {
             it.audioInputEnabled = true
             it.enableVUMeterRunning()
-        }
-        val err = audioViewModel.startInputStream(child.trackId)
-        err.whenNot(AudioError.SoundIoErrorNone) {
-            child.audioInputEnabled = false
-            createAudioErrorMessage(it)
+            // val err = audioViewModel.startInputStream(child.trackId)
+            val ret = audioViewModel.enableInputForTrack(it.trackId)
+            if (!ret) {
+                it.audioInputEnabled = false
+            }
         }
     }
 
     fun setTrackDisabled(child: Widget) {
-        audioViewModel.stopInputStream((child as NormalTrack).trackId)
+        audioViewModel.disableInputForTrack((child as NormalTrack).trackId)
     }
 
     fun onPlaybackError(error: AudioError) {

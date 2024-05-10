@@ -24,6 +24,7 @@ int lib_addNewTrack(int trackId) {
 
             .record_enabled = false,
             .input_device_index = lib_getDefaultInputDeviceIndex(),
+            .input_channel_index = 0,
             .current_rms_volume = 0.0
         };
 
@@ -64,6 +65,16 @@ int lib_trackChooseInputDevice(int trackId, int device_index) {
     return SoundIoErrorTrackNotFound;
 }
 
+int lib_trackChooseInputChannel(int trackId, int channel_index) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            csoundlib_state->list_of_track_objects[idx].input_channel_index = channel_index;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
+}
+
 int lib_armTrackForRecording(int trackId) {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
@@ -78,6 +89,16 @@ int lib_disarmTrackForRecording(int trackId) {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
             csoundlib_state->list_of_track_objects[idx].record_enabled = false;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
+}
+
+int lib_inputEnable(int trackId, bool enable) {
+    for (int idx = 0; idx <csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            csoundlib_state->list_of_track_objects[idx].input_enabled = enable;
             return SoundIoErrorNone;
         }
     }
