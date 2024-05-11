@@ -268,19 +268,12 @@ class TrackListViewModel(val root: StackPane,
         _trackListStateFlow.state.waveFormScrollDeltaX.removeListener(listener)
     }
 
-    fun setTrackEnabled(child: Widget) {
-        (child as NormalTrack).let {
-            it.audioInputEnabled = true
-            it.enableVUMeterRunning()
-            // val err = audioViewModel.startInputStream(child.trackId)
-            val ret = audioViewModel.enableInputForTrack(it.trackId)
-            if (!ret) {
-                it.audioInputEnabled = false
-            }
-        }
+    fun setInputEnabled(child: Widget) {
+        audioViewModel.enableInputForTrack((child as NormalTrack).trackId)
+
     }
 
-    fun setTrackDisabled(child: Widget) {
+    fun setInputDisabled(child: Widget) {
         audioViewModel.disableInputForTrack((child as NormalTrack).trackId)
     }
 

@@ -33,6 +33,8 @@ class AudioViewModel(
 
         audioStateFlow._state = audioStateFlow._state.copy(outputDevice =
             audioEngineManager.getOutputDeviceFromIndex(audioEngineManager.defaultOutputIndex))
+
+        vuMeterThread.addAllTracksToStreaming()
     }
 
     fun deinitialize() {
@@ -106,54 +108,6 @@ class AudioViewModel(
             }
     }
 
-    fun startInputStream(trackId: Int): AudioError {
-        val tList = audioStateFlow._state.trackList
-        val chosenTrack = tList.firstOrNull { it.trackId == trackId }
-        chosenTrack?.inputDevice?.let {
-            tList.forEach {otherTrack ->
-                if (otherTrack.trackId != chosenTrack.trackId) {
-                    if (otherTrack.audioStream != null) {
-                        if (otherTrack.audioStream!!.device == chosenTrack.inputDevice) {
-                            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice)
-                            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-                            vuMeterThread.addToTracksStreaming(chosenTrack)
-                            return AudioError.SoundIoErrorNone
-                        }
-                    }
-                }
-            }
-            chosenTrack.audioStream = AudioStream(chosenTrack.inputDevice)
-            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-            val err = audioEngineManager.startInputStream(it.index)
-            if (err == AudioError.SoundIoErrorNone) vuMeterThread.addToTracksStreaming(chosenTrack)
-            return err
-        }
-        return AudioError.DevicesNotInitialized
-    }
-
-    fun stopInputStream(trackId: Int) {
-        val tList = audioStateFlow._state.trackList
-        val chosenTrack = tList.firstOrNull { it.trackId == trackId }
-        chosenTrack?.audioStream?.let {
-            tList.forEach {otherTrack ->
-                if (otherTrack.trackId != chosenTrack.trackId) {
-                    if (otherTrack.audioStream != null) {
-                        if (otherTrack.audioStream!!.device == chosenTrack.inputDevice) {
-                            chosenTrack.audioStream = null
-                            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-                            vuMeterThread.removeFromTracksStreaming(chosenTrack)
-                            return
-                        }
-                    }
-                }
-            }
-            chosenTrack.audioStream = null
-            vuMeterThread.removeFromTracksStreaming(chosenTrack)
-            audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-            audioEngineManager.stopInputStream(it.device.index)
-        }
-    }
-
     fun getTrackInputDeviceIndex(trackId: Int): Int {
         val tList = audioStateFlow._state.trackList
         val track = tList.first { it.trackId == trackId }
@@ -191,7 +145,7 @@ class AudioViewModel(
     fun armRecording(trackId: Int) {
         val tList = audioStateFlow._state.trackList
         val track = tList.first { it.trackId == trackId }
-        track.armedForRecording = true
+        track.recordingEnabled = true
         audioStateFlow._state = audioStateFlow._state.copy( trackList = tList )
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
 
@@ -203,7 +157,7 @@ class AudioViewModel(
     fun disarmRecording(trackId: Int) {
         val tList = audioStateFlow._state.trackList
         val track = tList.first { it.trackId == trackId }
-        track.armedForRecording = false
+        track.recordingEnabled = false
         audioStateFlow._state = audioStateFlow._state.copy( trackList = tList )
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
 
@@ -213,7 +167,13 @@ class AudioViewModel(
     }
 
     fun enableInputForTrack(trackId: Int) : Boolean {
-        var ret : Boolean = true
+        var ret = true
+        val tList = audioStateFlow._state.trackList
+        val track = tList.first { it.trackId == trackId }
+        track.inputEnabled = true
+        audioStateFlow._state = audioStateFlow._state.copy( trackList = tList )
+        vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
+
         audioEngineManager.inputEnable(trackId, true).whenNot(AudioError.SoundIoErrorNone) {
             viewModelController.throwAudioError(it)
             ret = false
@@ -222,7 +182,13 @@ class AudioViewModel(
     }
 
     fun disableInputForTrack(trackId: Int) : Boolean {
-        var ret: Boolean = true
+        var ret = true
+        val tList = audioStateFlow._state.trackList
+        val track = tList.first { it.trackId == trackId }
+        track.inputEnabled = false
+        audioStateFlow._state = audioStateFlow._state.copy( trackList = tList )
+        vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
+
         audioEngineManager.inputEnable(trackId, false).whenNot(AudioError.SoundIoErrorNone) {
             viewModelController.throwAudioError(it)
             ret = false

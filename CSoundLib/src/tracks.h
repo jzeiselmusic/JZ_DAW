@@ -44,4 +44,6 @@ int lib_disarmTrackForRecording(int trackId);
 
 int lib_inputEnable(int trackId, bool enable);
 
+double lib_getRmsVolume(int trackId);
+
 #endif

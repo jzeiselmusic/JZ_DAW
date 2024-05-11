@@ -104,3 +104,12 @@ int lib_inputEnable(int trackId, bool enable) {
     }
     return SoundIoErrorTrackNotFound;
 }
+
+double lib_getRmsVolume(int trackId) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            return csoundlib_state->list_of_track_objects[idx].current_rms_volume;
+        }
+    }
+    return 0.0;
+}

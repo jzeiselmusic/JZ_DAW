@@ -13,18 +13,15 @@ int doubleToDecibel(double input) {
     return 20*log10(input);
 }
 
-float envelopeFollower(double input, double attack, double release) {
-    static double prevEnvelope = 0;
+float envelopeFollower(double input, double attack, double release, double prev_envelope) {
     double attackAlpha = 1 - expf(-1.0 / (attack * 100));
     double releaseAlpha = 1 - expf(-1.0 / (release * 100));
 
     double envelope = 0;
-    if (input > prevEnvelope)
-        envelope = attackAlpha * input + (1 - attackAlpha) * prevEnvelope;
+    if (input > prev_envelope)
+        envelope = attackAlpha * input + (1 - attackAlpha) * prev_envelope;
     else
-        envelope = releaseAlpha * input + (1 - releaseAlpha) * prevEnvelope;
-
-    prevEnvelope = envelope; 
+        envelope = releaseAlpha * input + (1 - releaseAlpha) * prev_envelope;
 
     return envelope;
 }
@@ -50,6 +47,15 @@ void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes) {
         int32_t sum = dest_sample + source_sample;
         memcpy(dest + idx, &sum, 4);
     }
+}
+
+double calculate_rms_level(const char* source, int num_bytes) {
+    double rms = 0.0;
+    for (int idx = 0; idx < num_bytes; idx += 4) {
+        double sample = four_bytes_to_sample(source + idx);
+        rms += sample * sample;
+    }
+    return sqrt(rms / (double)num_bytes);
 }
 
 double four_bytes_to_sample(const char* bytes) {

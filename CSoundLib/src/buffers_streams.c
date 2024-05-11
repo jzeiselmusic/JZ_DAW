@@ -107,7 +107,6 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
                     soundio_ring_buffer_advance_write_ptr(ring_buffer, instream->bytes_per_sample);
                 }
             }
-            // double current_rms_volume_decibel = (double)doubleToDecibel(envelopeFollower(sqrt(double_value), ATTACK, RELEASE));
         }
         if ((err = soundio_instream_end_read(instream))) {
             _panic("end read error: %s\n", soundio_strerror(err));
@@ -163,6 +162,14 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
             if (fill_count > max_fill_count) max_fill_count = fill_count;
+            double rms_val = calculate_rms_level(read_ptr, fill_bytes);
+            for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+                if (csoundlib_state->list_of_track_objects[idx].input_channel_index == channel) {
+                    double prev_vol = csoundlib_state->list_of_track_objects[idx].current_rms_volume;
+                    csoundlib_state->list_of_track_objects[idx].current_rms_volume = 
+                                            envelopeFollower(rms_val, ATTACK, RELEASE, prev_vol);
+                } 
+            }
             if (_sendChannelToOutput(channel)) {
                 add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, read_ptr, fill_bytes);
             }

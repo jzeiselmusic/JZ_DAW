@@ -99,11 +99,8 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         addChild(recordButton)
     }
 
-    var audioInputEnabled = false
-        set(new) {
-            field = new
-            inputEnableButton.isEnabled = new
-        }
+    private var inputEnabled = false
+    private var recordEnabled = false
 
     override fun addChild(child: Widget) {
         children.add(child)
@@ -167,18 +164,20 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     fun audioInputEnable() {
-        trackListViewModel.setTrackEnabled(this)
-    }
-
-    fun enableVUMeterRunning() {
+        trackListViewModel.setInputEnabled(this)
         vuMeter.isVUMeterRunning = true
+        inputEnabled = true
+        inputEnableButton.isEnabled = true
     }
 
     fun audioInputDisable() {
-        trackListViewModel.setTrackDisabled(this)
-        audioInputEnabled = false
-        vuMeter.isVUMeterRunning = false
-        vuMeter.turnOffCurrentRMSReading()
+        inputEnableButton.isEnabled = false
+        inputEnabled = false
+        if (!recordEnabled) {
+            vuMeter.isVUMeterRunning = false
+            vuMeter.turnOffCurrentRMSReading()
+        }
+        trackListViewModel.setInputDisabled(this)
     }
 
     fun updateVUMeter(volume: Double) {
@@ -188,10 +187,17 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     fun armRecording() {
         trackListViewModel.setArmRecording(this)
         recordButton.enabled = true
+        vuMeter.isVUMeterRunning = true
+        recordEnabled = true
     }
 
     fun disarmRecording() {
-        trackListViewModel.setDisarmRecording(this)
+        recordEnabled = false
         recordButton.enabled = false
+        if (!inputEnabled) {
+            vuMeter.isVUMeterRunning = false
+            vuMeter.turnOffCurrentRMSReading()
+        }
+        trackListViewModel.setDisarmRecording(this)
     }
 }

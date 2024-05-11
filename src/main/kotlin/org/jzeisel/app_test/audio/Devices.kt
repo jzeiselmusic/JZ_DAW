@@ -18,9 +18,8 @@ data class TrackData(
     var panning: Int,
     var inputDevice: Device,
     var inputChannel: Channel,
-    var audioStream: AudioStream? = null,
-    var streamingEnabled: Boolean = false,
-    var armedForRecording: Boolean = false
+    var inputEnabled: Boolean = false,
+    var recordingEnabled: Boolean = false
 )
 data class AudioStream(
     var device: Device

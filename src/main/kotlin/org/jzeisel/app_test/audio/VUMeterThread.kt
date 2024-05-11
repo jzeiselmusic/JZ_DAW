@@ -17,38 +17,14 @@ class VUMeterThread(private val audioEngineManager: AudioEngineManager,
         synchronizedTrackList = Collections.synchronizedList(trackList)
     }
 
-    fun addToTracksStreaming(track: TrackData) {
-        if (synchronizedTrackList.any { it.trackId == track.trackId && it.streamingEnabled })
-            return
-
-        if (!synchronizedTrackList.any { it.streamingEnabled })
-            startVUMeterThread()
-
-        val id = track.trackId
-        val tList = audioStateFlow._state.trackList
-        tList.forEach { if (it.trackId == id) it.streamingEnabled = true }
-        audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-        updateSynchronizedTrackList(tList)
-    }
-
-    fun removeFromTracksStreaming(track: TrackData) {
-        val id = track.trackId
-        val tList = audioStateFlow._state.trackList
-        tList.forEach { if (it.trackId == id) it.streamingEnabled = false }
-        audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-        updateSynchronizedTrackList(tList)
-
-        if (!tList.any { it.streamingEnabled }) stopVUMeterThread()
-    }
-
     private fun startVUMeterThread() {
         if (vuMeterThreadJob == null) {
             vuMeterThreadJob = scope.launch {
                 loop(threadDelay) {
                     if (isActive) {
                         synchronizedTrackList.forEach { track ->
-                            track.audioStream?.let {
-                                val rmsVolume = audioEngineManager.getCurrentRMSVolume(it.device.index)
+                            if (track.inputEnabled || track.recordingEnabled) {
+                                val rmsVolume = audioEngineManager.getRmsVolume(track.trackId)
                                 viewModelController.sendTrackRMSVolume(rmsVolume, track.trackId)
                             }
                         }
@@ -62,14 +38,11 @@ class VUMeterThread(private val audioEngineManager: AudioEngineManager,
     }
 
     fun removeAllTracksFromStreaming() {
-        val tList = audioStateFlow._state.trackList
-        tList.forEach {
-            it.streamingEnabled = false
-            it.audioStream = null
-        }
-        audioStateFlow._state = audioStateFlow._state.copy(trackList = tList)
-        updateSynchronizedTrackList(tList)
         stopVUMeterThread()
+    }
+
+    fun addAllTracksToStreaming() {
+        startVUMeterThread()
     }
 
     private fun stopVUMeterThread() {

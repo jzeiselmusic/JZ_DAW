@@ -77,6 +77,7 @@ public class SoundIoInterface {
         int lib_armTrackForRecording(int trackId);
         int lib_disarmTrackForRecording(int trackId);
         int lib_inputEnable(int trackId, boolean enable);
+        double lib_getRmsVolume(int trackId);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -151,5 +152,8 @@ public class SoundIoInterface {
     }
     public int lib_inputEnable(int trackId, boolean enable) {
         return SoundIoLib.INSTANCE.lib_inputEnable(trackId, enable);
+    }
+    public double lib_getRmsVolume(int trackId) {
+        return SoundIoLib.INSTANCE.lib_getRmsVolume(trackId);
     }
 }

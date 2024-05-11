@@ -3,6 +3,7 @@ package org.jzeisel.app_test.audio
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.util.Logger
+import kotlin.math.log10
 
 class AudioEngineManager(private val viewModel: AudioViewModel) {
     private val soundInterface = SoundIoInterface(this)
@@ -281,5 +282,10 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     fun inputEnable(trackId: Int, enable: Boolean) : AudioError {
         val error = soundInterface.lib_inputEnable(trackId, enable)
         return AudioError.values()[error]
+    }
+
+    fun getRmsVolume(trackId: Int) : Double {
+        val rms: Double = soundInterface.lib_getRmsVolume(trackId)
+        return 20.0 * log10(rms)
     }
 }
