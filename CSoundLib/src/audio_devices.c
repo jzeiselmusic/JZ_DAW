@@ -20,13 +20,11 @@ int lib_loadInputDevices() {
     int default_input_device_index = lib_getDefaultInputDeviceIndex();
     if (num_input_devices > 0) {
         struct SoundIoDevice** input_devices = malloc(num_input_devices * sizeof( struct SoundIoDevice*) );
-        struct SoundIoInStream* input_stream = malloc(1 * sizeof( struct SoundIoInStream* ) );
-        if (!input_devices || !input_stream) {
+        if (!input_devices) {
             csoundlib_state->input_memory_allocated = false;
             return SoundIoErrorNoMem;
         }
         csoundlib_state->input_devices = input_devices;
-        csoundlib_state->input_stream = input_stream;
         csoundlib_state->input_stream_started = false;
         csoundlib_state->input_stream_written = false;
         csoundlib_state->input_memory_allocated = true;
@@ -110,15 +108,13 @@ int lib_loadOutputDevices() {
     int num_output_devices = lib_getNumOutputDevices();
     if (num_output_devices > 0) {
         struct SoundIoDevice** output_devices = malloc(num_output_devices * sizeof( struct SoundIoDevice*) );
-        struct SoundIoOutStream* output_stream = malloc(1 * sizeof( struct SoundIoOutStreams*) );
-        if (!output_devices || !output_stream) {
+        if (!output_devices) {
             csoundlib_state->output_memory_allocated = false;
             return SoundIoErrorNoMem;
         }
         else {
             csoundlib_state->output_memory_allocated = true;
             csoundlib_state->output_devices = output_devices;
-            csoundlib_state->output_stream = output_stream;
             csoundlib_state->output_stream_started = false;
             for (int i = 0; i < num_output_devices; i++) {
                 struct SoundIoDevice* device = soundio_get_output_device(csoundlib_state->soundio, i);

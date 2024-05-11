@@ -60,7 +60,7 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
     }
 
     if (csoundlib_state->output_stream_initialized == false) {
-        _panic("output device not initialized");
+        return;
     }
 
     /* all should be the same */
@@ -290,6 +290,7 @@ static int _createOutputStream(int device_index, double microphone_latency, int 
     outstream->software_latency = microphone_latency;
     outstream->write_callback = _outputStreamWriteCallback;
     outstream->underflow_callback = _underflowCallback;
+
     csoundlib_state->output_stream = outstream;
 
     err = soundio_outstream_open(outstream);
@@ -315,8 +316,10 @@ int lib_stopOutputStream() {
     if (csoundlib_state->output_stream_started) {
         csoundlib_state->output_stream_started = false;
         csoundlib_state->output_stream_initialized = false;
+        soundio_outstream_pause(csoundlib_state->output_stream, true);
         soundio_outstream_destroy(csoundlib_state->output_stream);
     }
+    logCallback("returning true");
     return SoundIoErrorNone;
 }
 
