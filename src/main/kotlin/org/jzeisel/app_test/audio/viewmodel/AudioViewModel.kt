@@ -106,6 +106,11 @@ class AudioViewModel(
             .whenNot(AudioError.SoundIoErrorNone) {
                 viewModelController.throwAudioError(it)
             }
+        audioEngineManager
+            .chooseInputChannelIndexForTrack(track.trackId, channelIndex)
+            .whenNot(AudioError.SoundIoErrorNone) {
+                viewModelController.throwAudioError(it)
+            }
     }
 
     fun getTrackInputDeviceIndex(trackId: Int): Int {
