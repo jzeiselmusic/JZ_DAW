@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "sndfile.h"
 
 #define MAX_TRACKS              500
 #define MAX_FILES               500

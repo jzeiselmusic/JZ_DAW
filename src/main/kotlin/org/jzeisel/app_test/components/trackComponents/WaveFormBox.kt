@@ -19,6 +19,20 @@ import org.jzeisel.app_test.util.*
 class WaveFormBox(override val parent: Widget) :
     NodeWidget, TrackElement, WindowElement {
 
+    override val children: MutableList<Widget> = mutableListOf()
+    val parentTrack = parent as Track
+    private val trackListViewModel = parentTrack.trackListViewModel
+    private val trackListFlow = trackListViewModel._trackListStateFlow
+    private val trackListState = trackListViewModel._trackListStateFlow.state
+    val waveFormWidth = trackListState.waveFormWidth
+    val trackRectangle = Rectangle(waveFormWidth,
+        parentTrack.initialTrackHeight,
+        trackListState.generalPurple)
+
+    val measureDividers = mutableListOf<Rectangle>()
+    val beatDividers = mutableListOf<Rectangle>()
+    val ticksForMasterTrack = mutableListOf<Rectangle>()
+
     private val zValBase = viewOrderFlip - 0.1
     private val zValMeasures = viewOrderFlip - 0.11
     private val zValTicks = viewOrderFlip - 0.12
@@ -42,19 +56,6 @@ class WaveFormBox(override val parent: Widget) :
             trackListViewModel.onWaveFormBoxScroll(-it.deltaX/3.0)
         }
     }
-    override val children: MutableList<Widget> = mutableListOf()
-    val parentTrack = parent as Track
-    private val trackListViewModel = parentTrack.trackListViewModel
-    private val trackListFlow = trackListViewModel._trackListStateFlow
-    private val trackListState = trackListViewModel._trackListStateFlow.state
-    val waveFormWidth = trackListState.waveFormWidth
-    val trackRectangle = Rectangle(waveFormWidth,
-                                   parentTrack.initialTrackHeight,
-                                   trackListState.generalPurple)
-
-    val measureDividers = mutableListOf<Rectangle>()
-    val beatDividers = mutableListOf<Rectangle>()
-    val ticksForMasterTrack = mutableListOf<Rectangle>()
 
     init {
         trackRectangle.onScroll = scrollEvent
