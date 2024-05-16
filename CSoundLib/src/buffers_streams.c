@@ -9,8 +9,8 @@
 #include "audio_playback.h"
 #include "callbacks.h"
 #include "init.h"
-
 #include "audio_state.h"
+#include "wav_driver.h"
 
 static int _createInputStream(int device_index, double microphone_latency, int sample_rate);
 
@@ -155,7 +155,6 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     int max_fill_count = 0;
     for (int channel = 0; channel < csoundlib_state->num_channels_available; channel++) {
         if (csoundlib_state->input_stream_started == true) {
-            /* wait for input stream to be written before reading */
             ring_buffer = csoundlib_state->input_channel_buffers[channel];
             char *read_ptr = soundio_ring_buffer_read_ptr(ring_buffer);
             /* number of bytes available for reading */
@@ -163,11 +162,20 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
             if (fill_count > max_fill_count) max_fill_count = fill_count;
             double rms_val = calculate_rms_level(read_ptr, fill_bytes);
+
+            /* go through every track */
+            /* set RMS volume */
+            /* write to file if recording */
             for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
                 if (csoundlib_state->list_of_track_objects[idx].input_channel_index == channel) {
+                    /* this track has chosen this channel for input */
                     double prev_vol = csoundlib_state->list_of_track_objects[idx].current_rms_volume;
                     csoundlib_state->list_of_track_objects[idx].current_rms_volume = 
                                             envelopeFollower(rms_val, ATTACK, RELEASE, prev_vol);
+                    
+                    if (csoundlib_state->list_of_track_objects[idx].record_enabled && csoundlib_state->playback_started) {
+                        thr_write_to_wav_file(&(csoundlib_state->list_of_track_objects[idx]), read_ptr, fill_bytes);
+                    }
                 } 
             }
             if (_sendChannelToOutput(channel)) {

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
+#include "sndfile.h"
 
 #define MAX_TRACKS              500
 #define MAX_FILES               500
@@ -13,7 +14,7 @@ typedef struct _audioFile {
     FILE* fp;
     bool is_file_open;
     int file_sample_offset; // where the file starts 
-    int bytes_written;
+    int samples_written;
     char file_name[MAX_NAME_SIZE];
     int file_name_len;
 } audioFile;

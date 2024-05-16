@@ -34,6 +34,8 @@ static void _deallocateAllMemory() {
 
 int lib_startSession() {
     csoundlib_state = malloc( 1 * sizeof(audio_state) );
+    csoundlib_state->sample_rate = 44100;
+    
     struct SoundIo* soundio = soundio_create();
     char* mixed_output_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
     trackObject* list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));

@@ -7,7 +7,8 @@
 
 typedef struct _audioState {
     struct SoundIo* soundio;
-
+    int sample_rate; 
+    
     /* playback */
     bool playback_started;
     int current_cursor_offset; // in samples

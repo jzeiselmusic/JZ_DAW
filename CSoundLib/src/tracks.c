@@ -9,6 +9,7 @@
 #include "string.h"
 
 #include "audio_state.h"
+#include "wav_driver.h"
 
 int lib_addNewTrack(int trackId) {
     audioFile* files = malloc(MAX_FILES * sizeof(audioFile));
@@ -40,7 +41,8 @@ int lib_deleteTrack(int trackId) {
             /* close any open files to free the memory */
             for (int jdx = 0; jdx < track.num_files; jdx++) {
                 if (track.files[jdx].is_file_open) {
-                    fclose(track.files[jdx].fp);
+                    close_wav_file(&(track.files[jdx]));
+                    track.files[jdx].is_file_open = false;
                 }
             }
             /* free memory that was waiting for future audio files */
