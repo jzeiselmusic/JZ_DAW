@@ -1,7 +1,7 @@
 package org.jzeisel.app_test.error
 
 enum class AudioError(val readable: String) {
-    /* as defined in libsoundio */
+    /* errors defined in libsoundio */
     SoundIoErrorNone("No error"),
     SoundIoErrorNoMem("Out of memory"),
     SoundIoErrorInitAudioBackend("The backend does not appear to be active or running"),
@@ -16,8 +16,9 @@ enum class AudioError(val readable: String) {
     SoundIoErrorIncompatibleBackend("Attempted to use parameters that the backend cannot support"),
     SoundIoErrorBackendDisconnected("Backend server shutdown or became inactive"),
     SoundIoErrorInterrupted("Error Interrupted"),
-    SoundIoErrorUnderflow("Buffer underrun occurred"),
+    SoundIoErrorUnderflow("Buffer under-run occurred"),
     SoundIoErrorEncodingString("Unable to convert to or from UTF-8 to the native string format"),
+
     /* custom errors */
     DevicesNotInitialized("device for track is null"),
     EnvironmentNotInitialized("No memory to initialize sound environment"),
@@ -27,5 +28,6 @@ enum class AudioError(val readable: String) {
     SoundIoInputMemoryNotAllocated("Input memory not allocated, cannot access data"),
     SoundIoOutputMemoryNotAllocated("Output memory not allocated, cannot access data"),
     SoundIoErrorTrackNotFound("Track not found with that track ID"),
-    SoundIoErrorOpeningFile("Error opening file for recording")
+    SoundIoErrorOpeningFile("Error opening file for recording"),
+    SoundIoErrorFileNotFound("Error during playback: file not found")
 }

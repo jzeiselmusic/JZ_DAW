@@ -54,7 +54,7 @@ static wavHeader _createWavHeader(int numSamples, int sampleRate, int bitDepth, 
     return header;
 }
 
-int open_wav_file(trackObject* track, int sample_rate) {
+int create_recording_wav_file(trackObject* track, int sample_rate) {
     /* open a new audio file for writing for track with id == trackid */
     int current_offset = csoundlib_state->current_cursor_offset;
 
@@ -100,15 +100,16 @@ int open_wav_file(trackObject* track, int sample_rate) {
     return SoundIoErrorNone;
 }
 
-void close_wav_file(audioFile* file) {
+void stop_recording_wav_file(audioFile* file) {
     file->is_file_open = false; // set to false to stop data thread writes
-    /* update .wav file for how many samples have been written */
     int fd = fileno(file->fp);
+    /* update .wav file for how many samples have been written */
     wavHeader header = _createWavHeader(file->samples_written, 44100, 24, 1);
     flock(fd, LOCK_EX);
     fseek(file->fp, 0, SEEK_SET);
     fwrite(&header, sizeof(wavHeader), 1, file->fp);
     flock(fd, LOCK_UN);
+
     fclose(file->fp);
 }
 
@@ -145,5 +146,23 @@ void thr_write_to_wav_file(trackObject* track, const char* bytes, int num_bytes)
     args->track = track;
     if (track->files[track->num_files - 1].is_file_open) {
         pthread_create(&thread_id, NULL, write_to_wav_file, (void*)args);
+    }
+}
+
+int open_wav_for_playback(trackObject* track, audioFile* file) {
+    if (file->is_file_open == false) {
+        FILE* fp = fopen(file->file_name, "rb");
+        if (!fp) {
+            return SoundIoErrorOpeningFile;
+        }
+        file->fp = fp;
+        file->is_file_open = true;
+    }
+    return SoundIoErrorNone;
+}
+
+void close_wav_for_playback(audioFile* file) {
+    if (file->is_file_open) {
+        fclose(file->fp);
     }
 }

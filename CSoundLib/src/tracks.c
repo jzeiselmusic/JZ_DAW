@@ -24,6 +24,8 @@ int lib_addNewTrack(int trackId) {
             .num_files = 0,
 
             .record_enabled = false,
+            .is_recording = false,
+            .is_playing_back = false,
             .input_device_index = lib_getDefaultInputDeviceIndex(),
             .input_channel_index = 0,
             .current_rms_volume = 0.0,
@@ -42,8 +44,10 @@ int lib_deleteTrack(int trackId) {
             /* close any open files to free the memory */
             for (int jdx = 0; jdx < track.num_files; jdx++) {
                 if (track.files[jdx].is_file_open) {
-                    close_wav_file(&(track.files[jdx]));
+                    close_wav_for_playback(&(track.files[jdx]));
                     track.files[jdx].is_file_open = false;
+                    track.is_recording = false;
+                    track.is_playing_back = false;
                 }
             }
             /* free memory that was waiting for future audio files */

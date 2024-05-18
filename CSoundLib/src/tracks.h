@@ -25,6 +25,8 @@ typedef struct _trackObj {
 
     bool input_enabled;
     bool record_enabled;
+    bool is_recording;
+    bool is_playing_back;
     int input_device_index; // input device currently attached to this track
     int input_channel_index;
     double current_rms_volume;

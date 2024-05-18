@@ -97,8 +97,8 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
             int rms_value = 0.0;
             double double_value = 0.0;
 
-            for (int frame = 0; frame < frame_count; frame += 1) {
-                for (int ch = 0; ch < instream->layout.channel_count; ch += 1) {
+            for (int frame = 0; frame < frame_count; frame ++) {
+                for (int ch = 0; ch < instream->layout.channel_count; ch ++) {
                     struct SoundIoRingBuffer* ring_buffer = csoundlib_state->input_channel_buffers[ch];
                     char* write_ptr = soundio_ring_buffer_write_ptr(ring_buffer);
                     char* bytes = areas[ch].ptr;
@@ -151,7 +151,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     /* clear mix buffer */
     memset(csoundlib_state->mixed_output_buffer, 0, MAX_BUFFER_SIZE_BYTES);
 
-    /* go through each input stream and read to a buffer if it has been written */
+    /* go through each input channel buffer and read to a buffer if it has been written by the input stream */
     int max_fill_count = 0;
     for (int channel = 0; channel < csoundlib_state->num_channels_available; channel++) {
         if (csoundlib_state->input_stream_started == true) {
@@ -170,25 +170,46 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
                 if (csoundlib_state->list_of_track_objects[idx].input_channel_index == channel) {
                     /* this track has chosen this channel for input */
                     double prev_vol = csoundlib_state->list_of_track_objects[idx].current_rms_volume;
-                    
+
                     csoundlib_state->list_of_track_objects[idx].current_rms_volume = 
                                             envelopeFollower(rms_val, ATTACK, RELEASE, prev_vol);
 
                     csoundlib_state->list_of_track_objects[idx].current_rms_raw = rms_val;
                     
-                    if (csoundlib_state->list_of_track_objects[idx].record_enabled && csoundlib_state->playback_started) {
+                    if (csoundlib_state->list_of_track_objects[idx].is_recording && csoundlib_state->playback_started) {
                         thr_write_to_wav_file(&(csoundlib_state->list_of_track_objects[idx]), read_ptr, fill_bytes);
                     }
                 } 
             }
             if (_sendChannelToOutput(channel)) {
+                /* add EACH channel buffer to the output only if it is enabled by at least one track */
                 add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, read_ptr, fill_bytes);
             }
             soundio_ring_buffer_advance_read_ptr(ring_buffer, fill_bytes);
         }
     }
 
-    /* now place data from mixed input buffer into output stream */
+    /* go through each track and write to output buffer if playing back and has files available for reading */
+    for (int trackidx = 0; trackidx < csoundlib_state->num_tracks; trackidx ++) {
+        if (csoundlib_state->list_of_track_objects[trackidx].is_playing_back) {
+            /* this should get changed to be the current location before cursor gets moved */
+            /* current implementation is that the UI moves the cursor which moves this value */
+            int current_offset = csoundlib_state->current_cursor_offset;
+            for (int fileidx = 0; fileidx < csoundlib_state->list_of_track_objects[trackidx].num_files; fileidx++) {
+                audioFile* file = &(csoundlib_state->list_of_track_objects[trackidx].files[fileidx]);
+                if (file->is_file_open) {
+                    if (current_offset > file->file_sample_offset && 
+                        current_offset < (file->file_sample_offset + file->samples_written)) {
+                        
+                        /* go to correct location in file and read fill_bytes number of bytes if available */
+                        /* if not available, read amount available and pad the rest with 0x00 */
+                    }
+                }
+            }
+        }
+    }
+
+    /* now place data from mixed output buffer into output stream */
     int read_count = min_int(frame_count_max, max_fill_count);
     /* handle case of no input streams */
     if (read_count == 0) read_count = frame_count_min;

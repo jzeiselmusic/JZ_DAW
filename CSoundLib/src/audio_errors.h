@@ -10,5 +10,6 @@
 #define SoundIoOutputMemoryNotAllocated           22
 #define SoundIoErrorTrackNotFound                 23
 #define SoundIoErrorOpeningFile                   24
+#define SoundIoErrorFileNotFound                  25
 
 #endif
