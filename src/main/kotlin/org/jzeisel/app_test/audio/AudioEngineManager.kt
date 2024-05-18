@@ -209,10 +209,6 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         soundInterface.lib_stopInputStream()
     }
 
-    fun getCurrentRMSVolume(deviceIndex: Int): Double {
-        return 1.0
-    }
-
     fun getNameOfChannelFromIndex(deviceIndex: Int, channelIndex: Int) : String{
         return soundInterface.lib_getNameOfChannelOfInputDevice(deviceIndex, channelIndex)
     }
@@ -285,7 +281,14 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     }
 
     fun getRmsVolume(trackId: Int) : Double {
+        /* filtered with envelope follower for visualization */
         val rms: Double = soundInterface.lib_getRmsVolume(trackId)
+        return 20.0 * log10(rms)
+    }
+
+    fun getRmsVolumeRaw(trackId: Int) : Double {
+        /* unfiltered audio data, rms average for the latest buffer */
+        val rms: Double = soundInterface.lib_getCurrentVolumeRaw(trackId)
         return 20.0 * log10(rms)
     }
 }

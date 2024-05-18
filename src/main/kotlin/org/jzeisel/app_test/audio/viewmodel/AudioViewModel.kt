@@ -200,4 +200,8 @@ class AudioViewModel(
         }
         return ret
     }
+
+    fun getRmsVolumeRaw(trackId: Int) : Double {
+        return audioEngineManager.getRmsVolumeRaw(trackId)
+    }
 }

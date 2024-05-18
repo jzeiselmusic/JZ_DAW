@@ -8,7 +8,6 @@ import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.util.*
-import kotlin.math.roundToInt
 
 class WaveFormFile(override val parent: Widget) :
     NodeWidget, TrackElement, WindowElement {
@@ -30,15 +29,14 @@ class WaveFormFile(override val parent: Widget) :
 
     private var recordingState = RecordingState.EMPTY
 
-    private val trackBackgroundList = mutableListOf<Rectangle>()
-    private val trackWaveFormList = mutableListOf<Rectangle>()
+    private val trackBackgroundRectangles = mutableListOf<Rectangle>()
+    private val trackWaveformRectangles = mutableListOf<Rectangle>()
 
     override val children = mutableListOf<Widget>()
 
     private val bgViewOrder = viewOrderFlip - 0.13
     private val wfViewOrder = viewOrderFlip - 0.14
 
-    private var numBuffers = 0
     private var numPixels = 0.0
 
     override fun addChild(child: Widget) {
@@ -93,28 +91,28 @@ class WaveFormFile(override val parent: Widget) :
             val pixels = samplesToPixels(numSamples, tempo, sampleRate, trackListState.pixelsInABeat)
             val levelHeight = scaleNumber(dbLevel, trackListState.trackHeight, 8.0)
             numPixels += pixels
-            if (numPixels >= 5) {
-                val bgRect = Rectangle(5.0, trackListState.trackHeight - 8, Color.WHITESMOKE.darker())
+            if (numPixels >= 1) {
+                val bgRect = Rectangle(numPixels.toInt().toDouble()+1.0, trackListState.trackHeight - 8, Color.WHITESMOKE.darker())
                 bgRect.translateY = parentTrack.trackOffsetY
                 bgRect.translateX =
                     (trackListState.currentDividerOffset.getValue() + currentPixelOffset!! + bgRect.width / 2.0)
                 bgRect.strokeWidth = 0.0
                 bgRect.viewOrder = bgViewOrder
 
-                val wfRect = Rectangle(5.0, levelHeight, Color.BLACK)
+                val wfRect = Rectangle(numPixels.toInt().toDouble() + 1.0, levelHeight, Color.DIMGREY.darker().darker())
                 wfRect.translateY = parentTrack.trackOffsetY
                 wfRect.translateX =
                     (trackListState.currentDividerOffset.getValue() + currentPixelOffset!! + bgRect.width / 2.0)
                 wfRect.strokeWidth = 0.0
                 wfRect.viewOrder = wfViewOrder
 
-                currentPixelOffset = currentPixelOffset!! + 5.0
+                currentPixelOffset = currentPixelOffset!! + numPixels
 
                 numPixels = 0.0
 
-                trackBackgroundList.add(bgRect)
-                trackWaveFormList.add(wfRect)
                 runLater {
+                    trackWaveformRectangles.add(wfRect)
+                    trackBackgroundRectangles.add(bgRect)
                     root.children.addAll(bgRect, wfRect)
                 }
             }

@@ -28,6 +28,7 @@ typedef struct _trackObj {
     int input_device_index; // input device currently attached to this track
     int input_channel_index;
     double current_rms_volume;
+    double current_rms_raw;
 } trackObject;
 
 int lib_addNewTrack(int track_id);
@@ -45,5 +46,7 @@ int lib_disarmTrackForRecording(int trackId);
 int lib_inputEnable(int trackId, bool enable);
 
 double lib_getRmsVolume(int trackId);
+
+double lib_getCurrentVolumeRaw(int trackId);
 
 #endif

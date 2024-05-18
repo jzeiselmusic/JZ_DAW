@@ -170,8 +170,11 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
                 if (csoundlib_state->list_of_track_objects[idx].input_channel_index == channel) {
                     /* this track has chosen this channel for input */
                     double prev_vol = csoundlib_state->list_of_track_objects[idx].current_rms_volume;
+                    
                     csoundlib_state->list_of_track_objects[idx].current_rms_volume = 
                                             envelopeFollower(rms_val, ATTACK, RELEASE, prev_vol);
+
+                    csoundlib_state->list_of_track_objects[idx].current_rms_raw = rms_val;
                     
                     if (csoundlib_state->list_of_track_objects[idx].record_enabled && csoundlib_state->playback_started) {
                         thr_write_to_wav_file(&(csoundlib_state->list_of_track_objects[idx]), read_ptr, fill_bytes);

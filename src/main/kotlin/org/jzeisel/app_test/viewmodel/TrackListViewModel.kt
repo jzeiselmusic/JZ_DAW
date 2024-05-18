@@ -116,8 +116,11 @@ class TrackListViewModel(val root: StackPane,
         if (_trackListStateFlow.state.playBackStarted) {
             val pixelsToMove = samplesToPixels(numSamples, audioViewModel.tempo, audioViewModel.sampleRate, _trackListStateFlow.state.pixelsInABeat)
             children.forEach {
-                val dbLevel = (it as NormalTrack).getCurrentVUReading()
-                it.processBuffer(dbLevel, numSamples)
+                val track = it as NormalTrack
+                if (track.isRecording) {
+                    val dbLevel = audioViewModel.getRmsVolumeRaw(track.trackId)
+                    it.processBuffer(dbLevel, numSamples)
+                }
             }
             CursorFollower.moveLocationForward(pixelsToMove)
         }
