@@ -19,6 +19,7 @@ import org.jzeisel.app_test.util.*
 class WaveFormBox(override val parent: Widget) :
     NodeWidget, TrackElement, WindowElement {
 
+    private lateinit var root: StackPane
     override val children: MutableList<Widget> = mutableListOf()
     val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
@@ -29,9 +30,9 @@ class WaveFormBox(override val parent: Widget) :
         parentTrack.initialTrackHeight,
         trackListState.generalPurple)
 
-    val measureDividers = mutableListOf<Rectangle>()
-    val beatDividers = mutableListOf<Rectangle>()
-    val ticksForMasterTrack = mutableListOf<Rectangle>()
+    private val measureDividers = mutableListOf<Rectangle>()
+    private val beatDividers = mutableListOf<Rectangle>()
+    private val ticksForMasterTrack = mutableListOf<Rectangle>()
 
     private val zValBase = viewOrderFlip - 0.1
     private val zValMeasures = viewOrderFlip - 0.11
@@ -160,6 +161,7 @@ class WaveFormBox(override val parent: Widget) :
     }
 
     override fun addMeToScene(root: StackPane) {
+        this.root = root
         registerForBroadcasts()
         root.children.add(trackRectangle)
         for (measureDivider in measureDividers) {
@@ -258,5 +260,20 @@ class WaveFormBox(override val parent: Widget) :
         for (tick in ticksForMasterTrack) {
             tick.translateX -= deltaX
         }
+    }
+
+    fun startRecording(initialPixelOffset: Double) {
+        val newFile = WaveFormFile(this)
+        newFile.addMeToScene(root)
+        newFile.startRecording(initialPixelOffset)
+        children.add(newFile)
+    }
+
+    fun stopRecording() {
+        (children.lastOrNull() as? WaveFormFile)?.stopRecording()
+    }
+
+    fun processBuffer(dbLevel: Double, numSamples: Int) {
+        (children.lastOrNull() as? WaveFormFile)?.processBuffer(dbLevel, numSamples)
     }
 }

@@ -115,6 +115,10 @@ class TrackListViewModel(val root: StackPane,
     fun onAudioSamplesProcessed(numSamples: Int) {
         if (_trackListStateFlow.state.playBackStarted) {
             val pixelsToMove = samplesToPixels(numSamples, audioViewModel.tempo, audioViewModel.sampleRate, _trackListStateFlow.state.pixelsInABeat)
+            children.forEach {
+                val dbLevel = (it as NormalTrack).getCurrentVUReading()
+                it.processBuffer(dbLevel, numSamples)
+            }
             CursorFollower.moveLocationForward(pixelsToMove)
         }
     }
@@ -126,13 +130,17 @@ class TrackListViewModel(val root: StackPane,
 
             audioViewModel.saveCurrentCursorOffsetSamples(currentPositionSamples)
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = true, savedCursorPositionOffset = currentPositionPixels)
-
+            children.forEach {
+                (it as NormalTrack).startRecording(currentPositionPixels)
+            }
             audioViewModel.startPlayback()
         }
         else {
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
             audioViewModel.stopPlayback()
-
+            children.forEach {
+                (it as NormalTrack).stopRecording()
+            }
             val savedPositionPixels = _trackListStateFlow.state.savedCursorPositionOffset
             CursorFollower.updateLocation(savedPositionPixels)
             audioViewModel.resetCursorOffsetSamples()

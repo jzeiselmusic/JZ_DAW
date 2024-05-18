@@ -37,6 +37,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
     val recordButton = RecordButton(this)
+    var isRecording = false
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         when (broadcastType) {
@@ -199,5 +200,27 @@ class NormalTrack(root: StackPane, override val parent: Widget,
             vuMeter.turnOffCurrentRMSReading()
         }
         trackListViewModel.setDisarmRecording(this)
+    }
+
+    fun startRecording(initialPixelOffset: Double) {
+        if (recordEnabled) {
+            waveFormBox.startRecording(initialPixelOffset)
+            isRecording = true
+        }
+    }
+
+    fun stopRecording() {
+        if (isRecording)
+            waveFormBox.stopRecording()
+        isRecording = false
+    }
+
+    fun processBuffer(dbLevel: Double, numSamples: Int) {
+        if (isRecording)
+            waveFormBox.processBuffer(dbLevel, numSamples)
+    }
+
+    fun getCurrentVUReading(): Double {
+        return vuMeter.currentVolume
     }
 }
