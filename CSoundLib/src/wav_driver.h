@@ -29,4 +29,6 @@ int open_wav_for_playback(trackObject* track, audioFile* file);
 
 void close_wav_for_playback(audioFile* file);
 
+int read_wav_file_to_buffer(trackObject* track, char* mixed_buffer, int max_bytes);
+
 #endif

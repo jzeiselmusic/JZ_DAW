@@ -194,37 +194,11 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     /* go through each track and write to output buffer if playing back and has files available for reading */
     for (int trackidx = 0; trackidx < csoundlib_state->num_tracks; trackidx ++) {
         if (csoundlib_state->list_of_track_objects[trackidx].is_playing_back) {
-            /* this should get changed to be the current location before cursor gets moved */
-            /* current implementation is that the UI moves the cursor which moves this value */
+            int bytes_copied = read_wav_file_to_buffer(&(csoundlib_state->list_of_track_objects[trackidx]), 
+                                                     csoundlib_state->mixed_output_buffer, 
+                                                     frame_count_max * outstream->bytes_per_frame);
+            if (bytes_copied > max_fill_count) max_fill_count = bytes_copied;
             int current_offset = csoundlib_state->current_cursor_offset;
-            for (int fileidx = 0; fileidx < csoundlib_state->list_of_track_objects[trackidx].num_files; fileidx++) {
-                audioFile* file = &(csoundlib_state->list_of_track_objects[trackidx].files[fileidx]);
-                if (file->is_file_open) {
-                    if (current_offset >= file->file_sample_offset && 
-                        current_offset < (file->file_sample_offset + file->samples_written)) {
-                        /* go to correct location in file and read fill_bytes number of bytes if available */
-                        /* if not available, read amount available and pad the rest with 0x00 */
-                        int num_samples_into_file = current_offset - file->file_sample_offset;
-                        FILE* fp = file->fp;
-
-                        int fd = fileno(fp);
-                        char temp_buffer[MAX_BUFFER_SIZE_BYTES] = {0x00};
-                        flock(fd, LOCK_EX);
-                        fseek(fp, sizeof(wavHeader) + num_samples_into_file * 3, SEEK_SET);
-                        int bytes_copied = 0;
-                        while (bytes_copied < (frame_count_max * outstream->bytes_per_frame)) {
-                            int ret = fread(temp_buffer + bytes_copied, sizeof(char), 3, fp);
-                            if (ret < 3) {
-                                break;
-                            }
-                            bytes_copied += 4;
-                        }
-                        add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, temp_buffer, bytes_copied);
-                        if (bytes_copied > max_fill_count) max_fill_count = bytes_copied;
-                        flock(fd, LOCK_UN);
-                    }
-                }
-            }
         }
     }
 

@@ -10,6 +10,7 @@
 
 #include "callbacks.h"
 #include "soundlib_util.h"
+#include "buffers_streams.h"
 
 #include <fcntl.h>
 
@@ -149,5 +150,40 @@ void close_wav_for_playback(audioFile* file) {
     if (file->is_file_open) {
         fclose(file->fp);
     }
+}
+
+int read_wav_file_to_buffer(trackObject* track, char* mixed_buffer, int max_bytes) {
+    /* this should get changed to be the current location before cursor gets moved */
+    /* current implementation is that the UI moves the cursor which moves this value */
+    int current_offset = csoundlib_state->current_cursor_offset;
+    for (int fileidx = 0; fileidx < track->num_files; fileidx++) {
+        audioFile* file = &(track->files[fileidx]);
+        if (file->is_file_open) {
+            if (current_offset >= file->file_sample_offset && 
+                current_offset < (file->file_sample_offset + file->samples_written)) {
+                /* go to correct location in file and read fill_bytes number of bytes if available */
+                /* if not available, read amount available and pad the rest with 0x00 */
+                int num_samples_into_file = current_offset - file->file_sample_offset;
+                FILE* fp = file->fp;
+
+                int fd = fileno(fp);
+                char temp_buffer[MAX_BUFFER_SIZE_BYTES] = {0x00};
+                flock(fd, LOCK_EX);
+                fseek(fp, sizeof(wavHeader) + num_samples_into_file * 3, SEEK_SET);
+                int bytes_copied = 0;
+                while (bytes_copied < max_bytes) {
+                    int ret = fread(temp_buffer + bytes_copied, sizeof(char), 3, fp);
+                    if (ret < 3) {
+                        break;
+                    }
+                    bytes_copied += 4;
+                }
+                add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, temp_buffer, bytes_copied);
+                flock(fd, LOCK_UN);
+                return bytes_copied;
+            }
+        }
+    }
+    return 0;
 }
 
