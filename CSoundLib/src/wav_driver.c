@@ -13,22 +13,6 @@
 
 #include <fcntl.h>
 
-typedef struct {
-    char chunkId[4];            // "RIFF"
-    uint32_t chunkSize;         // File size - 8
-    char format[4];             // "WAVE"
-    char subchunk1Id[4];        // "fmt "
-    uint32_t subchunk1Size;     // 16 for PCM
-    uint16_t audioFormat;       // 1 for PCM
-    uint16_t numChannels;       // 1 for mono
-    uint32_t sampleRate;        // 44100
-    uint32_t byteRate;          // sampleRate * numChannels * bitsPerSample/8
-    uint16_t blockAlign;        // numChannels * bitsPerSample/8
-    uint16_t bitsPerSample;     // 24
-    char subchunk2Id[4];        // "data"
-    uint32_t subchunk2Size;     // Number of bytes in the data chunk
-} wavHeader;
-
 typedef struct _writeArgs {
     FILE* fp;
     trackObject* track;
@@ -166,3 +150,4 @@ void close_wav_for_playback(audioFile* file) {
         fclose(file->fp);
     }
 }
+

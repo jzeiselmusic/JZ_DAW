@@ -12,6 +12,8 @@
 #include "audio_state.h"
 #include "wav_driver.h"
 
+#include <fcntl.h>
+
 static int _createInputStream(int device_index, double microphone_latency, int sample_rate);
 
 static int _createOutputStream(int device_index, double microphone_latency, int sample_rate);
@@ -198,11 +200,28 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             for (int fileidx = 0; fileidx < csoundlib_state->list_of_track_objects[trackidx].num_files; fileidx++) {
                 audioFile* file = &(csoundlib_state->list_of_track_objects[trackidx].files[fileidx]);
                 if (file->is_file_open) {
-                    if (current_offset > file->file_sample_offset && 
+                    if (current_offset >= file->file_sample_offset && 
                         current_offset < (file->file_sample_offset + file->samples_written)) {
-                        
                         /* go to correct location in file and read fill_bytes number of bytes if available */
                         /* if not available, read amount available and pad the rest with 0x00 */
+                        int num_samples_into_file = current_offset - file->file_sample_offset;
+                        FILE* fp = file->fp;
+
+                        int fd = fileno(fp);
+                        char temp_buffer[MAX_BUFFER_SIZE_BYTES] = {0x00};
+                        flock(fd, LOCK_EX);
+                        fseek(fp, sizeof(wavHeader) + num_samples_into_file * 3, SEEK_SET);
+                        int bytes_copied = 0;
+                        while (bytes_copied < (frame_count_max * outstream->bytes_per_frame)) {
+                            int ret = fread(temp_buffer + bytes_copied, sizeof(char), 3, fp);
+                            if (ret < 3) {
+                                break;
+                            }
+                            bytes_copied += 4;
+                        }
+                        add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, temp_buffer, bytes_copied);
+                        if (bytes_copied > max_fill_count) max_fill_count = bytes_copied;
+                        flock(fd, LOCK_UN);
                     }
                 }
             }
