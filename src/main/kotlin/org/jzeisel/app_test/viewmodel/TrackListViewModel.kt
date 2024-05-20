@@ -199,6 +199,13 @@ class TrackListViewModel(val root: StackPane,
         masterTrack.inputNameBox.exitTextField(root)
     }
 
+    fun broadcastMousePress() {
+        for (child in children) {
+            val track = child as NormalTrack
+            track.waveFormBox.unclickAllFiles()
+        }
+    }
+
     fun broadcastBackSpace() {
         for (child in children) {
             val track = child as Track

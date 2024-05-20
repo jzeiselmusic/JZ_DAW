@@ -23,8 +23,8 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         }
     var isAdded = false
     private var rectangleWidth = 1.8
-    private const val zValCursor = viewOrderFlip - 0.14
-    private const val zValCursorTriangle = viewOrderFlip - 0.15
+    private const val zValCursor = viewOrderFlip - 0.16
+    private const val zValCursorTriangle = viewOrderFlip - 0.165
     private val rectangleHeight: Double
         get() {
             return trackListFlow.numTracks * trackListState.trackHeight

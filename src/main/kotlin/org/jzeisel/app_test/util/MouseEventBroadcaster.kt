@@ -20,6 +20,9 @@ object MouseEventBroadcaster {
         scene.addEventFilter(MouseEvent.MOUSE_CLICKED) {
             broadcastMouseClick()
         }
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED) {
+            trackListViewModel.broadcastMousePress()
+        }
         scene.addEventFilter(KeyEvent.KEY_PRESSED) {
             broadcastKeyPressForTyping(it)
         }

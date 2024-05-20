@@ -1,5 +1,7 @@
 package org.jzeisel.app_test.components.trackComponents
 
+import javafx.event.EventHandler
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
@@ -29,15 +31,26 @@ class WaveFormFile(override val parent: Widget) :
 
     private var recordingState = RecordingState.EMPTY
 
+    /* while recording, rectangles are created separately for each buffer */
     private val trackBackgroundRectangles = mutableListOf<Rectangle>()
     private val trackWaveformRectangles = mutableListOf<Rectangle>()
+
+    private val wrappingRectangle = Rectangle()
+    private val fillingRectangle = Rectangle()
 
     override val children = mutableListOf<Widget>()
 
     private val bgViewOrder = viewOrderFlip - 0.13
     private val wfViewOrder = viewOrderFlip - 0.14
+    private val wrapperViewOrder = viewOrderFlip - 0.145
 
     private var numPixels = 0.0
+    private var startingPixelOffset = 0.0
+    private var totalPixelWidth = 0.0
+
+    private val mousePressEvent = EventHandler<MouseEvent> {
+        clickFile()
+    }
 
     override fun addChild(child: Widget) {
         /* will have no children */
@@ -76,13 +89,55 @@ class WaveFormFile(override val parent: Widget) :
 
     }
 
+    fun clickFile() {
+        runLater(50.0) {
+            for (rect in trackBackgroundRectangles) {
+                rect.fill = Color.LIGHTGRAY.brighter().brighter()
+            }
+        }
+    }
+
+    fun unclickFile() {
+        for (rect in trackBackgroundRectangles) {
+            rect.fill = Color.WHITESMOKE.darker()
+        }
+    }
+
     fun startRecording(pixelOffset: Double) {
         recordingState = RecordingState.RECORDING
+        startingPixelOffset = pixelOffset
         currentPixelOffset = pixelOffset
     }
 
     fun stopRecording() {
         recordingState = RecordingState.RECORDED
+
+        runLater {
+            fillingRectangle.height = trackListState.trackHeight - 8
+            fillingRectangle.width = totalPixelWidth + 0.5
+            fillingRectangle.translateY = parentTrack.trackOffsetY
+            fillingRectangle.translateX =
+                trackListState.currentDividerOffset.getValue() + startingPixelOffset + fillingRectangle.width / 2.0
+            fillingRectangle.fill = Color.BLACK
+            fillingRectangle.opacity = 0.0
+            fillingRectangle.viewOrder = wrapperViewOrder
+            fillingRectangle.isMouseTransparent = false
+            fillingRectangle.onMousePressed = mousePressEvent
+
+            wrappingRectangle.height = trackListState.trackHeight - 8
+            wrappingRectangle.width = totalPixelWidth + 0.5
+            wrappingRectangle.translateY = parentTrack.trackOffsetY
+            wrappingRectangle.translateX =
+                trackListState.currentDividerOffset.getValue() + startingPixelOffset + wrappingRectangle.width / 2.0
+            wrappingRectangle.fill = null
+            wrappingRectangle.isMouseTransparent = true
+            wrappingRectangle.stroke = Color.BLACK
+            wrappingRectangle.strokeWidth = 1.7
+            wrappingRectangle.arcWidth = 3.0
+            wrappingRectangle.arcHeight = 3.0
+            wrappingRectangle.viewOrder = wrapperViewOrder
+            root.children.addAll(fillingRectangle, wrappingRectangle)
+        }
     }
 
     fun processBuffer(dbLevel: Double, numSamples: Int) {
@@ -98,6 +153,7 @@ class WaveFormFile(override val parent: Widget) :
                     (trackListState.currentDividerOffset.getValue() + currentPixelOffset!! + bgRect.width / 2.0)
                 bgRect.strokeWidth = 0.0
                 bgRect.viewOrder = bgViewOrder
+                bgRect.isMouseTransparent = true
 
                 val wfRect = Rectangle(numPixels.toInt().toDouble() + 1.0, levelHeight, Color.DIMGREY.darker().darker())
                 wfRect.translateY = parentTrack.trackOffsetY
@@ -105,15 +161,18 @@ class WaveFormFile(override val parent: Widget) :
                     (trackListState.currentDividerOffset.getValue() + currentPixelOffset!! + bgRect.width / 2.0)
                 wfRect.strokeWidth = 0.0
                 wfRect.viewOrder = wfViewOrder
+                wfRect.isMouseTransparent = true
 
                 currentPixelOffset = currentPixelOffset!! + numPixels
 
-                numPixels = 0.0
-
                 runLater {
-                    trackWaveformRectangles.add(wfRect)
-                    trackBackgroundRectangles.add(bgRect)
-                    root.children.addAll(bgRect, wfRect)
+                    if (recordingState == RecordingState.RECORDING) {
+                        trackWaveformRectangles.add(wfRect)
+                        trackBackgroundRectangles.add(bgRect)
+                        root.children.addAll(bgRect, wfRect)
+                        totalPixelWidth += numPixels
+                        numPixels = 0.0
+                    }
                 }
             }
         }
