@@ -146,6 +146,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         runLater {
             cursorRectangle.translateX -= deltaX
             cursorPointer.translateX -= deltaX
+            currentOffsetX -= deltaX
         }
     }
 
