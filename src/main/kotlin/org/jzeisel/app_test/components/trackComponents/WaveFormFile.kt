@@ -5,14 +5,16 @@ import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.interfaces.TrackElement
+import org.jzeisel.app_test.components.interfaces.WaveElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.util.*
 
 class WaveFormFile(override val parent: Widget) :
-    NodeWidget, TrackElement, WindowElement {
+    NodeWidget, TrackElement, WindowElement, WaveElement {
     /* every waveformfile represents a single .wav file with audio */
     private lateinit var root: StackPane
 
@@ -59,34 +61,92 @@ class WaveFormFile(override val parent: Widget) :
     override fun addMeToScene(root: StackPane) {
         /* save root to start adding rectangles to scene */
         this.root = root
+        registerForBroadcasts()
     }
 
     override fun removeMeFromScene(root: StackPane) {
         /* when user wants to delete a recorded file from the track */
+        unregisterForBroadcasts()
+        root.children.remove(wrappingRectangle)
+        root.children.remove(fillingRectangle)
+        for (rect in trackWaveformRectangles) {
+            root.children.remove(rect)
+        }
+        for (rect in trackBackgroundRectangles) {
+            root.children.remove(rect)
+        }
     }
 
     override fun respondToIndexChange(old: Double, new: Double) {
-
+        trackWaveformRectangles.forEach {
+            it.translateY = parentTrack.trackOffsetY
+        }
+        trackBackgroundRectangles.forEach {
+            it.translateY = parentTrack.trackOffsetY
+        }
+        fillingRectangle.translateY = parentTrack.trackOffsetY
+        wrappingRectangle.translateY = parentTrack.trackOffsetY
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {
-
+        ((new - old) /2.0).let {
+            trackWaveformRectangles.forEach {rect->
+                rect.translateY -= it
+            }
+            trackBackgroundRectangles.forEach {rect->
+                rect.translateY -= it
+            }
+            wrappingRectangle.translateY -= it
+            fillingRectangle.translateY -= it
+        }
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
-
+        ((new - old) /2.0).let {
+            trackWaveformRectangles.forEach {rect->
+                rect.translateX -= it
+            }
+            trackBackgroundRectangles.forEach {rect->
+                rect.translateX -= it
+            }
+            wrappingRectangle.translateX -= it
+            fillingRectangle.translateX -= it
+        }
     }
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
-
+        when(broadcastType) {
+            BroadcastType.STAGE_WIDTH -> respondToWidthChange(old, new)
+            BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
+            BroadcastType.INDEX -> respondToIndexChange(old, new)
+            BroadcastType.SCROLL -> respondToScrollChange(new)
+            BroadcastType.DIVIDER -> {}
+        }
     }
 
     override fun registerForBroadcasts() {
-
+        trackListViewModel.registerForWidthChanges(this)
+        trackListViewModel.registerForHeightChanges(this)
+        trackListViewModel.registerForScrollChanges(this)
+        (parentTrack as NormalTrack).registerForIndexChanges(this)
     }
 
     override fun unregisterForBroadcasts() {
+        trackListViewModel.unregisterForHeightChanges(this)
+        trackListViewModel.unregisterForWidthChanges(this)
+        trackListViewModel.unregisterForScrollChanges(this)
+        (parentTrack as NormalTrack).unregisterForIndexChanges(this)
+    }
 
+    override fun respondToScrollChange(deltaX: Double) {
+        trackWaveformRectangles.forEach {
+            it.translateX -= deltaX
+        }
+        trackBackgroundRectangles.forEach {
+            it.translateX -= deltaX
+        }
+        wrappingRectangle.translateX -= deltaX
+        fillingRectangle.translateX -= deltaX
     }
 
     fun clickFile() {

@@ -11,13 +11,14 @@ import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.MasterTrack
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.interfaces.WaveElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.util.*
 
 class WaveFormBox(override val parent: Widget) :
-    NodeWidget, TrackElement, WindowElement {
+    NodeWidget, TrackElement, WindowElement, WaveElement {
 
     private lateinit var root: StackPane
     override val children: MutableList<Widget> = mutableListOf()
@@ -132,7 +133,7 @@ class WaveFormBox(override val parent: Widget) :
             BroadcastType.STAGE_WIDTH -> respondToWidthChange(old, new)
             BroadcastType.STAGE_HEIGHT -> respondToHeightChange(old, new)
             BroadcastType.INDEX -> respondToIndexChange(old, new)
-            BroadcastType.SCROLL -> respondToScrollChanges(new)
+            BroadcastType.SCROLL -> respondToScrollChange(new)
         }
     }
 
@@ -248,7 +249,7 @@ class WaveFormBox(override val parent: Widget) :
         }
     }
 
-    fun respondToScrollChanges(deltaX: Double) {
+    override fun respondToScrollChange(deltaX: Double) {
         trackRectangle.translateX -= deltaX
         trackListViewModel.updateWaveFormOffset(trackListFlow.waveFormTranslateX - trackRectangle.translateX)
         for (measureDivider in measureDividers) {
