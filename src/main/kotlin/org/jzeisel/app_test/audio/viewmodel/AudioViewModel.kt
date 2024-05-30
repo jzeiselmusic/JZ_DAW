@@ -123,8 +123,8 @@ class AudioViewModel(
         viewModelController.reportAudioSamplesProcessed(numSamples)
     }
 
-    fun startPlayback() {
-        audioEngineManager.startPlayback().whenNot(AudioError.SoundIoErrorNone) {
+    fun startPlayback(fileId: Int) {
+        audioEngineManager.startPlayback(fileId).whenNot(AudioError.SoundIoErrorNone) {
             viewModelController.throwAudioError(it)
         }
     }
@@ -203,5 +203,11 @@ class AudioViewModel(
 
     fun getRmsVolumeRaw(trackId: Int) : Double {
         return audioEngineManager.getRmsVolumeRaw(trackId)
+    }
+
+    fun updateTrackOffset(trackId: Int, fileId: Int, newOffset: Int) {
+        audioEngineManager.updateTrackOffset(trackId, fileId, newOffset).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
     }
 }

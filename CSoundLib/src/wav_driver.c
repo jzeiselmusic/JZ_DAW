@@ -39,7 +39,7 @@ static wavHeader _createWavHeader(int numSamples, int sampleRate, int bitDepth, 
     return header;
 }
 
-int create_recording_wav_file(trackObject* track, int sample_rate) {
+int create_recording_wav_file(trackObject* track, int sample_rate, int fileId) {
     /* open a new audio file for writing for track with id == trackid */
     int current_offset = csoundlib_state->current_cursor_offset;
 
@@ -72,6 +72,7 @@ int create_recording_wav_file(trackObject* track, int sample_rate) {
 
     audioFile file_obj = {
         .fp = fp,
+        .file_id = fileId,
         .is_file_open = true,
         .file_sample_offset = current_offset,
         .samples_written = 0

@@ -202,9 +202,9 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         trackListViewModel.setDisarmRecording(this)
     }
 
-    fun startRecording(initialPixelOffset: Double) {
+    fun startRecording(initialPixelOffset: Double, fileId: Int) {
         if (recordEnabled) {
-            waveFormBox.startRecording(initialPixelOffset)
+            waveFormBox.startRecording(initialPixelOffset, fileId)
             isRecording = true
         }
     }

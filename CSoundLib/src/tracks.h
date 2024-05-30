@@ -11,6 +11,7 @@
 
 typedef struct _audioFile {
     FILE* fp;
+    int file_id;
     bool is_file_open;
     int file_sample_offset; // where the file starts 
     int samples_written;
@@ -22,7 +23,6 @@ typedef struct _trackObj {
     int track_id; // unique identifier
     audioFile* files; // pointer to list of files representing audio data to be read
     int num_files;
-
     bool input_enabled;
     bool record_enabled;
     bool is_recording;
@@ -50,5 +50,7 @@ int lib_inputEnable(int trackId, bool enable);
 double lib_getRmsVolume(int trackId);
 
 double lib_getCurrentVolumeRaw(int trackId);
+
+int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
 
 #endif

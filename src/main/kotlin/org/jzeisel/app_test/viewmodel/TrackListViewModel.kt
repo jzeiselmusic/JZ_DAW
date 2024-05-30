@@ -41,6 +41,7 @@ class TrackListViewModel(val root: StackPane,
         CursorFollower.updateFromTrackList(root)
     }
     var listOfTrackIds: MutableList<Int> = mutableListOf()
+    var listOfFileIds: MutableList<Int> = mutableListOf()
     /*      *****      */
 
     val _trackListStateFlow = TrackListStateFlow(stageWidthProperty, stageHeightProperty)
@@ -131,10 +132,14 @@ class TrackListViewModel(val root: StackPane,
 
             audioViewModel.saveCurrentCursorOffsetSamples(currentPositionSamples)
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = true, savedCursorPositionOffset = currentPositionPixels)
-            children.forEach {
-                (it as NormalTrack).startRecording(currentPositionPixels)
+            var newFileId = Random.nextInt()
+            while (newFileId in listOfFileIds) {
+                newFileId = Random.nextInt()
             }
-            audioViewModel.startPlayback()
+            children.forEach {
+                (it as NormalTrack).startRecording(currentPositionPixels, it.trackId.xor(newFileId))
+            }
+            audioViewModel.startPlayback(newFileId)
         }
         else {
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
@@ -332,5 +337,9 @@ class TrackListViewModel(val root: StackPane,
     fun setDisarmRecording(child: Widget) {
         val id = (child as NormalTrack).trackId
         audioViewModel.disarmRecording(id)
+    }
+
+    fun updateFileOffset(newSampleOffset: Int, fileId: Int, trackId: Int) {
+        audioViewModel.updateTrackOffset(trackId, fileId, newSampleOffset)
     }
 }

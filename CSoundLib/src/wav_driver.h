@@ -19,7 +19,7 @@ typedef struct _wavHeader {
     uint32_t subchunk2Size;     // Number of bytes in the data chunk
 } wavHeader;
 
-int create_recording_wav_file(trackObject* track, int sample_rate);
+int create_recording_wav_file(trackObject* track, int sample_rate, int fileId);
 
 void stop_recording_wav_file(audioFile* file);
 

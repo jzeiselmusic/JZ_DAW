@@ -263,8 +263,8 @@ class WaveFormBox(override val parent: Widget) :
         }
     }
 
-    fun startRecording(initialPixelOffset: Double) {
-        val newFile = WaveFormFile(this)
+    fun startRecording(initialPixelOffset: Double, fileId: Int) {
+        val newFile = WaveFormFile(this, fileId)
         newFile.addMeToScene(root)
         newFile.startRecording(initialPixelOffset)
         children.add(newFile)

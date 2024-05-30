@@ -13,7 +13,7 @@ import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.util.*
 
-class WaveFormFile(override val parent: Widget) :
+class WaveFormFile(override val parent: Widget, val fileId: Int) :
     NodeWidget, TrackElement, WindowElement, WaveElement {
     /* every waveformfile represents a single .wav file with audio */
     private lateinit var root: StackPane
@@ -50,8 +50,17 @@ class WaveFormFile(override val parent: Widget) :
     private var startingPixelOffset = 0.0
     private var totalPixelWidth = 0.0
 
+    /* click point is defined as the distance from the start of
+    the file rectangle to the point the user clicked */
+    private var clickPoint: Double? = null
+
     private val mousePressEvent = EventHandler<MouseEvent> {
+        clickPoint = it.x
         clickFile()
+    }
+
+    private val mouseDragEvent = EventHandler<MouseEvent> {
+        dragFile(it)
     }
 
     override fun addChild(child: Widget) {
@@ -183,6 +192,7 @@ class WaveFormFile(override val parent: Widget) :
             fillingRectangle.viewOrder = wrapperViewOrder
             fillingRectangle.isMouseTransparent = false
             fillingRectangle.onMousePressed = mousePressEvent
+            fillingRectangle.onMouseDragged = mouseDragEvent
 
             wrappingRectangle.height = trackListState.trackHeight - 8
             wrappingRectangle.width = totalPixelWidth + 0.5
@@ -236,5 +246,32 @@ class WaveFormFile(override val parent: Widget) :
                 }
             }
         }
+    }
+
+    private fun dragFile(event: MouseEvent) {
+        var realX = event.x
+        clickPoint?.let { realX = event.x - it }
+        val xDistance =
+            if (realX > trackListState.pixelsInABeat) trackListState.pixelsInABeat
+            else if (realX < -trackListState.pixelsInABeat) -trackListState.pixelsInABeat
+            else 0.0
+        trackBackgroundRectangles.forEach {
+            it.translateX += xDistance
+        }
+        trackWaveformRectangles.forEach {
+            it.translateX += xDistance
+        }
+        fillingRectangle.translateX += xDistance
+        wrappingRectangle.translateX += xDistance
+
+        startingPixelOffset += xDistance
+
+        val newSampleOffset = pixelsToSamples(
+            startingPixelOffset,
+            trackListViewModel.audioViewModel.tempo,
+            trackListViewModel.audioViewModel.sampleRate,
+            trackListState.pixelsInABeat)
+
+        trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
     }
 }

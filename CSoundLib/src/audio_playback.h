@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "tracks.h"
 
-int lib_startPlayback();
+int lib_startPlayback(int fileId);
 
 void lib_stopPlayback();
 

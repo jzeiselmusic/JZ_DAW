@@ -129,3 +129,17 @@ double lib_getCurrentVolumeRaw(int trackId) {
     }
     return 0.0;
 }
+
+int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            for (int jdx = 0; jdx < csoundlib_state->list_of_track_objects[idx].num_files; jdx++) {
+                if (fileId == csoundlib_state->list_of_track_objects[idx].files[jdx].file_id) {
+                    csoundlib_state->list_of_track_objects[idx].files[jdx].file_sample_offset = newOffset;
+                    return SoundIoErrorNone;
+                }
+            }
+        }
+    }
+    return SoundIoErrorFileNotFound;
+}

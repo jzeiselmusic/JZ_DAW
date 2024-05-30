@@ -34,7 +34,7 @@ public class SoundIoInterface {
         int lib_getCurrentBackend();
         int lib_checkEnvironmentAndBackendConnected();
 
-        int lib_startPlayback();
+        int lib_startPlayback(int fileId);
         void lib_stopPlayback();
         void lib_updateCursorOffsetSamples(int offset);
 
@@ -79,6 +79,7 @@ public class SoundIoInterface {
         int lib_inputEnable(int trackId, boolean enable);
         double lib_getRmsVolume(int trackId);
         double lib_getCurrentVolumeRaw(int trackId);
+        int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -100,7 +101,7 @@ public class SoundIoInterface {
     public int lib_startSession() { return SoundIoLib.INSTANCE.lib_startSession(); }
     public int lib_destroySession() { return SoundIoLib.INSTANCE.lib_destroySession(); }
     public int lib_getCurrentBackend() { return SoundIoLib.INSTANCE.lib_getCurrentBackend(); }
-    public int lib_startPlayback() { return SoundIoLib.INSTANCE.lib_startPlayback(); }
+    public int lib_startPlayback(int fileId) { return SoundIoLib.INSTANCE.lib_startPlayback(fileId); }
     public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
     public void lib_updateCursorOffsetSamples(int offset) { SoundIoLib.INSTANCE.lib_updateCursorOffsetSamples(offset); }
 
@@ -158,4 +159,7 @@ public class SoundIoInterface {
         return SoundIoLib.INSTANCE.lib_getRmsVolume(trackId);
     }
     public double lib_getCurrentVolumeRaw(int trackId) { return SoundIoLib.INSTANCE.lib_getCurrentVolumeRaw(trackId); };
+    public int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
+        return SoundIoLib.INSTANCE.lib_updateTrackOffset(trackId, fileId, newOffset);
+    }
 }

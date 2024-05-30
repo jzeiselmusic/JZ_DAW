@@ -196,8 +196,8 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
     }
 
-    fun startPlayback(): AudioError {
-        val error = soundInterface.lib_startPlayback()
+    fun startPlayback(fileId: Int): AudioError {
+        val error = soundInterface.lib_startPlayback(fileId)
         return AudioError.values()[error]
     }
 
@@ -290,5 +290,10 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         /* unfiltered audio data, rms average for the latest buffer */
         val rms: Double = soundInterface.lib_getCurrentVolumeRaw(trackId)
         return 20.0 * log10(rms)
+    }
+
+    fun updateTrackOffset(trackId: Int, fileId: Int, newOffset: Int): AudioError {
+        val error = soundInterface.lib_updateTrackOffset(trackId, fileId, newOffset)
+        return AudioError.values()[error]
     }
 }
