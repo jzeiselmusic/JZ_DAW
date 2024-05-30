@@ -2,14 +2,12 @@ package org.jzeisel.app_test.viewmodel
 
 import javafx.animation.PauseTransition
 import javafx.beans.property.ReadOnlyDoubleProperty
-import javafx.scene.Cursor
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
-import org.jzeisel.app_test.audio.whenNot
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
@@ -150,10 +148,14 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
-    fun updateCursorOffset(value: Double) {
+    fun updateCursorOffsetFromWaveformStart(value: Double) {
         _trackListStateFlow.state = _trackListStateFlow.state.copy(cursorOffset = value)
-        val pixelOffsetFromStart = CursorFollower.currentOffsetX
-        val sampleOffsetFromStart = pixelsToSamples(pixelOffsetFromStart, audioViewModel.tempo, audioViewModel.sampleRate, _trackListStateFlow.state.pixelsInABeat)
+        val sampleOffsetFromStart = pixelsToSamples(
+            value,
+            audioViewModel.tempo,
+            audioViewModel.sampleRate,
+            _trackListStateFlow.state.pixelsInABeat
+        )
         audioViewModel.updateCursorOffsetSamples(sampleOffsetFromStart)
     }
 

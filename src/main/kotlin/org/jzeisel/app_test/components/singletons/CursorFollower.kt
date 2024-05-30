@@ -41,7 +41,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     var currentOffsetX = 0.0
         set(value) {
             field = value
-            trackListViewModel.updateCursorOffset(value)
+            trackListViewModel.updateCursorOffsetFromWaveformStart(value)
         }
 
     override fun addMeToScene(root:StackPane) {}
@@ -146,7 +146,6 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         runLater {
             cursorRectangle.translateX -= deltaX
             cursorPointer.translateX -= deltaX
-            currentOffsetX -= deltaX
         }
     }
 

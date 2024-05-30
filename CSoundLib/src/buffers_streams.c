@@ -194,11 +194,10 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     /* go through each track and write to output buffer if playing back and has files available for reading */
     for (int trackidx = 0; trackidx < csoundlib_state->num_tracks; trackidx ++) {
         if (csoundlib_state->list_of_track_objects[trackidx].is_playing_back) {
-            int bytes_copied = read_wav_file_to_buffer(&(csoundlib_state->list_of_track_objects[trackidx]), 
+            int bytes_copied = read_wav_file_for_playback(&(csoundlib_state->list_of_track_objects[trackidx]), 
                                                      csoundlib_state->mixed_output_buffer, 
                                                      frame_count_max * outstream->bytes_per_frame);
             if (bytes_copied > max_fill_count) max_fill_count = bytes_copied;
-            int current_offset = csoundlib_state->current_cursor_offset;
         }
     }
 

@@ -90,12 +90,14 @@ void stop_recording_wav_file(audioFile* file) {
     int fd = fileno(file->fp);
     /* update .wav file for how many samples have been written */
     wavHeader header = _createWavHeader(file->samples_written, 44100, 24, 1);
+
     flock(fd, LOCK_EX);
+
     fseek(file->fp, 0, SEEK_SET);
     fwrite(&header, sizeof(wavHeader), 1, file->fp);
-    flock(fd, LOCK_UN);
-
     fclose(file->fp);
+
+    flock(fd, LOCK_UN);
 }
 
 void* write_to_wav_file(void* args) {
@@ -152,7 +154,7 @@ void close_wav_for_playback(audioFile* file) {
     }
 }
 
-int read_wav_file_to_buffer(trackObject* track, char* mixed_buffer, int max_bytes) {
+int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_bytes) {
     /* this should get changed to be the current location before cursor gets moved */
     /* current implementation is that the UI moves the cursor which moves this value */
     int current_offset = csoundlib_state->current_cursor_offset;

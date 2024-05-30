@@ -134,6 +134,7 @@ class AudioViewModel(
     }
 
     fun updateCursorOffsetSamples(samples: Int) {
+        Logger.debug(javaClass.simpleName, "new sample offset: $samples", 5)
         audioStateFlow._state = audioStateFlow._state.copy(cursorOffsetSamples = samples)
         audioEngineManager.updateCursorOffsetSamples(samples)
     }

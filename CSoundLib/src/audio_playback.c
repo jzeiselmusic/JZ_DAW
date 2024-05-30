@@ -18,12 +18,12 @@ int lib_startPlayback() {
                 return ret;
             }
             csoundlib_state->list_of_track_objects[idx].is_recording = true;
+            csoundlib_state->list_of_track_objects[idx].is_playing_back = false;
         }
         else {
             /* playback mode */
             /* open all previously recorded files for reading */
-            int num_files = csoundlib_state->list_of_track_objects[idx].num_files;
-            for (int jdx = 0; jdx < num_files; jdx++) {
+            for (int jdx = 0; jdx < csoundlib_state->list_of_track_objects[idx].num_files; jdx++) {
                 audioFile* file = &(csoundlib_state->list_of_track_objects[idx].files[jdx]);
                 int ret = open_wav_for_playback(&(csoundlib_state->list_of_track_objects[idx]), file);
                 if (ret != SoundIoErrorNone) {
@@ -31,6 +31,7 @@ int lib_startPlayback() {
                 }
             }
             csoundlib_state->list_of_track_objects[idx].is_playing_back = true;
+            csoundlib_state->list_of_track_objects[idx].is_recording = false;
         }
     }
     csoundlib_state->playback_started = true;
@@ -45,15 +46,16 @@ void lib_stopPlayback() {
         if (track.is_recording) {
             /* stop and close file being written */
             stop_recording_wav_file(&(track.files[track.num_files - 1]));
-            track.is_recording = false;
+            inputStreamCallback("finished recording: offset", track.files[track.num_files - 1].file_sample_offset);
         }
         else if (track.is_playing_back) {
             /* close all files open for reading */
             for (int jdx = 0; jdx < track.num_files; jdx++) {
                 close_wav_for_playback(&(files[jdx]));
             }
-            track.is_playing_back = false;
         }
+        track.is_recording = false;
+        track.is_playing_back = false;
     }
 }
 

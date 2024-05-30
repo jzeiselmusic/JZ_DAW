@@ -177,7 +177,7 @@ class WaveFormFile(override val parent: Widget) :
             fillingRectangle.width = totalPixelWidth + 0.5
             fillingRectangle.translateY = parentTrack.trackOffsetY
             fillingRectangle.translateX =
-                trackListState.currentDividerOffset.getValue() + startingPixelOffset + fillingRectangle.width / 2.0
+                trackListState.currentDividerOffset.getValue() - trackListState.waveFormOffset + startingPixelOffset + fillingRectangle.width / 2.0
             fillingRectangle.fill = Color.BLACK
             fillingRectangle.opacity = 0.0
             fillingRectangle.viewOrder = wrapperViewOrder
@@ -188,7 +188,7 @@ class WaveFormFile(override val parent: Widget) :
             wrappingRectangle.width = totalPixelWidth + 0.5
             wrappingRectangle.translateY = parentTrack.trackOffsetY
             wrappingRectangle.translateX =
-                trackListState.currentDividerOffset.getValue() + startingPixelOffset + wrappingRectangle.width / 2.0
+                trackListState.currentDividerOffset.getValue() - trackListState.waveFormOffset + startingPixelOffset + wrappingRectangle.width / 2.0
             wrappingRectangle.fill = null
             wrappingRectangle.isMouseTransparent = true
             wrappingRectangle.stroke = Color.BLACK
@@ -210,7 +210,7 @@ class WaveFormFile(override val parent: Widget) :
                 val bgRect = Rectangle(numPixels.toInt().toDouble()+1.0, trackListState.trackHeight - 8, Color.WHITESMOKE.darker())
                 bgRect.translateY = parentTrack.trackOffsetY
                 bgRect.translateX =
-                    (trackListState.currentDividerOffset.getValue() + currentPixelOffset!! + bgRect.width / 2.0)
+                    trackListState.currentDividerOffset.getValue() - trackListState.waveFormOffset + currentPixelOffset!! + bgRect.width / 2.0
                 bgRect.strokeWidth = 0.0
                 bgRect.viewOrder = bgViewOrder
                 bgRect.isMouseTransparent = true
@@ -218,7 +218,7 @@ class WaveFormFile(override val parent: Widget) :
                 val wfRect = Rectangle(numPixels.toInt().toDouble() + 1.0, levelHeight, Color.DIMGREY.darker().darker())
                 wfRect.translateY = parentTrack.trackOffsetY
                 wfRect.translateX =
-                    (trackListState.currentDividerOffset.getValue() + currentPixelOffset!! + bgRect.width / 2.0)
+                    trackListState.currentDividerOffset.getValue() - trackListState.waveFormOffset + currentPixelOffset!! + bgRect.width / 2.0
                 wfRect.strokeWidth = 0.0
                 wfRect.viewOrder = wfViewOrder
                 wfRect.isMouseTransparent = true
