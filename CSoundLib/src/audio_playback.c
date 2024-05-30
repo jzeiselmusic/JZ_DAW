@@ -54,8 +54,8 @@ void lib_stopPlayback() {
                 close_wav_for_playback(&(files[jdx]));
             }
         }
-        track.is_recording = false;
-        track.is_playing_back = false;
+        csoundlib_state->list_of_track_objects[idx].is_recording = false;
+        csoundlib_state->list_of_track_objects[idx].is_playing_back = false;
     }
 }
 

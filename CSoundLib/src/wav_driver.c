@@ -140,18 +140,20 @@ int open_wav_for_playback(trackObject* track, audioFile* file) {
     if (file->is_file_open == false) {
         FILE* fp = fopen(file->file_name, "rb");
         if (!fp) {
+            panicCallback("error opening file for playback");
             return SoundIoErrorOpeningFile;
         }
         file->fp = fp;
         file->is_file_open = true;
+        logCallback("opened file for playback");
     }
     return SoundIoErrorNone;
 }
 
 void close_wav_for_playback(audioFile* file) {
-    if (file->is_file_open) {
-        fclose(file->fp);
-    }
+    logCallback("closing file after playback");
+    fclose(file->fp);
+    file->is_file_open = false;
 }
 
 int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_bytes) {
