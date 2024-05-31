@@ -125,6 +125,12 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
+    fun deletePressed() {
+        children.forEach {
+            (it as NormalTrack).deleteHighlightedFiles()
+        }
+    }
+
     fun spacePressed() {
         if (!_trackListStateFlow.state.playBackStarted) {
             val currentPositionPixels = _trackListStateFlow.state.cursorOffset

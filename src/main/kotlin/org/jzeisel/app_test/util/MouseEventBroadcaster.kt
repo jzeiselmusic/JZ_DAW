@@ -30,6 +30,9 @@ object MouseEventBroadcaster {
             if (it.code == KeyCode.SPACE) {
                 trackListViewModel.spacePressed()
             }
+            else if (it.code == KeyCode.DELETE || it.code == KeyCode.BACK_SPACE) {
+                trackListViewModel.deletePressed()
+            }
         }
         scene.addEventFilter(ScrollEvent.SCROLL) {
             trackListViewModel.scrollSceneVertically(it.deltaY)

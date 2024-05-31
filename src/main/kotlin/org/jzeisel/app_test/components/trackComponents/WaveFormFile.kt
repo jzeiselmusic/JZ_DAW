@@ -50,6 +50,8 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     private var startingPixelOffset = 0.0
     private var totalPixelWidth = 0.0
 
+    var isHighlighted: Boolean = false
+
     /* click point is defined as the distance from the start of
     the file rectangle to the point the user clicked */
     private var clickPoint: Double? = null
@@ -163,6 +165,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             for (rect in trackBackgroundRectangles) {
                 rect.fill = Color.LIGHTGRAY.brighter().brighter()
             }
+            isHighlighted = true
         }
     }
 
@@ -170,6 +173,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         for (rect in trackBackgroundRectangles) {
             rect.fill = Color.WHITESMOKE.darker()
         }
+        isHighlighted = false
     }
 
     fun startRecording(pixelOffset: Double) {

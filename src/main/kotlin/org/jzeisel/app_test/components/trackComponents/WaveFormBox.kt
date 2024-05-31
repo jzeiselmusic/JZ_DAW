@@ -274,6 +274,22 @@ class WaveFormBox(override val parent: Widget) :
         (children.lastOrNull() as? WaveFormFile)?.stopRecording()
     }
 
+    fun deleteHighlightedFiles() {
+        val indexesToDelete = mutableListOf<Int>()
+        children.forEach {
+            (it as? WaveFormFile)?.let { file->
+                if (file.isHighlighted) {
+                    file.removeMeFromScene(root)
+                    val index = children.indexOf(it)
+                    indexesToDelete.add(index)
+                }
+            }
+        }
+        indexesToDelete.forEach {
+            children.removeAt(it)
+        }
+    }
+
     fun processBuffer(dbLevel: Double, numSamples: Int) {
         (children.lastOrNull() as? WaveFormFile)?.processBuffer(dbLevel, numSamples)
     }
