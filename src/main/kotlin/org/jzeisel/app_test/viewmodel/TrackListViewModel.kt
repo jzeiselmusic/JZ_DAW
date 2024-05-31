@@ -172,14 +172,16 @@ class TrackListViewModel(val root: StackPane,
 
     fun removeTrack(child: Widget) {
         /* same comment as above */
+        val trackId = (child as NormalTrack).trackId
         runLater {
-            val trackId = (child as NormalTrack).trackId
-            audioViewModel.removeTrack(trackId)
             child.removeMeFromScene(root)
             listOfTrackIds.remove(trackId)
             children = children.toMutableList().apply {
                 remove(child)
             }
+        }
+        runLater(500.0) {
+            audioViewModel.removeTrack(trackId)
         }
     }
 

@@ -223,8 +223,4 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         if (isRecording)
             waveFormBox.processBuffer(dbLevel, numSamples)
     }
-
-    fun getCurrentVUReading(): Double {
-        return vuMeter.currentVolume
-    }
 }

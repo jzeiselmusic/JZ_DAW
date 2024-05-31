@@ -179,6 +179,12 @@ class WaveFormBox(override val parent: Widget) :
     }
 
     override fun removeMeFromScene(root: StackPane) {
+        children.forEach {
+            (it as? WaveFormFile)?.let { file ->
+                trackListViewModel.deleteAudioFile((parentTrack as NormalTrack).trackId, file.fileId)
+                file.removeMeFromScene(root)
+            }
+        }
         runLater {
             unregisterForBroadcasts()
             root.children.remove(trackRectangle)
