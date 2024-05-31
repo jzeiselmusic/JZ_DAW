@@ -32,7 +32,6 @@ int lib_addNewTrack(int trackId) {
             .input_channel_index = 0,
             .current_rms_volume_input_stream = 0.0,
             .current_rms_volume_track_playback = 0.0,
-            .current_rms_raw = 0.0
         };
 
     csoundlib_state->list_of_track_objects[csoundlib_state->num_tracks] = track;
@@ -158,15 +157,6 @@ double lib_getRmsVolumeTrackPlayback(int trackId) {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
             return csoundlib_state->list_of_track_objects[idx].current_rms_volume_track_playback;
-        }
-    }
-    return 0.0;
-}
-
-double lib_getCurrentVolumeRaw(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            return csoundlib_state->list_of_track_objects[idx].current_rms_raw;
         }
     }
     return 0.0;

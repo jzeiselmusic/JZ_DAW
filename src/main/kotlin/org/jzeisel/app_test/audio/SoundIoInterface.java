@@ -80,7 +80,6 @@ public class SoundIoInterface {
         int lib_inputEnable(int trackId, boolean enable);
         double lib_getRmsVolumeInputStream(int trackId);
         double lib_getRmsVolumeTrackPlayback(int trackId);
-        double lib_getCurrentVolumeRaw(int trackId);
         int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
     }
 
@@ -164,7 +163,6 @@ public class SoundIoInterface {
     public double lib_getRmsVolumeTrackPlayback(int trackId) {
         return SoundIoLib.INSTANCE.lib_getRmsVolumeTrackPlayback(trackId);
     }
-    public double lib_getCurrentVolumeRaw(int trackId) { return SoundIoLib.INSTANCE.lib_getCurrentVolumeRaw(trackId); };
     public int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
         return SoundIoLib.INSTANCE.lib_updateTrackOffset(trackId, fileId, newOffset);
     }

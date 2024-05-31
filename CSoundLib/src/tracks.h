@@ -31,7 +31,6 @@ typedef struct _trackObj {
     int input_channel_index;
     double current_rms_volume_input_stream;
     double current_rms_volume_track_playback;
-    double current_rms_raw;
 } trackObject;
 
 int lib_addNewTrack(int track_id);
@@ -53,8 +52,6 @@ int lib_inputEnable(int trackId, bool enable);
 double lib_getRmsVolumeInputStream(int trackId);
 
 double lib_getRmsVolumeTrackPlayback(int trackId);
-
-double lib_getCurrentVolumeRaw(int trackId);
 
 int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
 

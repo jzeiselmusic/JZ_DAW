@@ -14,7 +14,9 @@ import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.util.Duration
 import kotlinx.coroutines.delay
+import kotlin.math.pow
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 
 fun animateObjectScale(from: Double, to: Double, obj: Shape, duration: Double = 100.0) {
@@ -50,6 +52,10 @@ fun scaleNumber(input: Double, max: Double, min: Double): Double {
     val scaledInput = input.coerceIn(-80.0..0.0)
     val scaledValue = min + (scaledInput - minVolume) * (max - min) / (-minVolume)
     return scaledValue
+}
+
+fun combineRmsVolumes(vararg volumes: Double): Double {
+    return sqrt(volumes.sumOf { it.pow(2) } / volumes.size)
 }
 
 fun quantizeNumber(value: Double, startingOffsetX: Double, increment: Double): Double {

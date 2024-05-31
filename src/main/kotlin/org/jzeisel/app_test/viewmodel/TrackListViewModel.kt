@@ -20,6 +20,7 @@ import org.jzeisel.app_test.error.ErrorType
 import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.*
+import kotlin.math.log10
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -117,7 +118,7 @@ class TrackListViewModel(val root: StackPane,
             children.forEach {
                 val track = it as NormalTrack
                 if (track.isRecording) {
-                    val dbLevel = audioViewModel.getRmsVolumeRaw(track.trackId)
+                    val dbLevel = 20 * log10(audioViewModel.getRmsVolumeInputStream(track.trackId))
                     it.processBuffer(dbLevel, numSamples)
                 }
             }

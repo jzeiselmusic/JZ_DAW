@@ -2,12 +2,15 @@ package org.jzeisel.app_test.audio
 
 import kotlinx.coroutines.*
 import org.jzeisel.app_test.audio.viewmodel.ViewModelController
+import org.jzeisel.app_test.util.Logger
+import org.jzeisel.app_test.util.combineRmsVolumes
 import org.jzeisel.app_test.util.loop
 import java.util.*
+import kotlin.math.log10
 
 class VUMeterThread(private val audioEngineManager: AudioEngineManager,
                     private val viewModelController: ViewModelController,
-                    private val audioStateFlow: AudioStateFlow) {
+                    audioStateFlow: AudioStateFlow) {
     private val threadDelay = 50L
     private var synchronizedTrackList = Collections.synchronizedList(audioStateFlow._state.trackList)
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -24,8 +27,12 @@ class VUMeterThread(private val audioEngineManager: AudioEngineManager,
                     if (isActive) {
                         synchronizedTrackList.forEach { track ->
                             if (track.inputEnabled || track.recordingEnabled) {
-                                val rmsVolume = audioEngineManager.getRmsVolumeInputStream(track.trackId)
-                                viewModelController.sendTrackRMSVolume(rmsVolume, track.trackId)
+                                val rmsVolumeInput = audioEngineManager.getRmsVolumeInputStream(track.trackId)
+                                Logger.debug(javaClass.simpleName, "input: $rmsVolumeInput", 5)
+                                val rmsVolumeTrack = audioEngineManager.getRmsVolumeTrackPlayback(track.trackId)
+                                Logger.debug(javaClass.simpleName, "track: $rmsVolumeTrack", 5)
+                                val total = combineRmsVolumes(rmsVolumeTrack, rmsVolumeInput)
+                                viewModelController.sendTrackRMSVolume(20 * log10(total), track.trackId)
                             }
                         }
                     }

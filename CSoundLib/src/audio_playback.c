@@ -45,6 +45,7 @@ void lib_stopPlayback() {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         trackObject track = csoundlib_state->list_of_track_objects[idx];
         audioFile* files = track.files;
+        csoundlib_state->list_of_track_objects[idx].current_rms_volume_track_playback = 0.0;
         if (track.is_recording) {
             /* stop and close file being written */
             stop_recording_wav_file(&(track.files[track.num_files - 1]));

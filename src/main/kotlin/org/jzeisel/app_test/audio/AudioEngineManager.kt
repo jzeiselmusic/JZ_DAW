@@ -288,19 +288,11 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun getRmsVolumeInputStream(trackId: Int) : Double {
         /* filtered with envelope follower for visualization */
-        val rms: Double = soundInterface.lib_getRmsVolumeInputStream(trackId)
-        return 20.0 * log10(rms)
+        return soundInterface.lib_getRmsVolumeInputStream(trackId)
     }
 
     fun getRmsVolumeTrackPlayback(trackId: Int) : Double {
-        val rms: Double = soundInterface.lib_getRmsVolumeTrackPlayback(trackId)
-        return 20.0 * log10(rms)
-    }
-
-    fun getRmsVolumeRaw(trackId: Int) : Double {
-        /* unfiltered audio data, rms average for the latest buffer */
-        val rms: Double = soundInterface.lib_getCurrentVolumeRaw(trackId)
-        return 20.0 * log10(rms)
+        return soundInterface.lib_getRmsVolumeTrackPlayback(trackId)
     }
 
     fun updateTrackOffset(trackId: Int, fileId: Int, newOffset: Int): AudioError {
