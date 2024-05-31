@@ -29,13 +29,16 @@ typedef struct _trackObj {
     bool is_playing_back;
     int input_device_index; // input device currently attached to this track
     int input_channel_index;
-    double current_rms_volume;
+    double current_rms_volume_input_stream;
+    double current_rms_volume_track_playback;
     double current_rms_raw;
 } trackObject;
 
 int lib_addNewTrack(int track_id);
 
 int lib_deleteTrack(int track_id);
+
+int lib_deleteFile(int trackId, int fileId) ;
 
 int lib_trackChooseInputDevice(int trackId, int device_index);
 
@@ -47,7 +50,9 @@ int lib_disarmTrackForRecording(int trackId);
 
 int lib_inputEnable(int trackId, bool enable);
 
-double lib_getRmsVolume(int trackId);
+double lib_getRmsVolumeInputStream(int trackId);
+
+double lib_getRmsVolumeTrackPlayback(int trackId);
 
 double lib_getCurrentVolumeRaw(int trackId);
 

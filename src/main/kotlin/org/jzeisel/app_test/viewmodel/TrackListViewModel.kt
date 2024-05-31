@@ -183,6 +183,12 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
+    fun deleteAudioFile(trackId: Int, fileId: Int) {
+        Logger.debug(javaClass.simpleName, "deleting file", 3)
+        audioViewModel.deleteFile(trackId, fileId)
+        listOfFileIds.remove(fileId)
+    }
+
     fun setTrackDeviceAndChannel(trackId: Int, deviceIndex: Int, channelIndex: Int) {
         audioViewModel.setTrackDeviceAndChannel(trackId, deviceIndex, channelIndex)
     }

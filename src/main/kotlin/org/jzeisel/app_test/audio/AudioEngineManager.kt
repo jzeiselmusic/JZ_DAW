@@ -251,6 +251,12 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         return AudioError.values()[error]
     }
 
+    fun deleteFile(trackId: Int, fileId: Int): AudioError {
+        Logger.debug(javaClass.simpleName, "deleting file", 3)
+        val error = soundInterface.lib_deleteFile(trackId, fileId)
+        return AudioError.values()[error]
+    }
+
     fun chooseInputDeviceIndexForTrack(trackId: Int, deviceIndex: Int) : AudioError {
         val error = soundInterface.lib_trackChooseInputDevice(trackId, deviceIndex)
         return AudioError.values()[error]
@@ -280,9 +286,14 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         return AudioError.values()[error]
     }
 
-    fun getRmsVolume(trackId: Int) : Double {
+    fun getRmsVolumeInputStream(trackId: Int) : Double {
         /* filtered with envelope follower for visualization */
-        val rms: Double = soundInterface.lib_getRmsVolume(trackId)
+        val rms: Double = soundInterface.lib_getRmsVolumeInputStream(trackId)
+        return 20.0 * log10(rms)
+    }
+
+    fun getRmsVolumeTrackPlayback(trackId: Int) : Double {
+        val rms: Double = soundInterface.lib_getRmsVolumeTrackPlayback(trackId)
         return 20.0 * log10(rms)
     }
 

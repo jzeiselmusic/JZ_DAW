@@ -170,7 +170,6 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
                 /* if not available, read amount available and pad the rest with 0x00 */
                 int num_samples_into_file = current_offset - file->file_sample_offset;
                 FILE* fp = file->fp;
-
                 int fd = fileno(fp);
                 char temp_buffer[MAX_BUFFER_SIZE_BYTES] = {0x00};
                 flock(fd, LOCK_EX);

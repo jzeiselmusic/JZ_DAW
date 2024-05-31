@@ -279,6 +279,7 @@ class WaveFormBox(override val parent: Widget) :
         children.forEach {
             (it as? WaveFormFile)?.let { file->
                 if (file.isHighlighted) {
+                    trackListViewModel.deleteAudioFile((parentTrack as NormalTrack).trackId, file.fileId)
                     file.removeMeFromScene(root)
                     val index = children.indexOf(it)
                     indexesToDelete.add(index)

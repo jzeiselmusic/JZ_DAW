@@ -24,7 +24,7 @@ class VUMeterThread(private val audioEngineManager: AudioEngineManager,
                     if (isActive) {
                         synchronizedTrackList.forEach { track ->
                             if (track.inputEnabled || track.recordingEnabled) {
-                                val rmsVolume = audioEngineManager.getRmsVolume(track.trackId)
+                                val rmsVolume = audioEngineManager.getRmsVolumeInputStream(track.trackId)
                                 viewModelController.sendTrackRMSVolume(rmsVolume, track.trackId)
                             }
                         }

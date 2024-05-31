@@ -91,6 +91,13 @@ class AudioViewModel(
         vuMeterThread.updateSynchronizedTrackList(tList)
     }
 
+    fun deleteFile(trackId: Int, fileId: Int) {
+        Logger.debug(javaClass.simpleName, "deleting file", 3)
+        audioEngineManager.deleteFile(trackId, fileId).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
+    }
+
     fun setTrackDeviceAndChannel(trackId: Int, deviceIndex: Int, channelIndex: Int) {
         val device = audioEngineManager.getInputDeviceFromIndex(deviceIndex)
         val channel = audioEngineManager.getChannelsFromDeviceIndex(deviceIndex)!![channelIndex]

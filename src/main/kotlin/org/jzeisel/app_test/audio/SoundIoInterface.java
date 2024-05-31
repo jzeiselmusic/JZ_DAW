@@ -72,12 +72,14 @@ public class SoundIoInterface {
         /* handling tracks */
         int lib_addNewTrack(int trackId);
         int lib_deleteTrack(int trackId);
+        int lib_deleteFile(int trackId, int fileId);
         int lib_trackChooseInputDevice(int trackId, int device_index);
         int lib_trackChooseInputChannel(int trackId, int channel_index);
         int lib_armTrackForRecording(int trackId);
         int lib_disarmTrackForRecording(int trackId);
         int lib_inputEnable(int trackId, boolean enable);
-        double lib_getRmsVolume(int trackId);
+        double lib_getRmsVolumeInputStream(int trackId);
+        double lib_getRmsVolumeTrackPlayback(int trackId);
         double lib_getCurrentVolumeRaw(int trackId);
         int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
     }
@@ -140,6 +142,7 @@ public class SoundIoInterface {
     public int lib_stopOutputStream() { return SoundIoLib.INSTANCE.lib_stopOutputStream(); }
     public int lib_addNewTrack(int trackId) { return SoundIoLib.INSTANCE.lib_addNewTrack(trackId); }
     public int lib_deleteTrack(int trackId) { return SoundIoLib.INSTANCE.lib_deleteTrack(trackId); }
+    public int lib_deleteFile(int trackId, int fileId) { return SoundIoLib.INSTANCE.lib_deleteFile(trackId, fileId); }
     public int lib_trackChooseInputDevice(int trackId, int device_index) {
         return SoundIoLib.INSTANCE.lib_trackChooseInputDevice(trackId, device_index);
     }
@@ -155,8 +158,11 @@ public class SoundIoInterface {
     public int lib_inputEnable(int trackId, boolean enable) {
         return SoundIoLib.INSTANCE.lib_inputEnable(trackId, enable);
     }
-    public double lib_getRmsVolume(int trackId) {
-        return SoundIoLib.INSTANCE.lib_getRmsVolume(trackId);
+    public double lib_getRmsVolumeInputStream(int trackId) {
+        return SoundIoLib.INSTANCE.lib_getRmsVolumeInputStream(trackId);
+    }
+    public double lib_getRmsVolumeTrackPlayback(int trackId) {
+        return SoundIoLib.INSTANCE.lib_getRmsVolumeTrackPlayback(trackId);
     }
     public double lib_getCurrentVolumeRaw(int trackId) { return SoundIoLib.INSTANCE.lib_getCurrentVolumeRaw(trackId); };
     public int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
