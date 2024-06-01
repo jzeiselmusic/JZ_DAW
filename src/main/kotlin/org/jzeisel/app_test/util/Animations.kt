@@ -1,16 +1,9 @@
 package org.jzeisel.app_test.util
 
 import javafx.animation.Interpolator
-import javafx.animation.ParallelTransition
-import javafx.animation.PathTransition
 import javafx.animation.PauseTransition
 import javafx.animation.ScaleTransition
-import javafx.animation.Transition
 import javafx.application.Platform
-import javafx.scene.Node
-import javafx.scene.shape.MoveTo
-import javafx.scene.shape.Path
-import javafx.scene.shape.Rectangle
 import javafx.scene.shape.Shape
 import javafx.util.Duration
 import kotlinx.coroutines.delay

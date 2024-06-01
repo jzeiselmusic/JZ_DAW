@@ -145,14 +145,17 @@ class TrackListViewModel(val root: StackPane,
             }
             children.forEach {
                 (it as NormalTrack).startRecording(currentPositionPixels, it.trackId.xor(newFileId))
+                it.setVUMeterRunning(true)
             }
             audioViewModel.startPlayback(newFileId)
+
         }
         else {
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
             audioViewModel.stopPlayback()
             children.forEach {
                 (it as NormalTrack).stopRecording()
+                it.setVUMeterRunning(false)
             }
             val savedPositionPixels = _trackListStateFlow.state.savedCursorPositionOffset
             CursorFollower.updateLocation(savedPositionPixels)
@@ -310,7 +313,6 @@ class TrackListViewModel(val root: StackPane,
 
     fun setInputEnabled(child: Widget) {
         audioViewModel.enableInputForTrack((child as NormalTrack).trackId)
-
     }
 
     fun setInputDisabled(child: Widget) {

@@ -3,7 +3,7 @@ package org.jzeisel.app_test.audio
 data class AudioState(
     var isInitialized: Boolean = false,
     var backend: AudioBackend = AudioBackend.SoundIoBackendNone,
-    var isPlaying: Boolean = false,
+    var isPlayingBack: Boolean = false,
     var playBackLocation: Double = 0.0,
     var tempo: Double = 140.0,
     var tSignatureTop: UInt = 4U,

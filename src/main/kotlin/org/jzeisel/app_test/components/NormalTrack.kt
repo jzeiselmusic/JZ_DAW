@@ -164,6 +164,10 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         index.removeListener(listener)
     }
 
+    fun setVUMeterRunning(enabled: Boolean) {
+        vuMeter.isVUMeterRunning = enabled
+    }
+
     fun audioInputEnable() {
         trackListViewModel.setInputEnabled(this)
         vuMeter.isVUMeterRunning = true

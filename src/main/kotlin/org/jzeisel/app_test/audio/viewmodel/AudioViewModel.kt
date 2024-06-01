@@ -132,13 +132,18 @@ class AudioViewModel(
     }
 
     fun startPlayback(fileId: Int) {
-        audioEngineManager.startPlayback(fileId).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+        val error = audioEngineManager.startPlayback(fileId)
+        if (error != AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(error)
+        }
+        else {
+            audioStateFlow._state = audioStateFlow._state.copy(isPlayingBack = true)
         }
     }
 
     fun stopPlayback() {
         audioEngineManager.stopPlayback()
+        audioStateFlow._state = audioStateFlow._state.copy(isPlayingBack = false)
     }
 
     fun updateCursorOffsetSamples(samples: Int) {
