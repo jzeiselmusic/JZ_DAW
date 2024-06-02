@@ -306,4 +306,15 @@ class WaveFormBox(override val parent: Widget) :
             (it as WaveFormFile).unclickFile()
         }
     }
+
+    fun popFile(fileId: Int) : WaveFormFile {
+        val file = children.filter { (it as WaveFormFile).fileId == fileId }[0]
+        children.remove(file)
+        return file as WaveFormFile
+    }
+
+    fun addAlreadyExistingFile(file: WaveFormFile) {
+        file.mutableParent = this
+        children.add(file)
+    }
 }

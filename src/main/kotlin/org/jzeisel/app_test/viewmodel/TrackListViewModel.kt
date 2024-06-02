@@ -34,7 +34,7 @@ class TrackListViewModel(val root: StackPane,
     override val parent: Widget? = null
     /* all TrackList children will be NormalTracks */
     override var children : MutableList<Widget> by Delegates.observable(mutableListOf()) { _, old, new ->
-        _trackListStateFlow.state = _trackListStateFlow.state.copy(numChildren = new.size)
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(numTracks = new.size)
         for (child in children) {
             val t = child as NormalTrack
             t.respondToChangeInTrackList(old, new)
@@ -195,14 +195,31 @@ class TrackListViewModel(val root: StackPane,
         listOfFileIds.remove(fileId)
     }
 
-    fun moveFile(direction: MoveDirection, sourceTrackId: Int, sourceFileId: Int) {
+    fun moveFile(moveDirection: MoveDirection, sourceTrackId: Int, sourceFileId: Int) {
         /* - find track above or below this one.
            - move file out of source track wavebox child list
            - change source file parent
            - put file into destination track wavebox child list
            - tell audio engine to move file
        */
-        
+        val sourceTrack = children.filter{ (it as NormalTrack).trackId == sourceTrackId }[0] as NormalTrack
+        val sourceTrackIndex = sourceTrack.index.getValue().toInt()
+        if (moveDirection == MoveDirection.UP && sourceTrackIndex != 0) {
+            /* move file up */
+            val destTrack = children.filter { (it as NormalTrack).index.getValue().toInt() == sourceTrackIndex - 1}[0] as NormalTrack
+            val fileToMove = sourceTrack.waveFormBox.popFile(sourceFileId)
+            destTrack.waveFormBox.addAlreadyExistingFile(fileToMove)
+            fileToMove.moveFile(MoveDirection.UP)
+            audioViewModel.moveFile(destTrack.trackId, sourceTrack.trackId, sourceFileId)
+        }
+        if (moveDirection == MoveDirection.DOWN && (sourceTrackIndex != _trackListStateFlow.state.numTracks - 1)) {
+            /* move file down */
+            val destTrack = children.filter { (it as NormalTrack).index.getValue().toInt() == sourceTrackIndex + 1 }[0] as NormalTrack
+            val fileToMove = sourceTrack.waveFormBox.popFile(sourceFileId)
+            destTrack.waveFormBox.addAlreadyExistingFile(fileToMove)
+            fileToMove.moveFile(MoveDirection.DOWN)
+            audioViewModel.moveFile(destTrack.trackId, sourceTrack.trackId, sourceFileId)
+        }
     }
 
     fun setTrackDeviceAndChannel(trackId: Int, deviceIndex: Int, channelIndex: Int) {

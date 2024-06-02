@@ -11,6 +11,7 @@
 #include "audio_state.h"
 #include "wav_driver.h"
 
+#include "callbacks.h"
 #include <fcntl.h>
 
 int lib_addNewTrack(int trackId) {
@@ -112,12 +113,16 @@ int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFile
     if (destTrackFound == false) {
         return SoundIoErrorTrackNotFound;
     }
+    logCallback("found destination track");
+
     /* then find source track, move it to destination, and delete from source */
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == sourceTrackId) {
+            logCallback("found source track");
             audioFile* files = csoundlib_state->list_of_track_objects[idx].files;
             for (int jdx = 0; jdx < csoundlib_state->list_of_track_objects[idx].num_files; jdx++) {
                 if (files[jdx].file_id == sourceFileId) {
+                    logCallback("found source file");
                     memcpy(&(destTrackLocation->files[destTrackLocation->num_files]), &(files[jdx]), sizeof(audioFile));
                     lib_deleteFile(sourceTrackId, sourceFileId);
                     return SoundIoErrorNone;
@@ -125,6 +130,7 @@ int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFile
             }
         }
     }
+    logCallback("here");
     return SoundIoErrorFileNotFound;
 }
 

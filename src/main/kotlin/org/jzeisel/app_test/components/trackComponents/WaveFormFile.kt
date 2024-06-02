@@ -6,24 +6,38 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.NormalTrack
+import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WaveElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
+import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.util.*
+import org.jzeisel.app_test.viewmodel.TrackListViewModel
 
 class WaveFormFile(override val parent: Widget, val fileId: Int) :
     NodeWidget, TrackElement, WindowElement, WaveElement {
     /* every waveformfile represents a single .wav file with audio */
     private lateinit var root: StackPane
+    var mutableParent: Widget = parent
+    private val parentWaveBox: WaveFormBox
+        get() { return mutableParent as WaveFormBox }
+    private val parentTrack: Track
+        get() { return parentWaveBox.parentTrack }
 
-    private val parentWaveBox = parent as WaveFormBox
-    private val parentTrack = parentWaveBox.parentTrack
-    private val trackListViewModel = parentTrack.trackListViewModel
-    private val trackListState = parentTrack.trackListState
-    private val tempo = trackListViewModel.audioViewModel.tempo
-    private val sampleRate = trackListViewModel.audioViewModel.sampleRate
+    private val trackListViewModel: TrackListViewModel
+        get() { return parentTrack.trackListViewModel }
+
+    private val trackListState : TrackListState
+        get() { return parentTrack.trackListState }
+
+    private val tempo: Double
+        get() { return trackListViewModel.audioViewModel.tempo }
+
+    private val sampleRate: Int
+        get() { return trackListViewModel.audioViewModel.sampleRate }
+
     enum class RecordingState {
         EMPTY, RECORDING, RECORDED
     }
@@ -255,6 +269,22 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     }
 
     private fun dragFile(event: MouseEvent) {
+
+        /* y shifting */
+        var realY = event.y
+        clickPointY?.let { realY -= it }
+        val yDistance =
+            if (realY > trackListState.trackHeight) trackListState.trackHeight
+            else if (realY < -trackListState.trackHeight) -trackListState.trackHeight
+            else 0.0
+        if (yDistance != 0.0) {
+            val moveDirection =
+                if (yDistance > 0) MoveDirection.DOWN
+                else MoveDirection.UP
+            trackListViewModel.moveFile(moveDirection, (parentTrack as NormalTrack).trackId, fileId)
+            return
+        }
+
         /* x shifting */
         var realX = event.x
         clickPointX?.let { realX -= it }
@@ -279,15 +309,17 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             trackListViewModel.audioViewModel.sampleRate,
             trackListState.pixelsInABeat
         )
-        trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
+        // trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
+    }
 
-        /* y shifting */
-        var realY = event.y
-        clickPointY?.let { realY -= it }
-        val yDistance =
-            if (realY > trackListState.trackHeight) trackListState.trackHeight
-            else if (realX < -trackListState.trackHeight) -trackListState.trackHeight
-            else 0.0
+    fun moveFile(moveDirection: MoveDirection) {
+        var yDistance: Double
+        if (moveDirection == MoveDirection.UP) {
+            yDistance = -trackListState.trackHeight
+        }
+        else {
+            yDistance = trackListState.trackHeight
+        }
         trackBackgroundRectangles.forEach {
             it.translateY += yDistance
         }
@@ -296,11 +328,5 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         }
         fillingRectangle.translateY += yDistance
         wrappingRectangle.translateY += yDistance
-
-        val moveDirection =
-            if (yDistance > 0) MoveDirection.DOWN
-            else MoveDirection.UP
-
-        trackListViewModel.moveFile(moveDirection, parentTrack.trackId, fileId)
     }
 }
