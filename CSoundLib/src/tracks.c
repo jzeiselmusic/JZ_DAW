@@ -77,9 +77,9 @@ int lib_deleteFile(int trackId, int fileId) {
             audioFile* files = csoundlib_state->list_of_track_objects[idx].files;
             for (int jdx = 0; jdx < track.num_files; jdx++) {
                 if (files[jdx].file_id == fileId) {
-                    int fd = fileno(files[idx].fp);
+                    int fd = fileno(files[jdx].fp);
                     flock(fd, LOCK_EX);
-                    fclose(files[idx].fp);
+                    fclose(files[jdx].fp);
                     for (int kdx = jdx + 1; kdx < track.num_files; kdx++) {
                         memcpy(&(files[kdx-1]), &(files[kdx]), sizeof(audioFile));
                         if (kdx == track.num_files-1) {
@@ -98,7 +98,6 @@ int lib_deleteFile(int trackId, int fileId) {
 
 int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFileId) {
     /* find source file in source track. copy it to destination track file list. delete from source track file list */
-
     /* first find destination track */
     trackObject* destTrackLocation;
     bool destTrackFound = false;
@@ -109,20 +108,15 @@ int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFile
             break;
         }
     }
-
     if (destTrackFound == false) {
         return SoundIoErrorTrackNotFound;
     }
-    logCallback("found destination track");
-
     /* then find source track, move it to destination, and delete from source */
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == sourceTrackId) {
-            logCallback("found source track");
             audioFile* files = csoundlib_state->list_of_track_objects[idx].files;
             for (int jdx = 0; jdx < csoundlib_state->list_of_track_objects[idx].num_files; jdx++) {
                 if (files[jdx].file_id == sourceFileId) {
-                    logCallback("found source file");
                     memcpy(&(destTrackLocation->files[destTrackLocation->num_files]), &(files[jdx]), sizeof(audioFile));
                     destTrackLocation->num_files += 1;
                     lib_deleteFile(sourceTrackId, sourceFileId);

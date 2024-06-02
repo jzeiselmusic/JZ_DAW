@@ -146,13 +146,11 @@ int open_wav_for_playback(trackObject* track, audioFile* file) {
         }
         file->fp = fp;
         file->is_file_open = true;
-        logCallback("opened file for playback");
     }
     return SoundIoErrorNone;
 }
 
 void close_wav_for_playback(audioFile* file) {
-    logCallback("closing file after playback");
     fclose(file->fp);
     file->is_file_open = false;
 }
