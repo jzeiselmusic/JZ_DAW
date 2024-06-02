@@ -54,10 +54,12 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
 
     /* click point is defined as the distance from the start of
     the file rectangle to the point the user clicked */
-    private var clickPoint: Double? = null
+    private var clickPointX: Double? = null
+    private var clickPointY: Double? = null
 
     private val mousePressEvent = EventHandler<MouseEvent> {
-        clickPoint = it.x
+        clickPointX = it.x
+        clickPointY = it.y
         clickFile()
     }
 
@@ -253,8 +255,9 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     }
 
     private fun dragFile(event: MouseEvent) {
+        /* x shifting */
         var realX = event.x
-        clickPoint?.let { realX = event.x - it }
+        clickPointX?.let { realX -= it }
         val xDistance =
             if (realX > trackListState.pixelsInABeat) trackListState.pixelsInABeat
             else if (realX < -trackListState.pixelsInABeat) -trackListState.pixelsInABeat
@@ -274,8 +277,30 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             startingPixelOffset,
             trackListViewModel.audioViewModel.tempo,
             trackListViewModel.audioViewModel.sampleRate,
-            trackListState.pixelsInABeat)
-
+            trackListState.pixelsInABeat
+        )
         trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
+
+        /* y shifting */
+        var realY = event.y
+        clickPointY?.let { realY -= it }
+        val yDistance =
+            if (realY > trackListState.trackHeight) trackListState.trackHeight
+            else if (realX < -trackListState.trackHeight) -trackListState.trackHeight
+            else 0.0
+        trackBackgroundRectangles.forEach {
+            it.translateY += yDistance
+        }
+        trackWaveformRectangles.forEach {
+            it.translateY += yDistance
+        }
+        fillingRectangle.translateY += yDistance
+        wrappingRectangle.translateY += yDistance
+
+        val moveDirection =
+            if (yDistance > 0) MoveDirection.DOWN
+            else MoveDirection.UP
+
+        trackListViewModel.moveFile(moveDirection, parentTrack.trackId, fileId)
     }
 }

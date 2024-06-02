@@ -37,7 +37,9 @@ int lib_addNewTrack(int track_id);
 
 int lib_deleteTrack(int track_id);
 
-int lib_deleteFile(int trackId, int fileId) ;
+int lib_deleteFile(int trackId, int fileId);
+
+int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFileId);
 
 int lib_trackChooseInputDevice(int trackId, int device_index);
 

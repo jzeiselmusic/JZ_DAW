@@ -73,6 +73,7 @@ public class SoundIoInterface {
         int lib_addNewTrack(int trackId);
         int lib_deleteTrack(int trackId);
         int lib_deleteFile(int trackId, int fileId);
+        int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFileId);
         int lib_trackChooseInputDevice(int trackId, int device_index);
         int lib_trackChooseInputChannel(int trackId, int channel_index);
         int lib_armTrackForRecording(int trackId);
@@ -142,6 +143,9 @@ public class SoundIoInterface {
     public int lib_addNewTrack(int trackId) { return SoundIoLib.INSTANCE.lib_addNewTrack(trackId); }
     public int lib_deleteTrack(int trackId) { return SoundIoLib.INSTANCE.lib_deleteTrack(trackId); }
     public int lib_deleteFile(int trackId, int fileId) { return SoundIoLib.INSTANCE.lib_deleteFile(trackId, fileId); }
+    public int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFileId) {
+        return SoundIoLib.INSTANCE.lib_moveFileBetweenTracks(destTrackId, sourceTrackId, sourceFileId);
+    }
     public int lib_trackChooseInputDevice(int trackId, int device_index) {
         return SoundIoLib.INSTANCE.lib_trackChooseInputDevice(trackId, device_index);
     }

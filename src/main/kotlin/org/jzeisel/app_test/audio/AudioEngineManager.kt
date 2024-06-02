@@ -252,8 +252,12 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     }
 
     fun deleteFile(trackId: Int, fileId: Int): AudioError {
-        Logger.debug(javaClass.simpleName, "deleting file", 3)
         val error = soundInterface.lib_deleteFile(trackId, fileId)
+        return AudioError.values()[error]
+    }
+
+    fun moveFile(destTrackId: Int, sourceTrackId: Int, sourceFileId: Int): AudioError {
+        val error = soundInterface.lib_moveFileBetweenTracks(destTrackId, sourceTrackId, sourceFileId)
         return AudioError.values()[error]
     }
 

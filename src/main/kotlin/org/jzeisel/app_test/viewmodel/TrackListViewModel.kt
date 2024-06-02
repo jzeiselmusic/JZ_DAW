@@ -195,6 +195,16 @@ class TrackListViewModel(val root: StackPane,
         listOfFileIds.remove(fileId)
     }
 
+    fun moveFile(direction: MoveDirection, sourceTrackId: Int, sourceFileId: Int) {
+        /* - find track above or below this one.
+           - move file out of source track wavebox child list
+           - change source file parent
+           - put file into destination track wavebox child list
+           - tell audio engine to move file
+       */
+        
+    }
+
     fun setTrackDeviceAndChannel(trackId: Int, deviceIndex: Int, channelIndex: Int) {
         audioViewModel.setTrackDeviceAndChannel(trackId, deviceIndex, channelIndex)
     }

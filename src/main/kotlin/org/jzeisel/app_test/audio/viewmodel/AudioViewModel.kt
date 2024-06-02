@@ -93,8 +93,13 @@ class AudioViewModel(
     }
 
     fun deleteFile(trackId: Int, fileId: Int) {
-        Logger.debug(javaClass.simpleName, "deleting file", 3)
         audioEngineManager.deleteFile(trackId, fileId).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
+    }
+
+    fun moveFile(destTrackId: Int, sourceTrackId: Int, sourceFileId: Int) {
+        audioEngineManager.moveFile(destTrackId, sourceTrackId, sourceFileId).whenNot(AudioError.SoundIoErrorNone) {
             viewModelController.throwAudioError(it)
         }
     }

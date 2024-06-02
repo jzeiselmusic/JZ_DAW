@@ -55,7 +55,8 @@ int lib_deleteTrack(int trackId) {
             /* free memory that was waiting for future audio files */
             free(track.files);
             for (int jdx = idx+1; jdx < csoundlib_state->num_tracks; jdx++) {
-                memcpy(&(csoundlib_state->list_of_track_objects[jdx-1]), &(csoundlib_state->list_of_track_objects[jdx]), sizeof(trackObject));
+                memcpy(&(csoundlib_state->list_of_track_objects[jdx-1]), 
+                        &(csoundlib_state->list_of_track_objects[jdx]), sizeof(trackObject));
                 /* set the last track in the list to null because it has been moved */
                 if (jdx == csoundlib_state->num_tracks-1) {
                     memset(&(csoundlib_state->list_of_track_objects[jdx]), 0, sizeof(trackObject));
@@ -86,6 +87,39 @@ int lib_deleteFile(int trackId, int fileId) {
                     }
                     csoundlib_state->list_of_track_objects[idx].num_files -= 1;
                     flock(fd, LOCK_UN);
+                    return SoundIoErrorNone;
+                }
+            }
+        }
+    }
+    return SoundIoErrorFileNotFound;
+}
+
+int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFileId) {
+    /* find source file in source track. copy it to destination track file list. delete from source track file list */
+
+    /* first find destination track */
+    trackObject* destTrackLocation;
+    bool destTrackFound = false;
+    for (int kdx = 0; kdx < csoundlib_state->num_tracks; kdx++) {
+        if (csoundlib_state->list_of_track_objects[kdx].track_id == destTrackId) {
+            destTrackLocation = &(csoundlib_state->list_of_track_objects[kdx]);
+            destTrackFound = true;
+            break;
+        }
+    }
+
+    if (destTrackFound == false) {
+        return SoundIoErrorTrackNotFound;
+    }
+    /* then find source track, move it to destination, and delete from source */
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == sourceTrackId) {
+            audioFile* files = csoundlib_state->list_of_track_objects[idx].files;
+            for (int jdx = 0; jdx < csoundlib_state->list_of_track_objects[idx].num_files; jdx++) {
+                if (files[jdx].file_id == sourceFileId) {
+                    memcpy(&(destTrackLocation->files[destTrackLocation->num_files]), &(files[jdx]), sizeof(audioFile));
+                    lib_deleteFile(sourceTrackId, sourceFileId);
                     return SoundIoErrorNone;
                 }
             }
