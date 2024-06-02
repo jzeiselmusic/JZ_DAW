@@ -292,6 +292,9 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             if (realX > trackListState.pixelsInABeat) trackListState.pixelsInABeat
             else if (realX < -trackListState.pixelsInABeat) -trackListState.pixelsInABeat
             else 0.0
+
+        if (xDistance == 0.0) return
+
         trackBackgroundRectangles.forEach {
             it.translateX += xDistance
         }
@@ -309,7 +312,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             trackListViewModel.audioViewModel.sampleRate,
             trackListState.pixelsInABeat
         )
-        // trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
+        trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
     }
 
     fun moveFile(moveDirection: MoveDirection) {

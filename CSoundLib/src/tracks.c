@@ -124,13 +124,13 @@ int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFile
                 if (files[jdx].file_id == sourceFileId) {
                     logCallback("found source file");
                     memcpy(&(destTrackLocation->files[destTrackLocation->num_files]), &(files[jdx]), sizeof(audioFile));
+                    destTrackLocation->num_files += 1;
                     lib_deleteFile(sourceTrackId, sourceFileId);
                     return SoundIoErrorNone;
                 }
             }
         }
     }
-    logCallback("here");
     return SoundIoErrorFileNotFound;
 }
 
