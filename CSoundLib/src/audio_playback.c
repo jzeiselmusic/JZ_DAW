@@ -49,7 +49,6 @@ void lib_stopPlayback() {
         if (track.is_recording) {
             /* stop and close file being written */
             stop_recording_wav_file(&(track.files[track.num_files - 1]));
-            inputStreamCallback("finished recording: offset", track.files[track.num_files - 1].file_sample_offset);
         }
         else if (track.is_playing_back) {
             /* close all files open for reading */

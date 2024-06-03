@@ -74,7 +74,6 @@ class AudioViewModel(
     }
 
     fun removeTrack(trackId: Int) {
-        Logger.debug(javaClass.simpleName, "removing track", 4)
         val nTracks = audioStateFlow._state.numTracks
         val tList = audioStateFlow._state.trackList
         // stopInputStream(trackId)

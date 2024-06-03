@@ -274,8 +274,8 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         var realY = event.y
         clickPointY?.let { realY -= it }
         val yDistance =
-            if (realY > trackListState.trackHeight) trackListState.trackHeight
-            else if (realY < -trackListState.trackHeight) -trackListState.trackHeight
+            if (realY > trackListState.trackHeight/2.0) trackListState.trackHeight
+            else if (realY < -trackListState.trackHeight/2.0) -trackListState.trackHeight
             else 0.0
         if (yDistance != 0.0) {
             val moveDirection =
