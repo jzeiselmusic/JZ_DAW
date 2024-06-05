@@ -91,6 +91,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         registerForBroadcasts()
     }
 
+    @Synchronized
     override fun removeMeFromScene(root: StackPane) {
         /* when user wants to delete a recorded file from the track */
         unregisterForBroadcasts()
@@ -104,6 +105,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         }
     }
 
+    @Synchronized
     override fun respondToIndexChange(old: Double, new: Double) {
         trackWaveformRectangles.forEach {
             it.translateY = parentTrack.trackOffsetY
@@ -115,6 +117,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         wrappingRectangle.translateY = parentTrack.trackOffsetY
     }
 
+    @Synchronized
     override fun respondToHeightChange(old: Double, new: Double) {
         ((new - old) /2.0).let {
             trackWaveformRectangles.forEach {rect->
@@ -128,6 +131,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         }
     }
 
+    @Synchronized
     override fun respondToWidthChange(old: Double, new: Double) {
         ((new - old) /2.0).let {
             trackWaveformRectangles.forEach {rect->
@@ -165,6 +169,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         (parentTrack as NormalTrack).unregisterForIndexChanges(this)
     }
 
+    @Synchronized
     override fun respondToScrollChange(deltaX: Double) {
         trackWaveformRectangles.forEach {
             it.translateX -= deltaX
@@ -227,9 +232,12 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             wrappingRectangle.arcHeight = 3.0
             wrappingRectangle.viewOrder = wrapperViewOrder
             root.children.addAll(fillingRectangle, wrappingRectangle)
+
+            numPixels = 0.0
         }
     }
 
+    @Synchronized
     fun processBuffer(dbLevel: Double, pixels: Double) {
         /* called by waveform box when new samples are ready to be printed */
         if (recordingState == RecordingState.RECORDING) {
@@ -252,16 +260,13 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
                 wfRect.viewOrder = wfViewOrder
                 wfRect.isMouseTransparent = true
 
-                currentPixelOffset = currentPixelOffset!! + numPixels
-
-                runLater {
-                    if (recordingState == RecordingState.RECORDING) {
-                        trackWaveformRectangles.add(wfRect)
-                        trackBackgroundRectangles.add(bgRect)
-                        root.children.addAll(bgRect, wfRect)
-                        totalPixelWidth += numPixels
-                        numPixels = 0.0
-                    }
+                if (recordingState == RecordingState.RECORDING) {
+                    trackWaveformRectangles.add(wfRect)
+                    trackBackgroundRectangles.add(bgRect)
+                    runLater { root.children.addAll(bgRect, wfRect) }
+                    totalPixelWidth += numPixels
+                    currentPixelOffset = currentPixelOffset!! + numPixels
+                    numPixels = 0.0
                 }
             }
         }

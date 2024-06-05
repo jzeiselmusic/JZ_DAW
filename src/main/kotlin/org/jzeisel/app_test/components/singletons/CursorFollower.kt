@@ -124,6 +124,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         trackListFlow = trackListViewModel._trackListStateFlow
     }
 
+    @Synchronized
     override fun respondToHeightChange(old: Double, new: Double) {
         ((new - old) / 2.0).let {
             cursorRectangle.translateY -= it
@@ -131,6 +132,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         }
     }
 
+    @Synchronized
     override fun respondToWidthChange(old: Double, new: Double) {
         ((new - old) / 2.0).let {
             cursorRectangle.translateX -= it
@@ -142,6 +144,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         /* not necessary for cursor follower */
     }
 
+    @Synchronized
     fun respondToScrollChange(deltaX: Double) {
         runLater {
             cursorRectangle.translateX -= deltaX
@@ -149,6 +152,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         }
     }
 
+    @Synchronized
     fun updateLocation(offsetX: Double) {
         runLater {
             currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
@@ -157,6 +161,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         }
     }
 
+    @Synchronized
     fun moveLocationForward(shiftX: Double) {
         runLater {
             currentOffsetX += shiftX
