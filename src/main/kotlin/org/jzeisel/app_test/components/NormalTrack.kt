@@ -32,11 +32,14 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val vuMeter = VUMeter(this)
     override val addButton = AddButton(this)
     override val inputEnableButton = InputEnableButton(this)
+    override val soloButton = SoloButton(this)
+    override val muteButton = MuteButton(this)
+
     val inputSelectArrow = InputSelectArrow(root, this)
     override val waveFormBox = WaveFormBox(this)
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
-    val recordButton = RecordButton(this)
+    override val recordButton = RecordButton(this)
     var isRecording = false
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
@@ -90,6 +93,8 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         inputNameBox.addMeToScene(root)
         volumeSlider.addMeToScene(root)
         recordButton.addMeToScene(root)
+        soloButton.addMeToScene(root)
+        muteButton.addMeToScene(root)
         addChild(vuMeter)
         addChild(addButton)
         addChild(inputEnableButton)
@@ -98,6 +103,8 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         addChild(inputNameBox)
         addChild(volumeSlider)
         addChild(recordButton)
+        addChild(soloButton)
+        addChild(muteButton)
     }
 
     private var inputEnabled = false
@@ -189,14 +196,14 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         vuMeter.setVUMeterCurrentRMS(volume)
     }
 
-    fun armRecording() {
+    override fun armRecording() {
         trackListViewModel.setArmRecording(this)
         recordButton.enabled = true
         vuMeter.isVUMeterRunning = true
         recordEnabled = true
     }
 
-    fun disarmRecording() {
+    override fun disarmRecording() {
         recordEnabled = false
         recordButton.enabled = false
         if (!inputEnabled) {
@@ -226,5 +233,21 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     fun processBuffer(dbLevel: Double, pixels: Double) {
         if (isRecording)
             waveFormBox.processBuffer(dbLevel, pixels)
+    }
+
+    override fun soloEnable() {
+
+    }
+
+    override fun soloDisable() {
+
+    }
+
+    override fun muteEnable() {
+
+    }
+
+    override fun muteDisable() {
+
     }
 }

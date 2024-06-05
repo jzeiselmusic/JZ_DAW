@@ -32,6 +32,9 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     override val waveFormBox = WaveFormBox(this)
     override val inputNameBox = InputNameBox(root, this)
     override val volumeSlider = VolumeSlider(this)
+    override val soloButton = SoloButton(this)
+    override val muteButton = MuteButton(this)
+    override val recordButton = RecordButton(this)
 
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         when (broadcastType) {
@@ -96,6 +99,30 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         trackLabelNumber.translateX -= amtChange
     }
 
+    override fun armRecording() {
+
+    }
+
+    override fun disarmRecording() {
+
+    }
+
+    override fun soloEnable() {
+
+    }
+
+    override fun soloDisable() {
+
+    }
+
+    override fun muteEnable() {
+
+    }
+
+    override fun muteDisable() {
+
+    }
+
     override fun addMeToScene(root: StackPane) {
         registerForBroadcasts()
         root.children.add(trackRectangle)
@@ -108,11 +135,17 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         waveFormBox.addMeToScene(root)
         inputNameBox.addMeToScene(root)
         volumeSlider.addMeToScene(root)
+        soloButton.addMeToScene(root)
+        muteButton.addMeToScene(root)
+        recordButton.addMeToScene(root)
         addChild(vuMeter)
         addChild(addButton)
         addChild(waveFormBox)
         addChild(inputNameBox)
         addChild(volumeSlider)
+        addChild(soloButton)
+        addChild(muteButton)
+        addChild(recordButton)
     }
 
     override fun removeMeFromScene(root: StackPane) {

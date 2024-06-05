@@ -15,12 +15,13 @@ import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.interfaces.PressableButton
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.util.*
 
 class InputEnableButton(override val parent: Widget?)
-    : NodeWidget, TrackElement, WindowElement {
+    : NodeWidget, TrackElement, WindowElement, PressableButton {
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
@@ -31,14 +32,12 @@ class InputEnableButton(override val parent: Widget?)
             if (new) {
                 runLater {
                     buttonRect.fill = Color.rgb(255, 0, 0)
-                    buttonRect.opacity = 0.9
                     iLetter.stroke = trackListState.generalGray
                 }
             }
             else {
                 runLater {
                     buttonRect.fill = Color.TRANSPARENT
-                    buttonRect.opacity = 1.0
                     iLetter.stroke = Color.BLACK
                 }
             }
@@ -56,11 +55,11 @@ class InputEnableButton(override val parent: Widget?)
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.TRANSPARENT)
     private val iLetter = Text()
 
-    private val mousePressEvent = EventHandler<MouseEvent> {
+    override val mousePressEvent = EventHandler<MouseEvent> {
         mousePress()
     }
 
-    private val mouseReleaseEvent = EventHandler<MouseEvent> {
+    override val mouseReleaseEvent = EventHandler<MouseEvent> {
         mouseReleaseLeft()
     }
 
@@ -80,7 +79,7 @@ class InputEnableButton(override val parent: Widget?)
         buttonRect.stroke = trackListState.strokeColor
         buttonRect.strokeWidth = trackListState.strokeSize
         buttonRect.viewOrder = viewOrderFlip - 0.31
-
+        buttonRect.opacity = 0.75
         buttonRect.onMouseReleased = mouseReleaseEvent
         buttonRect.onMousePressed = mousePressEvent
     }

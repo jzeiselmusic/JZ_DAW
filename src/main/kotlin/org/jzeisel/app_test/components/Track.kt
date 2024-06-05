@@ -33,6 +33,9 @@ abstract class Track(val root: StackPane, parent: Widget) : WindowElement {
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
     abstract val inputEnableButton: InputEnableButton
+    abstract val soloButton: SoloButton
+    abstract val muteButton: MuteButton
+    abstract val recordButton: RecordButton
     abstract val waveFormBox: WaveFormBox
     abstract val inputNameBox: InputNameBox
     abstract val volumeSlider: VolumeSlider
@@ -76,6 +79,12 @@ abstract class Track(val root: StackPane, parent: Widget) : WindowElement {
     abstract fun addTrack()
     abstract fun backspaceText()
     abstract fun characterText(character: KeyEvent)
+    abstract fun armRecording()
+    abstract fun disarmRecording()
+    abstract fun soloEnable()
+    abstract fun soloDisable()
+    abstract fun muteEnable()
+    abstract fun muteDisable()
 
     fun setSelected() {
         isSelected = true

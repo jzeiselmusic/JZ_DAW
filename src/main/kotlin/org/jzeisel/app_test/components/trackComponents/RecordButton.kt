@@ -7,6 +7,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.interfaces.PressableButton
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
@@ -17,7 +18,7 @@ import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class RecordButton(override val parent: Widget)
-    : NodeWidget, TrackElement, WindowElement {
+    : NodeWidget, TrackElement, WindowElement, PressableButton {
 
     private val parentTrack = parent as Track
     private val trackListViewModel = parentTrack.trackListViewModel
@@ -33,11 +34,11 @@ class RecordButton(override val parent: Widget)
     private val buttonMiddle = Circle(buttonWidth - 2.2, Color.WHITESMOKE.darker().darker())
     private val buttonInside = Circle(buttonWidth - 5.5, Color.rgb(108, 10, 10))
 
-    private val mousePressEvent = EventHandler<MouseEvent> {
+    override val mousePressEvent = EventHandler<MouseEvent> {
         mousePress()
     }
 
-    private val mouseReleaseEvent = EventHandler<MouseEvent> {
+    override val mouseReleaseEvent = EventHandler<MouseEvent> {
         mouseReleaseLeft()
     }
 
@@ -152,8 +153,8 @@ class RecordButton(override val parent: Widget)
         animateObjectScale(0.85, 1.0, buttonMiddle, 80.0)
         animateObjectScale(0.85, 1.0, buttonOutside, 80.0)
         if (enabled)
-            (parentTrack as NormalTrack).disarmRecording()
+            parentTrack.disarmRecording()
         else
-            (parentTrack as NormalTrack).armRecording()
+            parentTrack.armRecording()
     }
 }

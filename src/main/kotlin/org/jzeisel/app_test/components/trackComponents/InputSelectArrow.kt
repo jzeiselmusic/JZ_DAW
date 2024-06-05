@@ -13,12 +13,13 @@ import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.ephemeral.dropdownbox.ExpandableDropDownBox
+import org.jzeisel.app_test.components.interfaces.PressableButton
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.util.*
 
 class InputSelectArrow(private val root: StackPane, override val parent: Widget?)
-            : NodeWidget, TrackElement, WindowElement {
+            : NodeWidget, TrackElement, WindowElement, PressableButton {
 
     override val children: MutableList<Widget> = mutableListOf()
     private val parentTrack = parent as NormalTrack
@@ -39,7 +40,12 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             }
             return listOf()
         }
-    private val clickEvent = EventHandler<MouseEvent> {
+
+    override val mousePressEvent = EventHandler<MouseEvent> {
+        animateObjectScale(1.0, 0.9, inputSelectRectangle, 80.0)
+    }
+
+    override val mouseReleaseEvent = EventHandler<MouseEvent> {
         animateObjectScale(0.9, 1.0, inputSelectRectangle, 80.0)
         runLater(50.0) {
             val deviceList = trackListViewModel.audioViewModel.getInputDeviceList()
@@ -65,9 +71,8 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
         inputSelectRectangle.stroke = trackListState.strokeColor
         inputSelectRectangle.strokeWidth = trackListState.strokeSize
         inputSelectRectangle.viewOrder = viewOrderFlip - 0.31
-        inputSelectRectangle.onMousePressed =
-            EventHandler { animateObjectScale(1.0, 0.9, inputSelectRectangle, 80.0) }
-        inputSelectRectangle.onMouseReleased = clickEvent
+        inputSelectRectangle.onMousePressed = mousePressEvent
+        inputSelectRectangle.onMouseReleased = mouseReleaseEvent
 
         inputSelectArrow.fill = Color.BLACK
         inputSelectArrow.translateX = -(parentTrack.initialTrackWidth/2.0) + trackListState.inputButtonsOffset - 0.5
