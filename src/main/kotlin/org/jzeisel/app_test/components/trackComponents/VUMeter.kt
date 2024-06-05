@@ -90,7 +90,7 @@ class VUMeter(override val parent: Widget)
 
         runLater {
             val oldHeight = volumeRectangle.height
-            val newHeight = scaleNumber(-100.0, volumeMaximumHeight, volumeMinimumHeight)
+            val newHeight = scaleNumber(-100.0, volumeMinimumHeight, volumeMaximumHeight, -90.0, -10.0)
             volumeRectangle.translateY += (oldHeight - newHeight) / 2.0
             volumeRectangle.height = newHeight
             volumeRectangle.translateY = volumeRectangleY
@@ -129,7 +129,7 @@ class VUMeter(override val parent: Widget)
             currentVolume = volume
             runLater {
                 val oldHeight = volumeRectangle.height
-                val newHeight = scaleNumber(volume, volumeMaximumHeight, volumeMinimumHeight)
+                val newHeight = scaleNumber(volume, volumeMinimumHeight, volumeMaximumHeight, -90.0, -10.0)
                 volumeRectangle.translateY += (oldHeight - newHeight) / 2.0
                 volumeRectangle.height = newHeight
             }

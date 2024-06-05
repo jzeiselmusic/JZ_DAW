@@ -41,11 +41,9 @@ suspend fun loop(delayMillis: Long, action: () -> Unit) {
 
 const val viewOrderFlip = 5.0
 
-fun scaleNumber(input: Double, max: Double, min: Double): Double {
-    val minVolume = -80.0
-    val maxVolume = -10.0
-    val scaledInput = input.coerceIn(-80.0..0.0)
-    val scaledValue = min + (scaledInput - minVolume) * (max - min) / (maxVolume - minVolume)
+fun scaleNumber(input: Double, minOuput: Double, maxOuput: Double, minInput: Double, maxInput: Double): Double {
+    val scaledInput = input.coerceIn(minInput..maxInput)
+    val scaledValue = minOuput + (scaledInput - minInput) * (maxOuput - minOuput) / (maxInput - minInput)
     return scaledValue
 }
 

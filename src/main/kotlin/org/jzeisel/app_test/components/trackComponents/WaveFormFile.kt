@@ -241,7 +241,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     fun processBuffer(dbLevel: Double, pixels: Double) {
         /* called by waveform box when new samples are ready to be printed */
         if (recordingState == RecordingState.RECORDING) {
-            val levelHeight = scaleNumber(dbLevel, trackListState.trackHeight, 8.0)
+            val levelHeight = scaleNumber(dbLevel, 8.0, trackListState.trackHeight, -80.0, 0.0)
             numPixels += pixels
             if (numPixels >= 1) {
                 val bgRect = Rectangle(numPixels.toInt().toDouble()+1.0, trackListState.trackHeight - 8, Color.WHITESMOKE.darker())
