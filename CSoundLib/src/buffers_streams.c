@@ -164,7 +164,6 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
             if (fill_count > max_fill_count) max_fill_count = fill_count;
             double rms_val = calculate_rms_level(read_ptr, fill_bytes);
-
             /* go through every track */
             /* set RMS volume */
             /* write to file if recording */

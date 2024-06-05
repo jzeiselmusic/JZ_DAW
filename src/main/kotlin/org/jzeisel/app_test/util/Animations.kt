@@ -7,6 +7,7 @@ import javafx.application.Platform
 import javafx.scene.shape.Shape
 import javafx.util.Duration
 import kotlinx.coroutines.delay
+import java.lang.Math.pow
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
@@ -43,7 +44,7 @@ const val viewOrderFlip = 5.0
 fun scaleNumber(input: Double, max: Double, min: Double): Double {
     val minVolume = -80.0
     val scaledInput = input.coerceIn(-80.0..0.0)
-    val scaledValue = min + (scaledInput - minVolume) * (max - min) / (-minVolume)
+    val scaledValue = min + (scaledInput - minVolume) * (max - min) / (-10.0 -minVolume)
     return scaledValue
 }
 
@@ -67,4 +68,15 @@ fun pixelsToSamples(pixels: Double, tempo: Double, sampleRate: Int, pixelsPerBea
     val secondsInABeat = 1.0 / (tempo * (1.0 / 60.0))
     val samples = pixels / (pixelsPerBeat * (1.0 / secondsInABeat) * (1.0 / sampleRate))
     return samples.roundToInt()
+}
+
+fun envelopeFollower(input: Double, attack: Double, release: Double, prevValue: Double): Double {
+    val attackAlpha: Double = 1.0 - Math.E.pow(-1.0 / (attack * 10.0))
+    val releaseAlpha: Double = 1.0 - Math.E.pow(-1.0 / (release * 10.0))
+    val envelope =
+        if (input > prevValue)
+            attackAlpha * input + (1 - attackAlpha) * prevValue
+        else
+            releaseAlpha * input + (1 - releaseAlpha) * prevValue
+    return envelope
 }

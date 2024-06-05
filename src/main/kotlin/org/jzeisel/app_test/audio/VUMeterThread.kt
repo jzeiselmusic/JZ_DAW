@@ -4,6 +4,7 @@ import kotlinx.coroutines.*
 import org.jzeisel.app_test.audio.viewmodel.ViewModelController
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.combineRmsVolumes
+import org.jzeisel.app_test.util.envelopeFollower
 import org.jzeisel.app_test.util.loop
 import java.util.*
 import kotlin.math.log10
@@ -34,7 +35,11 @@ class VUMeterThread(
                                     listOfInputs.add(audioEngineManager.getRmsVolumeInputStream(track.trackId))
                                 }
                                 val total = combineRmsVolumes(*listOfInputs.toDoubleArray())
-                                viewModelController.sendTrackRMSVolume(20 * log10(total), track.trackId)
+                                val filteredValue = envelopeFollower(
+                                    total, audioStateFlow._state.envelopeAttack,
+                                    audioStateFlow._state.envelopeRelease, track.lastVUMeterValue)
+                                track.lastVUMeterValue = filteredValue
+                                viewModelController.sendTrackRMSVolume(20 * log10(filteredValue), track.trackId)
                             }
                         }
                     }

@@ -19,7 +19,8 @@ data class TrackData(
     var inputDevice: Device,
     var inputChannel: Channel,
     var inputEnabled: Boolean = false,
-    var recordingEnabled: Boolean = false
+    var recordingEnabled: Boolean = false,
+    var lastVUMeterValue: Double = 0.0
 )
 data class AudioStream(
     var device: Device
