@@ -223,8 +223,8 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         waveFormBox.deleteHighlightedFiles()
     }
 
-    fun processBuffer(dbLevel: Double, numSamples: Int) {
+    fun processBuffer(dbLevel: Double, pixels: Double) {
         if (isRecording)
-            waveFormBox.processBuffer(dbLevel, numSamples)
+            waveFormBox.processBuffer(dbLevel, pixels)
     }
 }

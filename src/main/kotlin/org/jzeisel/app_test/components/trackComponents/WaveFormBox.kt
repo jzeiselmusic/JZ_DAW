@@ -297,8 +297,8 @@ class WaveFormBox(override val parent: Widget) :
         }
     }
 
-    fun processBuffer(dbLevel: Double, numSamples: Int) {
-        (children.lastOrNull() as? WaveFormFile)?.processBuffer(dbLevel, numSamples)
+    fun processBuffer(dbLevel: Double, pixels: Double) {
+        (children.lastOrNull() as? WaveFormFile)?.processBuffer(dbLevel, pixels)
     }
 
     fun unclickAllFiles() {

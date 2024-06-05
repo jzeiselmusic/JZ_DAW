@@ -230,10 +230,9 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         }
     }
 
-    fun processBuffer(dbLevel: Double, numSamples: Int) {
+    fun processBuffer(dbLevel: Double, pixels: Double) {
         /* called by waveform box when new samples are ready to be printed */
         if (recordingState == RecordingState.RECORDING) {
-            val pixels = samplesToPixels(numSamples, tempo, sampleRate, trackListState.pixelsInABeat)
             val levelHeight = scaleNumber(dbLevel, trackListState.trackHeight, 8.0)
             numPixels += pixels
             if (numPixels >= 1) {
@@ -269,7 +268,6 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     }
 
     private fun dragFile(event: MouseEvent) {
-
         /* y shifting */
         var realY = event.y
         clickPointY?.let { realY -= it }

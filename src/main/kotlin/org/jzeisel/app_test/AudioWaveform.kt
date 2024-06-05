@@ -15,7 +15,7 @@ import org.jzeisel.app_test.audio.viewmodel.ViewModelController
 class AudioWaveform : Application() {
     companion object {
         private const val INIT_STAGE_HEIGHT = 550.0
-        private const val INIT_STAGE_WIDTH = 950.0
+        private const val INIT_STAGE_WIDTH = 900.0
     }
     private lateinit var root: StackPane
     private lateinit var everythingPane: StackPane
