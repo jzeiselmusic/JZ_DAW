@@ -31,7 +31,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         }
     private val rectangleTranslateY: Double
         get() {
-            return trackListState.masterOffsetY - trackListState.trackHeight/2.0 + rectangleHeight /2.0
+            return trackListFlow.topOfTracks + rectangleHeight /2.0
         }
 
     private lateinit var cursorRectangle: Rectangle
