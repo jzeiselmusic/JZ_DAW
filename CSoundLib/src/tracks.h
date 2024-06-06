@@ -59,8 +59,12 @@ double lib_getRmsVolumeTrackPlayback(int trackId);
 
 int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
 
-int lib_soloEnabled(int trackId);
+int lib_soloEnable(int trackId);
 
-int lib_soloDisabled(int trackId);
+int lib_soloDisable(int trackId);
+
+int lib_muteEnable(int trackId);
+
+int lib_muteDisable(int trackId);
 
 #endif

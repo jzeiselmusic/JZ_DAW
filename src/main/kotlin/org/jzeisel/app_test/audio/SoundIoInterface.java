@@ -82,6 +82,13 @@ public class SoundIoInterface {
         double lib_getRmsVolumeInputStream(int trackId);
         double lib_getRmsVolumeTrackPlayback(int trackId);
         int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
+        int lib_soloEnable(int trackId);
+
+        int lib_soloDisable(int trackId);
+
+        int lib_muteEnable(int trackId);
+
+        int lib_muteDisable(int trackId);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -170,4 +177,8 @@ public class SoundIoInterface {
     public int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
         return SoundIoLib.INSTANCE.lib_updateTrackOffset(trackId, fileId, newOffset);
     }
+    public int lib_soloEnable(int trackId) { return SoundIoLib.INSTANCE.lib_soloEnable(trackId); }
+    public int lib_soloDisable(int trackId)  { return SoundIoLib.INSTANCE.lib_soloDisable(trackId); }
+    public int lib_muteEnable(int trackId)  { return SoundIoLib.INSTANCE.lib_muteEnable(trackId); }
+    public int lib_muteDisable(int trackId)  { return SoundIoLib.INSTANCE.lib_muteDisable(trackId); }
 }

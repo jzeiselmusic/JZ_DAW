@@ -231,4 +231,16 @@ class AudioViewModel(
             viewModelController.throwAudioError(it)
         }
     }
+
+    fun setSolo(enabled: Boolean, trackId: Int) {
+        audioEngineManager.setSolo(enabled, trackId).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
+    }
+
+    fun setMute(enabled: Boolean, trackId: Int) {
+        audioEngineManager.setMute(enabled, trackId).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
+    }
 }

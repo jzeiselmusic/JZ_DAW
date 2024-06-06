@@ -35,7 +35,16 @@ class SoloButton(override val parent: Widget)
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.TRANSPARENT)
     private val sLetter = Text()
 
-    private var isEnabled = false
+    var isEnabled = false
+        set(value) {
+            if (!value) {
+                buttonRect.fill = Color.TRANSPARENT
+            }
+            else {
+                buttonRect.fill = rgb(255, 255, 0)
+            }
+            field = value
+        }
 
     override val mousePressEvent = EventHandler<MouseEvent> {
         animateObjectScale(1.0, 0.9, buttonRect, 100.0)
@@ -45,13 +54,9 @@ class SoloButton(override val parent: Widget)
         animateObjectScale(0.9, 1.0, buttonRect, 80.0)
         if (isEnabled) {
             parentTrack.soloDisable()
-            buttonRect.fill = Color.TRANSPARENT
-            isEnabled = false
         }
         else {
             parentTrack.soloEnable()
-            buttonRect.fill = rgb(255, 255, 0)
-            isEnabled = true
         }
     }
     init {

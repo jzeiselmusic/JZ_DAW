@@ -385,4 +385,42 @@ class TrackListViewModel(val root: StackPane,
     fun updateFileOffset(newSampleOffset: Int, fileId: Int, trackId: Int) {
         audioViewModel.updateTrackOffset(trackId, fileId, newSampleOffset)
     }
+
+    fun armAllTracksForRecording() {
+        children.forEach {
+            (it as NormalTrack).armRecording()
+        }
+    }
+
+    fun disarmAllTracksForRecording() {
+        children.forEach {
+            (it as NormalTrack).disarmRecording()
+        }
+    }
+
+    fun setSolo(enabled: Boolean, track: NormalTrack) {
+        audioViewModel.setSolo(enabled, track.trackId)
+    }
+
+    fun setMute(enabled: Boolean, track: NormalTrack) {
+        audioViewModel.setMute(enabled, track.trackId)
+    }
+
+    fun soloAllTracks(enable: Boolean) {
+        children.forEach {
+            when (enable) {
+                true -> (it as NormalTrack).soloEnable()
+                false -> (it as NormalTrack).soloDisable()
+            }
+        }
+    }
+
+    fun muteAllTracks(enable: Boolean) {
+        children.forEach {
+            when (enable) {
+                true -> (it as NormalTrack).muteEnable()
+                false -> (it as NormalTrack).muteDisable()
+            }
+        }
+    }
 }

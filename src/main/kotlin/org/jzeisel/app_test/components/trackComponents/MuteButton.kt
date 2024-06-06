@@ -34,7 +34,18 @@ class MuteButton(override val parent: Widget)
     private val buttonRect = Rectangle(buttonWidth, buttonHeight, Color.TRANSPARENT)
     private val mLetter = Text()
 
-    private var isEnabled = false
+    var isEnabled = false
+        set(value) {
+            if (!value) {
+                buttonRect.fill = Color.TRANSPARENT
+                mLetter.stroke = Color.BLACK
+            }
+            else {
+                buttonRect.fill = Color.GRAY.darker().darker()
+                mLetter.stroke = trackListState.generalGray
+            }
+            field = value
+        }
 
     override val mousePressEvent = EventHandler<MouseEvent> {
         animateObjectScale(1.0, 0.9, buttonRect, 100.0)
@@ -44,15 +55,9 @@ class MuteButton(override val parent: Widget)
         animateObjectScale(0.9, 1.0, buttonRect, 80.0)
         if (isEnabled) {
             parentTrack.muteDisable()
-            buttonRect.fill = Color.TRANSPARENT
-            mLetter.stroke = Color.BLACK
-            isEnabled = false
         }
         else {
             parentTrack.muteEnable()
-            buttonRect.fill = Color.GRAY.darker().darker()
-            mLetter.stroke = trackListState.generalGray
-            isEnabled = true
         }
     }
     init {

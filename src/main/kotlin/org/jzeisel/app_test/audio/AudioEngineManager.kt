@@ -303,4 +303,20 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         val error = soundInterface.lib_updateTrackOffset(trackId, fileId, newOffset)
         return AudioError.values()[error]
     }
+
+    fun setSolo(enabled: Boolean, trackId: Int): AudioError {
+        val error = when (enabled) {
+            true -> soundInterface.lib_soloEnable(trackId)
+            false -> soundInterface.lib_soloDisable(trackId)
+        }
+        return AudioError.values()[error]
+    }
+
+    fun setMute(enabled: Boolean, trackId: Int): AudioError {
+        val error = when (enabled) {
+            true -> soundInterface.lib_muteEnable(trackId)
+            false -> soundInterface.lib_muteDisable(trackId)
+        }
+        return AudioError.values()[error]
+    }
 }

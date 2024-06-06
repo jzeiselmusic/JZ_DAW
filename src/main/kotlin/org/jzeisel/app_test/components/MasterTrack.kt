@@ -100,27 +100,33 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     }
 
     override fun armRecording() {
-
+        recordButton.enabled = true
+        trackListViewModel.armAllTracksForRecording()
     }
 
     override fun disarmRecording() {
-
+        recordButton.enabled = false
+        trackListViewModel.disarmAllTracksForRecording()
     }
 
     override fun soloEnable() {
-
+        soloButton.isEnabled = true
+        trackListViewModel.soloAllTracks(true)
     }
 
     override fun soloDisable() {
-
+        soloButton.isEnabled = false
+        trackListViewModel.soloAllTracks(false)
     }
 
     override fun muteEnable() {
-
+        muteButton.isEnabled = true
+        trackListViewModel.muteAllTracks(true)
     }
 
     override fun muteDisable() {
-
+        muteButton.isEnabled = false
+        trackListViewModel.muteAllTracks(false)
     }
 
     override fun addMeToScene(root: StackPane) {
