@@ -25,6 +25,8 @@ typedef struct _trackObj {
     int num_files;
     bool input_enabled;
     bool record_enabled;
+    bool solo_enabled;
+    bool mute_enabled;
     bool is_recording;
     bool is_playing_back;
     int input_device_index; // input device currently attached to this track
@@ -56,5 +58,9 @@ double lib_getRmsVolumeInputStream(int trackId);
 double lib_getRmsVolumeTrackPlayback(int trackId);
 
 int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
+
+int lib_soloEnabled(int trackId);
+
+int lib_soloDisabled(int trackId);
 
 #endif

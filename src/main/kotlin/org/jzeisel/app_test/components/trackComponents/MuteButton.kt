@@ -57,7 +57,7 @@ class MuteButton(override val parent: Widget)
     }
     init {
         mLetter.text = "M"
-        mLetter.font = Font.font("Product Sans", FontWeight.THIN, 11.0)
+        mLetter.font = Font.font("Montserrat", FontWeight.THIN, 11.0)
         mLetter.stroke = trackListState.strokeColor
         mLetter.strokeWidth = trackListState.strokeSize
         mLetter.translateY = buttonOffsetY

@@ -12,7 +12,7 @@ typedef struct _audioState {
     /* playback */
     bool playback_started;
     int current_cursor_offset; // in samples
-    
+
 
     /* initialization */
     bool input_memory_allocated;
@@ -40,6 +40,9 @@ typedef struct _audioState {
     /* tracks */
     trackObject* list_of_track_objects;
     int num_tracks;
+
+    /* solo and mute */
+    bool solo_engaged;
 
 } audio_state;
 

@@ -35,7 +35,7 @@ static void _deallocateAllMemory() {
 int lib_startSession() {
     csoundlib_state = malloc( 1 * sizeof(audio_state) );
     csoundlib_state->sample_rate = 44100;
-    
+
     struct SoundIo* soundio = soundio_create();
     char* mixed_output_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
     trackObject* list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));
@@ -45,6 +45,7 @@ int lib_startSession() {
         csoundlib_state->mixed_output_buffer = mixed_output_buffer;
         csoundlib_state->list_of_track_objects = list_of_track_objects;
         csoundlib_state->environment_initialized = true;
+        csoundlib_state->solo_engaged = false;
         return _connectToBackend();
     }
     else {

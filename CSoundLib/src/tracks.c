@@ -25,8 +25,9 @@ int lib_addNewTrack(int trackId) {
             .track_id = trackId,
             .files = files,
             .num_files = 0,
-
             .record_enabled = false,
+            .solo_enabled = false,
+            .mute_enabled = false,
             .is_recording = false,
             .is_playing_back = false,
             .input_device_index = lib_getDefaultInputDeviceIndex(),
@@ -208,4 +209,33 @@ int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
         }
     }
     return SoundIoErrorFileNotFound;
+}
+
+int lib_soloEnable(int trackId) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            csoundlib_state->list_of_track_objects[idx].solo_enabled = true;
+            csoundlib_state->solo_engaged = true;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
+}
+
+int lib_soloDisable(int trackId) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            csoundlib_state->list_of_track_objects[idx].solo_enabled = false;
+            bool solo_engaged = false;
+            for (int jdx = 0; jdx < csoundlib_state->num_tracks; jdx++) {
+                if (csoundlib_state->list_of_track_objects[jdx].solo_enabled) {
+                    solo_engaged = true;
+                    break;
+                }
+            }
+            csoundlib_state->solo_engaged = solo_engaged;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
 }
