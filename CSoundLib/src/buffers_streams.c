@@ -188,13 +188,6 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
                     }
                 } 
             }
-/*
-            // INSTEAD OF THIS, go through every track and determine whether its input buffer should get copied to output 
-            if (_sendChannelToOutput(channel)) {
-                // add EACH channel buffer to the output only if it is enabled by at least one track 
-                add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, read_ptr, fill_bytes);
-            }
-*/
             soundio_ring_buffer_advance_read_ptr(ring_buffer, fill_bytes);
         }
     }

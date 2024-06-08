@@ -218,7 +218,6 @@ int lib_soloEnable(int trackId) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
             csoundlib_state->list_of_track_objects[idx].solo_enabled = true;
             csoundlib_state->solo_engaged = true;
-            logCallback("solo engaged");
             return SoundIoErrorNone;
         }
     }
@@ -235,9 +234,6 @@ int lib_soloDisable(int trackId) {
                     solo_engaged = true;
                     break;
                 }
-            }
-            if (!solo_engaged) {
-                logCallback("solo disengaged");
             }
             csoundlib_state->solo_engaged = solo_engaged;
             return SoundIoErrorNone;

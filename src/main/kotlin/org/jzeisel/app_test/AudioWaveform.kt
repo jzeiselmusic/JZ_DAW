@@ -24,7 +24,9 @@ class AudioWaveform : Application() {
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var audioViewModel: AudioViewModel
 
-    /* the z values of the nodes should be laid out in the following way
+    /*
+
+    the z values of the nodes should be laid out in the following way
 
            waveform box and cursor - 10-20
            track boxes and nodes - 30-40
@@ -33,6 +35,7 @@ class AudioWaveform : Application() {
              -   ephemerals (textbox, dropboxes) - 61-69
            mixer - 70-80
            error msgs - 100-120
+           
     */
     override fun start(stage: Stage) {
         stage.title = "JZ Digital Audio Workstation"
