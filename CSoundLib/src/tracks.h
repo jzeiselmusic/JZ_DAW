@@ -4,10 +4,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
+#include "buffers_streams.h"
 
 #define MAX_TRACKS              500
 #define MAX_FILES               500
 #define MAX_NAME_SIZE           128
+
+typedef struct _inputBuffer {
+    char buffer[MAX_BUFFER_SIZE_BYTES];
+    size_t write_bytes;
+} inputBuffer;
 
 typedef struct _audioFile {
     FILE* fp;
@@ -33,6 +39,7 @@ typedef struct _trackObj {
     int input_channel_index;
     double current_rms_volume_input_stream;
     double current_rms_volume_track_playback;
+    inputBuffer input_buffer;
 } trackObject;
 
 int lib_addNewTrack(int track_id);

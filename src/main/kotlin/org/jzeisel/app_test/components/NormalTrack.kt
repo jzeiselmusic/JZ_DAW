@@ -242,7 +242,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
 
     override fun soloDisable() {
         soloButton.isEnabled = false
-        trackListViewModel.setSolo(true, this)
+        trackListViewModel.setSolo(false, this)
     }
 
     override fun muteEnable() {

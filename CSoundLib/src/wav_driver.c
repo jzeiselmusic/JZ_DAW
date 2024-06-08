@@ -180,7 +180,7 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
                     }
                     bytes_copied += 4;
                 }
-                add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, temp_buffer, bytes_copied);
+                add_audio_buffers_24bitNE(mixed_buffer, temp_buffer, bytes_copied);
                 track->current_rms_volume_track_playback = calculate_rms_level(temp_buffer, bytes_copied);
                 flock(fd, LOCK_UN);
                 return bytes_copied;

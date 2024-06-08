@@ -34,6 +34,8 @@ int lib_addNewTrack(int trackId) {
             .input_channel_index = 0,
             .current_rms_volume_input_stream = 0.0,
             .current_rms_volume_track_playback = 0.0,
+            .input_buffer.buffer = {0},
+            .input_buffer.write_bytes = 0
         };
 
     csoundlib_state->list_of_track_objects[csoundlib_state->num_tracks] = track;
@@ -216,6 +218,7 @@ int lib_soloEnable(int trackId) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
             csoundlib_state->list_of_track_objects[idx].solo_enabled = true;
             csoundlib_state->solo_engaged = true;
+            logCallback("solo engaged");
             return SoundIoErrorNone;
         }
     }
@@ -232,6 +235,9 @@ int lib_soloDisable(int trackId) {
                     solo_engaged = true;
                     break;
                 }
+            }
+            if (!solo_engaged) {
+                logCallback("solo disengaged");
             }
             csoundlib_state->solo_engaged = solo_engaged;
             return SoundIoErrorNone;

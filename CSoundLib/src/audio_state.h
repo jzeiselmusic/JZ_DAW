@@ -44,6 +44,7 @@ typedef struct _audioState {
     /* solo and mute */
     bool solo_engaged;
 
+
 } audio_state;
 
 extern audio_state* csoundlib_state;

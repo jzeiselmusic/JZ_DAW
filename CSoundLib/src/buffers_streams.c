@@ -153,7 +153,11 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     /* clear mix buffer */
     memset(csoundlib_state->mixed_output_buffer, 0, MAX_BUFFER_SIZE_BYTES);
 
-    /* go through each input channel buffer and read to a buffer if it has been written by the input stream */
+    /* clear track input buffers*/
+    for (int track = 0; track < csoundlib_state->num_tracks; track++) {
+        memset(csoundlib_state->list_of_track_objects[track].input_buffer.buffer, 0, MAX_BUFFER_SIZE_BYTES);
+    }
+
     int max_fill_count = 0;
     for (int channel = 0; channel < csoundlib_state->num_channels_available; channel++) {
         if (csoundlib_state->input_stream_started == true) {
@@ -164,34 +168,57 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
             if (fill_count > max_fill_count) max_fill_count = fill_count;
             double rms_val = calculate_rms_level(read_ptr, fill_bytes);
-            /* go through every track */
-            /* set RMS volume */
-            /* write to file if recording */
-            for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-                if (csoundlib_state->list_of_track_objects[idx].input_channel_index == channel) {
+
+            for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
+                if (csoundlib_state->list_of_track_objects[trackIdx].input_channel_index == channel) {
                     /* this track has chosen this channel for input */
-                    csoundlib_state->list_of_track_objects[idx].current_rms_volume_input_stream = rms_val;
-                    
-                    if (csoundlib_state->list_of_track_objects[idx].is_recording && csoundlib_state->playback_started) {
-                        thr_write_to_wav_file(&(csoundlib_state->list_of_track_objects[idx]), read_ptr, fill_bytes);
+
+                    /* set rms value based on input RMS of this channel */
+                    csoundlib_state->list_of_track_objects[trackIdx].current_rms_volume_input_stream = rms_val;
+
+                    /* write the input stream to the track's input buffer */
+                    if (csoundlib_state->list_of_track_objects[trackIdx].input_enabled) {
+                        memcpy(csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer, read_ptr, fill_bytes);
+                        csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = fill_bytes;
+                    }
+
+                    /* if recording, write the input stream to the track's recently opened wav file */
+                    if (csoundlib_state->list_of_track_objects[trackIdx].is_recording && csoundlib_state->playback_started) {
+                        thr_write_to_wav_file(&(csoundlib_state->list_of_track_objects[trackIdx]), read_ptr, fill_bytes);
                     }
                 } 
             }
+/*
+            // INSTEAD OF THIS, go through every track and determine whether its input buffer should get copied to output 
             if (_sendChannelToOutput(channel)) {
-                /* add EACH channel buffer to the output only if it is enabled by at least one track */
+                // add EACH channel buffer to the output only if it is enabled by at least one track 
                 add_audio_buffers_24bitNE(csoundlib_state->mixed_output_buffer, read_ptr, fill_bytes);
             }
+*/
             soundio_ring_buffer_advance_read_ptr(ring_buffer, fill_bytes);
         }
     }
-
-    /* go through each track and write to output buffer if playing back and has files available for reading */
-    for (int trackidx = 0; trackidx < csoundlib_state->num_tracks; trackidx ++) {
-        if (csoundlib_state->list_of_track_objects[trackidx].is_playing_back) {
-            int bytes_copied = read_wav_file_for_playback(&(csoundlib_state->list_of_track_objects[trackidx]), 
-                                                     csoundlib_state->mixed_output_buffer, 
+    /* go through each track */
+    /* write playing back WAV files for each track if available and playing back  */
+    /* copy input buffer to output under certain conditions */
+    for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx ++) {
+        /* if playback started, copy wav file to track's input buffer */
+        if (csoundlib_state->list_of_track_objects[trackIdx].is_playing_back) {
+            int bytes_copied = read_wav_file_for_playback(&(csoundlib_state->list_of_track_objects[trackIdx]), 
+                                                     csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer, 
                                                      frame_count_max * outstream->bytes_per_frame);
             if (bytes_copied > max_fill_count) max_fill_count = bytes_copied;
+            if (bytes_copied > csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes) {
+                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = bytes_copied;
+            }
+        }
+
+        if (!csoundlib_state->solo_engaged || (csoundlib_state->solo_engaged && csoundlib_state->list_of_track_objects[trackIdx].solo_enabled)) {
+            add_audio_buffers_24bitNE(
+                csoundlib_state->mixed_output_buffer, 
+                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer, 
+                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes
+            );
         }
     }
 
