@@ -2,7 +2,9 @@ package org.jzeisel.app_test.components
 
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
+import javafx.scene.paint.Color
 import javafx.scene.shape.Polygon
+import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.error.AudioError
@@ -42,6 +44,15 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override val recordButton = RecordButton(this)
     var isRecording = false
 
+    private val muteShader = Rectangle()
+    private var muteShaderAdded = false
+
+    var isMuted = false
+        set(value) {
+            if (value) setMuteShader()
+            else removeMuteShader()
+        }
+
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         when (broadcastType) {
             BroadcastType.DIVIDER -> {}
@@ -75,6 +86,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
             trackLabel.translateY = it
             labelDivider.translateY = it
             trackLabelNumber.translateY = it
+            muteShader.translateY = it
         }
     }
 
@@ -149,6 +161,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         labelDivider.translateY = trackOffsetY
         trackLabel.translateY = trackOffsetY
         trackLabelNumber.translateY = trackOffsetY
+        muteShader.translateY = trackOffsetY
     }
 
     override fun respondToWidthChange(old: Double, new: Double) {
@@ -161,6 +174,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         trackListViewModel.updateLabelDividerOffset(labelDivider.translateX)
         trackLabel.translateX -= amtChange
         trackLabelNumber.translateX -= amtChange
+        muteShader.translateX -= amtChange
     }
 
     fun registerForIndexChanges(listener: ObservableListener<Double>) {
@@ -238,20 +252,57 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     override fun soloEnable() {
         soloButton.isEnabled = true
         trackListViewModel.setSolo(true, this)
+        isMuted = amIMuteMode()
     }
 
     override fun soloDisable() {
         soloButton.isEnabled = false
         trackListViewModel.setSolo(false, this)
+        isMuted = amIMuteMode()
     }
 
     override fun muteEnable() {
         muteButton.isEnabled = true
         trackListViewModel.setMute(true, this)
+        isMuted = amIMuteMode()
     }
 
     override fun muteDisable() {
         muteButton.isEnabled = false
-        trackListViewModel.setMute(true, this)
+        trackListViewModel.setMute(false, this)
+        isMuted = amIMuteMode()
+    }
+
+    private fun amIMuteMode() : Boolean {
+        return muteButton.isEnabled || (trackListState.soloEngaged && !soloButton.isEnabled)
+    }
+
+    @Synchronized
+    private fun setMuteShader() {
+        if (!muteShaderAdded) {
+            muteShader.translateX = waveFormBox.trackRectangle.translateX
+            muteShader.translateY = waveFormBox.trackRectangle.translateY
+            muteShader.width = waveFormBox.trackRectangle.width
+            muteShader.height = waveFormBox.trackRectangle.height
+            muteShader.opacity = 0.4
+            muteShader.isMouseTransparent = true
+            muteShader.viewOrder = viewOrderFlip - 0.15
+            root.children.add(muteShader)
+            muteShaderAdded = true
+        }
+    }
+
+    @Synchronized
+    private fun removeMuteShader() {
+        if (muteShaderAdded) {
+            root.children.remove(muteShader)
+            muteShaderAdded = false
+        }
+    }
+
+    fun soloEngagedUpdated() {
+        /* if this is sent out it means we have either transitioned from no solo tracks
+            to one solo track or from one solo track to no solo tracks */
+        isMuted = amIMuteMode()
     }
 }

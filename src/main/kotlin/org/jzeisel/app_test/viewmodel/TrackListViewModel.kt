@@ -400,6 +400,19 @@ class TrackListViewModel(val root: StackPane,
 
     fun setSolo(enabled: Boolean, track: NormalTrack) {
         audioViewModel.setSolo(enabled, track.trackId)
+        var solo = false
+        children.forEach {
+            if ((it as NormalTrack).soloButton.isEnabled) {
+                solo = true
+                return@forEach
+            }
+        }
+        if (solo != _trackListStateFlow.state.soloEngaged) {
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(soloEngaged = solo)
+            children.forEach {
+                (it as NormalTrack).soloEngagedUpdated()
+            }
+        }
     }
 
     fun setMute(enabled: Boolean, track: NormalTrack) {

@@ -206,7 +206,9 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             }
         }
 
-        if (!csoundlib_state->solo_engaged || (csoundlib_state->solo_engaged && csoundlib_state->list_of_track_objects[trackIdx].solo_enabled)) {
+        if (!csoundlib_state->list_of_track_objects[trackIdx].mute_enabled && 
+            (!csoundlib_state->solo_engaged || 
+                (csoundlib_state->solo_engaged && csoundlib_state->list_of_track_objects[trackIdx].solo_enabled))) {
             add_audio_buffers_24bitNE(
                 csoundlib_state->mixed_output_buffer, 
                 csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer, 
