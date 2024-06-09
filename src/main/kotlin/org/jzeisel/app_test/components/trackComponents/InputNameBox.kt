@@ -6,6 +6,8 @@ import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.shape.Rectangle
+import javafx.scene.text.Font
+import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import org.jzeisel.app_test.components.interfaces.TrackElement
@@ -58,6 +60,7 @@ class InputNameBox(private val root: StackPane, override val parent: Widget)
         generalBox.opacity = 0.8
         generalBox.viewOrder = viewOrderFlip - 0.31
         nameText.text = name
+        nameText.font = Font.font("Calibri", FontWeight.BOLD, 13.0)
         nameText.translateY = generalBox.translateY
         nameText.translateX = generalBox.translateX
         nameText.textAlignment = TextAlignment.CENTER
