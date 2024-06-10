@@ -6,7 +6,7 @@
 #include "audio_devices.h"
 #include "callbacks.h"
 #include <stdlib.h>
-#include "audio_state.h"
+#include "state.h"
 
 static int _connectToBackend();
 static void _deallocateAllMemory();

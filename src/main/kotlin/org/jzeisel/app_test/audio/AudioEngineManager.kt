@@ -319,4 +319,8 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
         return AudioError.values()[error]
     }
+
+    fun getOutputRms() : Double {
+        return soundInterface.lib_getCurrentRmsOutput()
+    }
 }

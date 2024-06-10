@@ -9,7 +9,7 @@
 #include "audio_playback.h"
 #include "callbacks.h"
 #include "init.h"
-#include "audio_state.h"
+#include "state.h"
 #include "wav_driver.h"
 
 #include <fcntl.h>
@@ -219,6 +219,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
     /* now place data from mixed output buffer into output stream */
     int read_count = min_int(frame_count_max, max_fill_count);
+    csoundlib_state->current_rms_ouput = calculate_rms_level(csoundlib_state->mixed_output_buffer, read_count * outstream->bytes_per_frame);
     /* handle case of no input streams */
     if (read_count == 0) read_count = frame_count_min;
     /* there is data to be read to output */

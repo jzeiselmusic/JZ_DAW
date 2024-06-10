@@ -1,5 +1,5 @@
 #include "audio_playback.h"
-#include "audio_state.h"
+#include "state.h"
 #include "callbacks.h"
 #include "audio_errors.h"
 #include "wav_driver.h"

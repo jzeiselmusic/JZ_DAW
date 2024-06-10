@@ -12,7 +12,7 @@
 #include "callbacks.h"
 #include "init.h"
 
-#include "audio_state.h"
+#include "state.h"
 
 int lib_loadInputDevices() {
     soundio_flush_events(csoundlib_state->soundio);

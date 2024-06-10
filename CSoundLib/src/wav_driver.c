@@ -2,7 +2,7 @@
 
 #include "tracks.h"
 #include "audio_errors.h"
-#include "audio_state.h"
+#include "state.h"
 
 #include <string.h>
 #include <pthread.h>

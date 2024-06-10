@@ -8,7 +8,7 @@
 #include "audio_devices.h"
 #include "string.h"
 
-#include "audio_state.h"
+#include "state.h"
 #include "wav_driver.h"
 
 #include "callbacks.h"

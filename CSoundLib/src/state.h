@@ -36,6 +36,7 @@ typedef struct _audioState {
 
     /* mixed inputs */
     char* mixed_output_buffer; // every channel of data that is enabled gets mixed into output buffer
+    double current_rms_ouput;
 
     /* tracks */
     trackObject* list_of_track_objects;
@@ -48,5 +49,7 @@ typedef struct _audioState {
 } audio_state;
 
 extern audio_state* csoundlib_state;
+
+double lib_getCurrentRmsOutput(void);
 
 #endif

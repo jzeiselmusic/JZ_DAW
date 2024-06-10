@@ -18,6 +18,10 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
         viewModel.updateTrackRMSVolume(volume, trackId)
     }
 
+    fun sendOutputRMSVolume(volume: Double) {
+        viewModel.updateOutputRMSVolume(volume)
+    }
+
     fun getCopyOfTracks(): List<NormalTrack> {
         return viewModel.getCopyOfTracks()
     }

@@ -152,8 +152,12 @@ class MasterTrack(root: StackPane, override val parent: Widget)
         addChild(soloButton)
         addChild(muteButton)
         addChild(recordButton)
+        vuMeter.isVUMeterRunning = true
     }
 
+    fun updateVUMeter(volume: Double) {
+        vuMeter.setVUMeterCurrentRMS(volume)
+    }
     override fun removeMeFromScene(root: StackPane) {
         runLater {
             unregisterForBroadcasts()

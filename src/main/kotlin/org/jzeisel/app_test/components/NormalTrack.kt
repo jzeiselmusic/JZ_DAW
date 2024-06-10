@@ -117,6 +117,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
         addChild(recordButton)
         addChild(soloButton)
         addChild(muteButton)
+        isMuted = amIMuteMode()
     }
 
     private var inputEnabled = false

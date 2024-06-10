@@ -354,6 +354,10 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
+    fun updateOutputRMSVolume(volume: Double) {
+        masterTrack.updateVUMeter(volume)
+    }
+
     fun createAudioErrorMessage(error: AudioError) {
         val errorMessage = PanicErrorMessage(ErrorType.AudioEngineError,
             _trackListStateFlow.state, this, error.readable)

@@ -27,6 +27,7 @@ class VUMeterThread(
             vuMeterThreadJob = scope.launch {
                 loop(threadDelay) {
                     if (isActive) {
+                        viewModelController.sendOutputRMSVolume(20 * log10(audioEngineManager.getOutputRms()))
                         synchronizedTrackList.forEach { track ->
                             if (track.inputEnabled || track.recordingEnabled || audioStateFlow._state.isPlayingBack) {
                                 val listOfInputs = mutableListOf<Double>()
