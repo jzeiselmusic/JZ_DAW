@@ -8,6 +8,7 @@ import javafx.stage.Stage
 import javafx.util.Duration
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
+import org.jzeisel.app_test.components.Background
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.components.MasterTrack
@@ -48,7 +49,9 @@ class TrackListViewModel(val root: StackPane,
     val _trackListStateFlow = TrackListStateFlow(stageWidthProperty, stageHeightProperty)
 
     private val masterTrack: MasterTrack = MasterTrack(root,this)
+    private val backgroundRect = Background(this)
     init {
+        backgroundRect.addMeToScene(root)
         CursorFollower.initialize(this)
         VerticalScrollBar.initialize(this, extraPane)
         stageWidthProperty.addListener { _, _, new ->
@@ -91,6 +94,23 @@ class TrackListViewModel(val root: StackPane,
         }
         listOfTrackIds.add(newTrackId)
         return newTrackId
+    }
+
+    private fun findTrackByLargestIndex() : NormalTrack {
+        return children.map { it as NormalTrack }.sortedBy { it.index.getValue() }.last()
+    }
+
+    fun addTrackFromDoubleClick() {
+        if (children.isEmpty()) {
+            addTrackFromMaster()
+            return
+        }
+        val trackId = findNewTrackId()
+        val track = findTrackByLargestIndex()
+        val newTrack = NormalTrack(root, this, trackId, track.index.getValue().toInt() + 1, track as Track)
+        newTrack.addMeToScene(root)
+        addChild(newTrack)
+        audioViewModel.addTrack(trackId)
     }
 
     fun addTrack(child: Widget) {
