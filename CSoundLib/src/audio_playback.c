@@ -56,6 +56,8 @@ void lib_stopPlayback() {
                 close_wav_for_playback(&(files[jdx]));
             }
         }
+        csoundlib_state->list_of_track_objects[idx].current_rms_volume_input_stream = 0.0;
+        csoundlib_state->list_of_track_objects[idx].current_rms_volume_track_playback = 0.0;
         csoundlib_state->list_of_track_objects[idx].is_recording = false;
         csoundlib_state->list_of_track_objects[idx].is_playing_back = false;
     }

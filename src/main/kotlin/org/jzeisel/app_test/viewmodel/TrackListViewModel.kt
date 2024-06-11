@@ -155,7 +155,6 @@ class TrackListViewModel(val root: StackPane,
             audioViewModel.stopPlayback()
             children.forEach {
                 (it as NormalTrack).stopRecording()
-                it.setVUMeterRunning(false)
             }
             val savedPositionPixels = _trackListStateFlow.state.savedCursorPositionOffset
             CursorFollower.updateLocation(savedPositionPixels)

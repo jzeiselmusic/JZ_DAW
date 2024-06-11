@@ -205,7 +205,9 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
                 csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = bytes_copied;
             }
         }
-
+        else {
+            csoundlib_state->list_of_track_objects[trackIdx].current_rms_volume_track_playback = 0.0;
+        }
         if (!csoundlib_state->list_of_track_objects[trackIdx].mute_enabled && 
             (!csoundlib_state->solo_engaged || 
                 (csoundlib_state->solo_engaged && csoundlib_state->list_of_track_objects[trackIdx].solo_enabled))) {

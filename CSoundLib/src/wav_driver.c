@@ -185,6 +185,9 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
                 flock(fd, LOCK_UN);
                 return bytes_copied;
             }
+            else {
+                track->current_rms_volume_track_playback = 0.0;
+            }
         }
     }
     return 0;

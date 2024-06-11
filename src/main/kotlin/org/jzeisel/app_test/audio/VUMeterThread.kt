@@ -31,7 +31,9 @@ class VUMeterThread(
                         synchronizedTrackList.forEach { track ->
                             if (track.inputEnabled || track.recordingEnabled || audioStateFlow._state.isPlayingBack) {
                                 val listOfInputs = mutableListOf<Double>()
-                                listOfInputs.add(audioEngineManager.getRmsVolumeTrackPlayback(track.trackId))
+                                val a = audioEngineManager.getRmsVolumeTrackPlayback(track.trackId)
+                                listOfInputs.add(a)
+                                Logger.debug(javaClass.simpleName, "track: $a", 5)
                                 if (track.inputEnabled || track.recordingEnabled) {
                                     listOfInputs.add(audioEngineManager.getRmsVolumeInputStream(track.trackId))
                                 }
