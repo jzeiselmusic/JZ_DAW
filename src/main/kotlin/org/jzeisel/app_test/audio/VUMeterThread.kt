@@ -42,7 +42,9 @@ class VUMeterThread(
                                     audioStateFlow._state.envelopeRelease, track.lastVUMeterValue)
                                 track.lastVUMeterValue = filteredValue
                                 viewModelController.sendTrackRMSVolume(20 * log10(filteredValue), track.trackId)
+                                return@forEach
                             }
+                            track.lastVUMeterValue = 0.0
                         }
                     }
                     else {

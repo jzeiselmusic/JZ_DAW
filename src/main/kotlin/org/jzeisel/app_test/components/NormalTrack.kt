@@ -2,12 +2,9 @@ package org.jzeisel.app_test.components
 
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
-import javafx.scene.paint.Color
-import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
-import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.components.trackComponents.*
 import org.jzeisel.app_test.components.trackComponents.VUMeter
 import org.jzeisel.app_test.util.*
@@ -208,7 +205,7 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     fun updateVUMeter(volume: Double) {
-        vuMeter.setVUMeterCurrentRMS(volume)
+        vuMeter.setVUMeterCurrentLogRMS(volume)
     }
 
     override fun armRecording() {
@@ -236,9 +233,10 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     fun stopRecording() {
-        if (isRecording)
+        if (isRecording) {
             waveFormBox.stopRecording()
-        isRecording = false
+            isRecording = false
+        }
     }
 
     fun deleteHighlightedFiles() {

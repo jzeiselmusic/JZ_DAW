@@ -156,7 +156,7 @@ class MasterTrack(root: StackPane, override val parent: Widget)
     }
 
     fun updateVUMeter(volume: Double) {
-        vuMeter.setVUMeterCurrentRMS(volume)
+        vuMeter.setVUMeterCurrentLogRMS(volume)
     }
     override fun removeMeFromScene(root: StackPane) {
         runLater {
