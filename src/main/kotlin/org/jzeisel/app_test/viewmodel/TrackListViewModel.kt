@@ -2,6 +2,7 @@ package org.jzeisel.app_test.viewmodel
 
 import javafx.animation.PauseTransition
 import javafx.beans.property.ReadOnlyDoubleProperty
+import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
@@ -17,6 +18,7 @@ import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
+import org.jzeisel.app_test.components.trackComponents.WaveFormFile
 import org.jzeisel.app_test.error.ErrorType
 import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
@@ -261,20 +263,14 @@ class TrackListViewModel(val root: StackPane,
         _trackListStateFlow.state.waveFormScrollDeltaX.setValueAndNotify(deltaX, BroadcastType.SCROLL)
     }
 
-    fun broadcastMouseClick(root: StackPane) {
+    fun exitAllFields(root: StackPane) {
         for (child in children) {
             val track = child as NormalTrack
             track.inputSelectArrow.removeDropDownBox(root)
             track.inputNameBox.exitTextField(root)
-        }
-        masterTrack.inputNameBox.exitTextField(root)
-    }
-
-    fun broadcastMousePress() {
-        for (child in children) {
-            val track = child as NormalTrack
             track.waveFormBox.unclickAllFiles()
         }
+        masterTrack.inputNameBox.exitTextField(root)
     }
 
     fun broadcastBackSpace() {
@@ -458,6 +454,98 @@ class TrackListViewModel(val root: StackPane,
                 true -> (it as NormalTrack).muteEnable()
                 false -> (it as NormalTrack).muteDisable()
             }
+        }
+    }
+
+    fun shiftPressed() {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(shiftPressed = true)
+    }
+
+    fun shiftReleased() {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(shiftPressed = false)
+    }
+
+    fun dropDownBoxOpened() {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(dropDownOpen = true)
+    }
+
+    fun dropDownBoxClosed() {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(dropDownOpen = false)
+    }
+
+    fun textFieldOpen() {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(textOpen = true)
+    }
+
+    fun textFieldClosed() {
+        _trackListStateFlow.state = _trackListStateFlow.state.copy(textOpen = false)
+    }
+
+    fun addToFilesHighlighted(track: Widget, file: Widget) {
+        _trackListStateFlow.state.filesHighlighted.add(Pair(track as NormalTrack, file as WaveFormFile))
+    }
+
+    fun removeFromFilesHighlighted(track: Widget, file: Widget) {
+        _trackListStateFlow.state.filesHighlighted.remove(Pair(track as NormalTrack, file as WaveFormFile))
+    }
+
+    fun mouseClicked() {
+        /* needs debugging */
+        if (_trackListStateFlow.state.textOpen) {
+            exitAllFields(root)
+        }
+        else if (_trackListStateFlow.state.dropDownOpen) {
+            exitAllFields(root)
+        }
+        else if (_trackListStateFlow.state.infoBoxOpen) {
+
+        }
+        else if (!_trackListStateFlow.state.shiftPressed &&
+            _trackListStateFlow.state.filesHighlighted.isNotEmpty()) {
+            exitAllFields(root)
+        }
+    }
+
+    fun keyPressed(event: KeyEvent) {
+        /* needs debugging */
+        if (_trackListStateFlow.state.textOpen) {
+            if (event.code == KeyCode.BACK_SPACE) {
+                broadcastBackSpace()
+            }
+            else if ((event.code.isLetterKey || event.code.isWhitespaceKey || event.code.isDigitKey)
+                && event.code != KeyCode.ENTER) {
+                broadcastCharacter(event)
+            }
+            else if (event.code == KeyCode.ENTER) {
+                exitAllFields(root)
+            }
+        }
+        else if (_trackListStateFlow.state.infoBoxOpen) {
+            if (event.code == KeyCode.ENTER) {
+                exitAllFields(root)
+            }
+        }
+        else if (_trackListStateFlow.state.dropDownOpen) {
+            if (event.code == KeyCode.ENTER) {
+                exitAllFields(root)
+            }
+        }
+        else {
+            if (event.code == KeyCode.SHIFT) {
+                shiftPressed()
+            }
+            else if (event.code == KeyCode.DELETE || event.code == KeyCode.BACK_SPACE) {
+                deletePressed()
+            }
+            else if (event.code == KeyCode.SPACE) {
+                spacePressed()
+            }
+        }
+    }
+
+    fun keyReleased(event: KeyEvent) {
+        if (event.code == KeyCode.SHIFT) {
+            shiftReleased()
         }
     }
 }

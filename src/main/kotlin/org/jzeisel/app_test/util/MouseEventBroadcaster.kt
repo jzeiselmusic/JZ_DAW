@@ -17,42 +17,17 @@ object MouseEventBroadcaster {
         this.root = root
         this.scene = scene
         this.trackListViewModel = trackListViewModel
-        scene.addEventFilter(MouseEvent.MOUSE_CLICKED) {
-            broadcastMouseClick()
-        }
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED) {
-            trackListViewModel.broadcastMousePress()
+            trackListViewModel.mouseClicked()
         }
         scene.addEventFilter(KeyEvent.KEY_PRESSED) {
-            broadcastKeyPressForTyping(it)
+            trackListViewModel.keyPressed(it)
         }
         scene.addEventFilter(KeyEvent.KEY_RELEASED) {
-            if (it.code == KeyCode.SPACE) {
-                trackListViewModel.spacePressed()
-            }
-            else if (it.code == KeyCode.DELETE || it.code == KeyCode.BACK_SPACE) {
-                trackListViewModel.deletePressed()
-            }
+            trackListViewModel.keyReleased(it)
         }
         scene.addEventFilter(ScrollEvent.SCROLL) {
             trackListViewModel.scrollSceneVertically(it.deltaY)
-        }
-    }
-
-    private fun broadcastMouseClick() {
-        trackListViewModel.broadcastMouseClick(root)
-    }
-
-    private fun broadcastKeyPressForTyping(event: KeyEvent) {
-        if (event.code == KeyCode.BACK_SPACE) {
-            trackListViewModel.broadcastBackSpace()
-        }
-        else if ((event.code.isLetterKey || event.code.isWhitespaceKey || event.code.isDigitKey)
-                && event.code != KeyCode.ENTER) {
-            trackListViewModel.broadcastCharacter(event)
-        }
-        else if (event.code == KeyCode.ENTER) {
-            trackListViewModel.broadcastMouseClick(root)
         }
     }
 }

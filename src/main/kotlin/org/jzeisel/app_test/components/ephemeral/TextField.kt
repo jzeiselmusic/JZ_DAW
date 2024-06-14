@@ -87,6 +87,8 @@ class TextField(private val parentRect: Rectangle,
         )
         timeline.cycleCount = Timeline.INDEFINITE
         timeline.play()
+
+        trackListViewModel.textFieldOpen()
     }
 
     override fun removeMeFromScene(root: StackPane) {
@@ -97,6 +99,7 @@ class TextField(private val parentRect: Rectangle,
                 isShowing = false
                 clickCallback(text.text)
                 unregisterForBroadcasts()
+                trackListViewModel.textFieldClosed()
             }
         }
     }

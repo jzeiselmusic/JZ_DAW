@@ -115,6 +115,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             if (!it.isHovering) {
                 it.removeMeFromScene(root)
                 dropDownBox = null
+                trackListViewModel.dropDownBoxClosed()
             }
         }
     }
@@ -124,11 +125,13 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             registerForBroadcasts()
             root.children.add(inputSelectRectangle)
             root.children.add(inputSelectArrow)
+            trackListViewModel.dropDownBoxOpened()
         }
     }
 
     override fun removeMeFromScene(root: StackPane) {
         runLater {
+            removeDropDownBox(root)
             unregisterForBroadcasts()
             dropDownBox?.removeMeFromScene(root)
             for (child in children) {

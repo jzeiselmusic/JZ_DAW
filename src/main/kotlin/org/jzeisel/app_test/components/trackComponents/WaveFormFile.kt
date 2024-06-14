@@ -187,6 +187,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
                 rect.fill = Color.LIGHTGRAY.brighter().brighter()
             }
             isHighlighted = true
+            trackListViewModel.addToFilesHighlighted(parentTrack as Widget, this)
         }
     }
 
@@ -194,6 +195,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         for (rect in trackBackgroundRectangles) {
             rect.fill = Color.WHITESMOKE.darker()
         }
+        trackListViewModel.removeFromFilesHighlighted(parentTrack as Widget, this)
         isHighlighted = false
     }
 

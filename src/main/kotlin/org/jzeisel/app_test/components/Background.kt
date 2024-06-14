@@ -12,13 +12,15 @@ import kotlinx.coroutines.launch
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.SingularWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
+import org.jzeisel.app_test.stateflow.TrackListState
 import org.jzeisel.app_test.util.BroadcastType
 import org.jzeisel.app_test.util.viewOrderFlip
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 
 class Background(parent: Widget): SingularWidget, WindowElement {
     val trackListViewModel = parent as TrackListViewModel
-    val trackListState = trackListViewModel._trackListStateFlow.state
+    val trackListState: TrackListState
+        get() { return trackListViewModel._trackListStateFlow.state }
 
     val rect = Rectangle()
 
@@ -56,7 +58,7 @@ class Background(parent: Widget): SingularWidget, WindowElement {
         rect.width = trackListState.observableStageWidth.getValue()
         rect.height = trackListState.observableStageHeight.getValue()
         rect.isMouseTransparent = false
-        rect.fill = Color.LIGHTGRAY
+        rect.fill = Color.BLACK
         rect.opacity = 0.0
         rect.viewOrder = viewOrderFlip - 0.001
         rect.onMousePressed = mousePressEvent
@@ -83,25 +85,31 @@ class Background(parent: Widget): SingularWidget, WindowElement {
     }
 
     private val mouseReleaseEvent = EventHandler<MouseEvent> {
-        rect.opacity = 0.0
+        if (!trackListState.dropDownOpen && !trackListState.textOpen && !trackListState.infoBoxOpen) {
+            rect.opacity = 0.0
+        }
     }
 
     private val mousePressEvent = EventHandler<MouseEvent> {
-        rect.opacity = 0.01
-        when (numPresses) {
-            0 -> {
-                numPresses++
-                launchTimer()
-                return@EventHandler
-            }
-            1 -> {
-                if (timerRunning) {
-                    doubleClick()
+        if (!trackListState.dropDownOpen && !trackListState.textOpen && !trackListState.infoBoxOpen) {
+            rect.opacity = 0.1
+            when (numPresses) {
+                0 -> {
+                    numPresses++
+                    launchTimer()
+                    return@EventHandler
                 }
-                numPresses = 0
-                return@EventHandler
+
+                1 -> {
+                    if (timerRunning) {
+                        doubleClick()
+                    }
+                    numPresses = 0
+                    return@EventHandler
+                }
+
+                else -> numPresses = 0
             }
-            else -> numPresses = 0
         }
     }
 }

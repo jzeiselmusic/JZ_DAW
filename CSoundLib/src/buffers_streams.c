@@ -200,10 +200,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             int bytes_copied = read_wav_file_for_playback(&(csoundlib_state->list_of_track_objects[trackIdx]), 
                                                      csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer, 
                                                      frame_count_max * outstream->bytes_per_frame);
-            if (bytes_copied > max_fill_count) max_fill_count = bytes_copied;
-            if (bytes_copied > csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes) {
-                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = bytes_copied;
-            }
+            csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = bytes_copied;
         }
         else {
             csoundlib_state->list_of_track_objects[trackIdx].current_rms_volume_track_playback = 0.0;
@@ -219,9 +216,10 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
         }
     }
 
+    csoundlib_state->current_rms_ouput = calculate_rms_level(csoundlib_state->mixed_output_buffer, frame_count_max * outstream->bytes_per_frame);
+
     /* now place data from mixed output buffer into output stream */
     int read_count = min_int(frame_count_max, max_fill_count);
-    csoundlib_state->current_rms_ouput = calculate_rms_level(csoundlib_state->mixed_output_buffer, read_count * outstream->bytes_per_frame);
     /* handle case of no input streams */
     if (read_count == 0) read_count = frame_count_min;
     /* there is data to be read to output */

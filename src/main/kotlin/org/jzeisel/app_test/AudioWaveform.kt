@@ -23,7 +23,6 @@ class AudioWaveform : Application() {
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var audioViewModel: AudioViewModel
-
     /*
 
     the z values of the nodes should be laid out in the following way

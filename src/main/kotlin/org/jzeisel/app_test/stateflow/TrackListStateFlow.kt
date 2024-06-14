@@ -2,9 +2,13 @@ package org.jzeisel.app_test.stateflow
 
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.paint.Color
+import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
+import org.jzeisel.app_test.components.trackComponents.WaveFormFile
 import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.util.Observable
+
+typealias FileList = MutableList<Pair<NormalTrack, WaveFormFile>>
 
 data class TrackListState(
     val stageWidthProperty: ReadOnlyDoubleProperty,
@@ -55,7 +59,12 @@ data class TrackListState(
     val cursorOffset: Double = 0.0, // pixel distance from start of track
     val savedCursorPositionOffset: Double = 0.0,
 
-    val soloEngaged: Boolean = false
+    val soloEngaged: Boolean = false,
+    val shiftPressed: Boolean = false,
+    val textOpen: Boolean = false,
+    val dropDownOpen: Boolean = false,
+    val infoBoxOpen: Boolean = false,
+    val filesHighlighted: FileList = mutableListOf()
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {
