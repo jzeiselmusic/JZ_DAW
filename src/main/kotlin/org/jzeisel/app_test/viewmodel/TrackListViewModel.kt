@@ -504,6 +504,14 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
+    private fun highlightAllTracks() {
+        children.forEach {
+            (it as NormalTrack).waveFormBox.children.forEach {file->
+                (file as WaveFormFile).clickFile()
+            }
+        }
+    }
+
     fun shiftPressed() {
         _trackListStateFlow.state = _trackListStateFlow.state.copy(shiftPressed = true)
     }
@@ -598,6 +606,9 @@ class TrackListViewModel(val root: StackPane,
             }
             else if (event.code == KeyCode.SPACE) {
                 spacePressed()
+            }
+            else if (event.code == KeyCode.A && event.isShortcutDown) {
+                highlightAllTracks()
             }
         }
     }
