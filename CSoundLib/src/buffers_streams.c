@@ -200,7 +200,9 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
             int bytes_copied = read_wav_file_for_playback(&(csoundlib_state->list_of_track_objects[trackIdx]), 
                                                      csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer, 
                                                      frame_count_max * outstream->bytes_per_frame);
-            csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = bytes_copied;
+            if (bytes_copied > csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes) {
+                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = bytes_copied;
+            }
         }
         else {
             csoundlib_state->list_of_track_objects[trackIdx].current_rms_volume_track_playback = 0.0;
