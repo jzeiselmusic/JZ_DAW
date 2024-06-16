@@ -10,6 +10,14 @@ import org.jzeisel.app_test.util.Observable
 
 typealias FileList = MutableList<Pair<NormalTrack, WaveFormFile>>
 
+data class KeyState(
+    val shiftPressed: Boolean,
+    val textOpen: Boolean,
+    val dropDownOpen: Boolean,
+    val infoBoxOpen: Boolean,
+    val filesHighlighted: FileList
+)
+
 data class TrackListState(
     val stageWidthProperty: ReadOnlyDoubleProperty,
     val stageHeightProperty: ReadOnlyDoubleProperty,

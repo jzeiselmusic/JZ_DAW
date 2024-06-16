@@ -292,8 +292,9 @@ class WaveFormBox(override val parent: Widget) :
                 }
             }
         }
-        indexesToDelete.forEach {
-            children.removeAt(it)
+        val filesToDelete = indexesToDelete.map { children[it] }
+        filesToDelete.forEach {
+            children.remove(it)
         }
     }
 

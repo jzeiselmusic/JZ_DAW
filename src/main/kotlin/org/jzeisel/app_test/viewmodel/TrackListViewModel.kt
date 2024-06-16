@@ -21,6 +21,7 @@ import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
 import org.jzeisel.app_test.components.trackComponents.WaveFormFile
 import org.jzeisel.app_test.error.ErrorType
 import org.jzeisel.app_test.error.PanicErrorMessage
+import org.jzeisel.app_test.stateflow.KeyState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.*
 import kotlin.math.log10
@@ -506,8 +507,20 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
+    private fun printState() {
+        val currentState =
+            KeyState(
+                shiftPressed = _trackListStateFlow.state.shiftPressed,
+                textOpen = _trackListStateFlow.state.textOpen,
+                dropDownOpen = _trackListStateFlow.state.dropDownOpen,
+                infoBoxOpen = _trackListStateFlow.state.infoBoxOpen,
+                filesHighlighted = _trackListStateFlow.state.filesHighlighted)
+        Logger.debug(javaClass.simpleName, currentState.toString(), 4)
+    }
+
     fun keyPressed(event: KeyEvent) {
         /* needs debugging */
+        // printState()
         if (_trackListStateFlow.state.textOpen) {
             if (event.code == KeyCode.BACK_SPACE) {
                 broadcastBackSpace()

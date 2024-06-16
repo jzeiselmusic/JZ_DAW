@@ -43,6 +43,7 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
 
     override val mousePressEvent = EventHandler<MouseEvent> {
         animateObjectScale(1.0, 0.9, inputSelectRectangle, 80.0)
+        trackListViewModel.dropDownBoxOpened()
     }
 
     override val mouseReleaseEvent = EventHandler<MouseEvent> {
@@ -125,7 +126,6 @@ class InputSelectArrow(private val root: StackPane, override val parent: Widget?
             registerForBroadcasts()
             root.children.add(inputSelectRectangle)
             root.children.add(inputSelectArrow)
-            trackListViewModel.dropDownBoxOpened()
         }
     }
 
