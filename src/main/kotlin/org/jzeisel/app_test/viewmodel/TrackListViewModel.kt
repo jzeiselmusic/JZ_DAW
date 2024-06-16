@@ -310,14 +310,23 @@ class TrackListViewModel(val root: StackPane,
         _trackListStateFlow.state.waveFormScrollDeltaX.setValueAndNotify(deltaX, BroadcastType.SCROLL)
     }
 
-    fun exitAllFields(root: StackPane) {
-        for (child in children) {
-            val track = child as NormalTrack
-            track.inputSelectArrow.removeDropDownBox(root)
-            track.inputNameBox.exitTextField(root)
-            track.waveFormBox.unclickAllFiles()
+    fun exitTextFields() {
+        children.forEach {
+            (it as NormalTrack).inputNameBox.exitTextField(root)
         }
         masterTrack.inputNameBox.exitTextField(root)
+    }
+
+    fun removeDropDownBoxes() {
+        children.forEach {
+            (it as NormalTrack).inputSelectArrow.removeDropDownBox(root)
+        }
+    }
+
+    fun unclickAllFiles() {
+        children.forEach {
+            (it as NormalTrack).waveFormBox.unclickAllFiles()
+        }
     }
 
     fun broadcastBackSpace() {
@@ -545,19 +554,18 @@ class TrackListViewModel(val root: StackPane,
     }
 
     fun mouseClicked() {
-        /* needs debugging */
         if (_trackListStateFlow.state.textOpen) {
-            exitAllFields(root)
+            exitTextFields()
         }
         else if (_trackListStateFlow.state.dropDownOpen) {
-            exitAllFields(root)
+            removeDropDownBoxes()
         }
         else if (_trackListStateFlow.state.infoBoxOpen) {
 
         }
         else if (!_trackListStateFlow.state.shiftPressed &&
             _trackListStateFlow.state.filesHighlighted.isNotEmpty()) {
-            exitAllFields(root)
+            unclickAllFiles()
         }
     }
 
@@ -573,8 +581,6 @@ class TrackListViewModel(val root: StackPane,
     }
 
     fun keyPressed(event: KeyEvent) {
-        /* needs debugging */
-        // printState()
         if (_trackListStateFlow.state.textOpen) {
             if (event.code == KeyCode.BACK_SPACE) {
                 broadcastBackSpace()
@@ -584,17 +590,17 @@ class TrackListViewModel(val root: StackPane,
                 broadcastCharacter(event)
             }
             else if (event.code == KeyCode.ENTER) {
-                exitAllFields(root)
+                mouseClicked()
             }
         }
         else if (_trackListStateFlow.state.infoBoxOpen) {
             if (event.code == KeyCode.ENTER) {
-                exitAllFields(root)
+                mouseClicked()
             }
         }
         else if (_trackListStateFlow.state.dropDownOpen) {
             if (event.code == KeyCode.ENTER) {
-                exitAllFields(root)
+                mouseClicked()
             }
         }
         else {
