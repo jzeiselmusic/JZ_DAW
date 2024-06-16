@@ -4,6 +4,7 @@ import javafx.animation.PauseTransition
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
@@ -149,13 +150,46 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
-    fun deletePressed() {
+    private fun deletePressed() {
         children.forEach {
             (it as NormalTrack).deleteHighlightedFiles()
         }
     }
 
-    fun spacePressed() {
+    fun fileXShifted(pixelsMoved: Double) {
+        children.forEach { track ->
+            (track as NormalTrack).waveFormBox.children.forEach { file ->
+                if ((file as WaveFormFile).isHighlighted) {
+                    file.moveFileX(pixelsMoved)
+                }
+            }
+        }
+    }
+
+    fun fileYShifted(direction: MoveDirection) {
+        /* first make sure all the files in question are able to move */
+        var ableToMove = true
+        children.forEach { track ->
+            (track as NormalTrack).waveFormBox.children.forEach { file ->
+                if ((file as WaveFormFile).isHighlighted) {
+                    if (!ableToMoveY(direction, track.trackId, file.fileId)) {
+                        ableToMove = false
+                    }
+                }
+            }
+        }
+        if (ableToMove) {
+            children.reversed().forEach { track ->
+                (track as NormalTrack).waveFormBox.children.reversed().forEach { file ->
+                    if ((file as WaveFormFile).isHighlighted) {
+                        moveFileToNewTrack(direction, track.trackId, file.fileId)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun spacePressed() {
         if (!_trackListStateFlow.state.playBackStarted) {
             val currentPositionPixels = _trackListStateFlow.state.cursorOffset
             val currentPositionSamples = audioViewModel.cursorOffsetSamples
@@ -217,7 +251,20 @@ class TrackListViewModel(val root: StackPane,
         listOfFileIds.remove(fileId)
     }
 
-    fun moveFile(moveDirection: MoveDirection, sourceTrackId: Int, sourceFileId: Int) {
+    private fun ableToMoveY(moveDirection: MoveDirection, sourceTrackId: Int, sourceFileId: Int): Boolean {
+        val sourceTrack = children.filter{ (it as NormalTrack).trackId == sourceTrackId }[0] as NormalTrack
+        val sourceTrackIndex = sourceTrack.index.getValue().toInt()
+        if (
+            (moveDirection == MoveDirection.UP && sourceTrackIndex != 0) ||
+            (moveDirection == MoveDirection.DOWN && (sourceTrackIndex != _trackListStateFlow.state.numTracks - 1))) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+
+    fun moveFileToNewTrack(moveDirection: MoveDirection, sourceTrackId: Int, sourceFileId: Int) {
         /* - find track above or below this one.
            - move file out of source track wavebox child list
            - change source file parent
@@ -231,7 +278,7 @@ class TrackListViewModel(val root: StackPane,
             val destTrack = children.filter { (it as NormalTrack).index.getValue().toInt() == sourceTrackIndex - 1}[0] as NormalTrack
             val fileToMove = sourceTrack.waveFormBox.popFile(sourceFileId)
             destTrack.waveFormBox.addAlreadyExistingFile(fileToMove)
-            fileToMove.moveFile(MoveDirection.UP)
+            fileToMove.moveFileY(MoveDirection.UP)
             audioViewModel.moveFile(destTrack.trackId, sourceTrack.trackId, sourceFileId)
         }
         if (moveDirection == MoveDirection.DOWN && (sourceTrackIndex != _trackListStateFlow.state.numTracks - 1)) {
@@ -239,7 +286,7 @@ class TrackListViewModel(val root: StackPane,
             val destTrack = children.filter { (it as NormalTrack).index.getValue().toInt() == sourceTrackIndex + 1 }[0] as NormalTrack
             val fileToMove = sourceTrack.waveFormBox.popFile(sourceFileId)
             destTrack.waveFormBox.addAlreadyExistingFile(fileToMove)
-            fileToMove.moveFile(MoveDirection.DOWN)
+            fileToMove.moveFileY(MoveDirection.DOWN)
             audioViewModel.moveFile(destTrack.trackId, sourceTrack.trackId, sourceFileId)
         }
     }

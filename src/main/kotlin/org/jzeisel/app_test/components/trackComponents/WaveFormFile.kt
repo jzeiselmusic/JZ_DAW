@@ -274,7 +274,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         }
     }
 
-    private fun dragFile(event: MouseEvent) {
+    fun dragFile(event: MouseEvent) {
         /* y shifting */
         var realY = event.y
         clickPointY?.let { realY -= it }
@@ -286,7 +286,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             val moveDirection =
                 if (yDistance > 0) MoveDirection.DOWN
                 else MoveDirection.UP
-            trackListViewModel.moveFile(moveDirection, (parentTrack as NormalTrack).trackId, fileId)
+            trackListViewModel.fileYShifted(moveDirection)
             return
         }
 
@@ -298,6 +298,28 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             else if (realX < -trackListState.pixelsInABeat) -trackListState.pixelsInABeat
             else 0.0
 
+        trackListViewModel.fileXShifted(xDistance)
+    }
+
+    fun moveFileY(moveDirection: MoveDirection) {
+        var yDistance: Double
+        if (moveDirection == MoveDirection.UP) {
+            yDistance = -trackListState.trackHeight
+        }
+        else {
+            yDistance = trackListState.trackHeight
+        }
+        trackBackgroundRectangles.forEach {
+            it.translateY += yDistance
+        }
+        trackWaveformRectangles.forEach {
+            it.translateY += yDistance
+        }
+        fillingRectangle.translateY += yDistance
+        wrappingRectangle.translateY += yDistance
+    }
+
+    fun moveFileX(xDistance: Double) {
         if (xDistance == 0.0) return
 
         trackBackgroundRectangles.forEach {
@@ -318,23 +340,5 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             trackListState.pixelsInABeat
         )
         trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
-    }
-
-    fun moveFile(moveDirection: MoveDirection) {
-        var yDistance: Double
-        if (moveDirection == MoveDirection.UP) {
-            yDistance = -trackListState.trackHeight
-        }
-        else {
-            yDistance = trackListState.trackHeight
-        }
-        trackBackgroundRectangles.forEach {
-            it.translateY += yDistance
-        }
-        trackWaveformRectangles.forEach {
-            it.translateY += yDistance
-        }
-        fillingRectangle.translateY += yDistance
-        wrappingRectangle.translateY += yDistance
     }
 }
