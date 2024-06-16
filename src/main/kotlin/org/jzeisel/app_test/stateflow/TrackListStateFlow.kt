@@ -8,14 +8,12 @@ import org.jzeisel.app_test.components.trackComponents.WaveFormFile
 import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.util.Observable
 
-typealias FileList = MutableList<Pair<NormalTrack, WaveFormFile>>
-
 data class KeyState(
     val shiftPressed: Boolean,
     val textOpen: Boolean,
     val dropDownOpen: Boolean,
     val infoBoxOpen: Boolean,
-    val filesHighlighted: FileList
+    val filesHighlighted: MutableList<WaveFormFile>
 )
 
 data class TrackListState(
@@ -72,7 +70,7 @@ data class TrackListState(
     val textOpen: Boolean = false,
     val dropDownOpen: Boolean = false,
     val infoBoxOpen: Boolean = false,
-    val filesHighlighted: FileList = mutableListOf()
+    val filesHighlighted: MutableList<WaveFormFile> = mutableListOf()
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {

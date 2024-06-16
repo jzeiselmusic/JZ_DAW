@@ -19,6 +19,7 @@ import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar
 import org.jzeisel.app_test.components.singletons.VerticalScrollBar.saturateAt
+import org.jzeisel.app_test.components.trackComponents.WaveFormBox
 import org.jzeisel.app_test.components.trackComponents.WaveFormFile
 import org.jzeisel.app_test.error.ErrorType
 import org.jzeisel.app_test.error.PanicErrorMessage
@@ -179,11 +180,9 @@ class TrackListViewModel(val root: StackPane,
             }
         }
         if (ableToMove) {
-            children.reversed().forEach { track ->
-                (track as NormalTrack).waveFormBox.children.reversed().forEach { file ->
-                    if ((file as WaveFormFile).isHighlighted) {
-                        moveFileToNewTrack(direction, track.trackId, file.fileId)
-                    }
+            _trackListStateFlow.state.filesHighlighted.forEach {
+                if (it.isHighlighted) {
+                    moveFileToNewTrack(direction, ((it.mutableParent as WaveFormBox).parentTrack as NormalTrack).trackId, it.fileId)
                 }
             }
         }
@@ -529,12 +528,12 @@ class TrackListViewModel(val root: StackPane,
         _trackListStateFlow.state = _trackListStateFlow.state.copy(textOpen = false)
     }
 
-    fun addToFilesHighlighted(track: Widget, file: Widget) {
-        _trackListStateFlow.state.filesHighlighted.add(Pair(track as NormalTrack, file as WaveFormFile))
+    fun addToFilesHighlighted(file: Widget) {
+        _trackListStateFlow.state.filesHighlighted.add(file as WaveFormFile)
     }
 
-    fun removeFromFilesHighlighted(track: Widget, file: Widget) {
-        _trackListStateFlow.state.filesHighlighted.remove(Pair(track as NormalTrack, file as WaveFormFile))
+    fun removeFromFilesHighlighted(file: Widget) {
+        _trackListStateFlow.state.filesHighlighted.remove(file as WaveFormFile)
     }
 
     fun mouseClicked() {
