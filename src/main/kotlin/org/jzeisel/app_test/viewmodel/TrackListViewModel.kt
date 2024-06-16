@@ -563,10 +563,6 @@ class TrackListViewModel(val root: StackPane,
         else if (_trackListStateFlow.state.infoBoxOpen) {
 
         }
-        else if (!_trackListStateFlow.state.shiftPressed &&
-            _trackListStateFlow.state.filesHighlighted.isNotEmpty()) {
-            unclickAllFiles()
-        }
     }
 
     private fun printState() {
