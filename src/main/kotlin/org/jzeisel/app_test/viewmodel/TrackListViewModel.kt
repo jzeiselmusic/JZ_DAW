@@ -560,7 +560,7 @@ class TrackListViewModel(val root: StackPane,
                 textOpen = _trackListStateFlow.state.textOpen,
                 dropDownOpen = _trackListStateFlow.state.dropDownOpen,
                 infoBoxOpen = _trackListStateFlow.state.infoBoxOpen,
-                filesHighlighted = _trackListStateFlow.state.filesHighlighted)
+                filesHighlighted = _trackListStateFlow.state.filesHighlighted.toMutableList())
         Logger.debug(javaClass.simpleName, currentState.toString(), 4)
     }
 

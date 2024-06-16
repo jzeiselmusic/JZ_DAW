@@ -70,7 +70,7 @@ data class TrackListState(
     val textOpen: Boolean = false,
     val dropDownOpen: Boolean = false,
     val infoBoxOpen: Boolean = false,
-    val filesHighlighted: MutableList<WaveFormFile> = mutableListOf()
+    val filesHighlighted: MutableSet<WaveFormFile> = mutableSetOf()
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {
