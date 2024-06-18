@@ -70,12 +70,12 @@ class WaveFormBox(override val parent: Widget) :
         trackRectangle.viewOrder = zValBase
         trackRectangle.onMousePressed = EventHandler {
             /* calculate the nearest allowable x offset given increments of 25 / 22050 */
-            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat)
+            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat/2.0)
             trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
             trackListViewModel.unclickAllFiles()
         }
         trackRectangle.onMouseDragged = EventHandler {
-            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat)
+            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat/2.0)
             trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
         }
 

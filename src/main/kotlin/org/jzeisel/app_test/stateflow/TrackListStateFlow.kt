@@ -7,13 +7,20 @@ import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.trackComponents.WaveFormFile
 import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.util.Observable
+import java.io.File
 
 data class KeyState(
     val shiftPressed: Boolean,
     val textOpen: Boolean,
     val dropDownOpen: Boolean,
     val infoBoxOpen: Boolean,
-    val filesHighlighted: MutableList<WaveFormFile>
+    val filesHighlighted: FileHighlightGroup
+)
+
+data class FileHighlightGroup(
+    val files: MutableSet<WaveFormFile> = mutableSetOf(),
+    var pressed: Boolean,
+    var hasMovedSinceLastPress: Boolean
 )
 
 data class TrackListState(
@@ -70,7 +77,7 @@ data class TrackListState(
     val textOpen: Boolean = false,
     val dropDownOpen: Boolean = false,
     val infoBoxOpen: Boolean = false,
-    val filesHighlighted: MutableSet<WaveFormFile> = mutableSetOf()
+    val filesHighlighted: FileHighlightGroup = FileHighlightGroup(mutableSetOf(), false, false)
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {

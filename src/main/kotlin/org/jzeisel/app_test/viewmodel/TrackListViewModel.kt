@@ -162,6 +162,7 @@ class TrackListViewModel(val root: StackPane,
             (track as NormalTrack).waveFormBox.children.forEach { file ->
                 if ((file as WaveFormFile).isHighlighted) {
                     file.moveFileX(pixelsMoved)
+                    _trackListStateFlow.state.filesHighlighted.hasMovedSinceLastPress = true
                 }
             }
         }
@@ -180,9 +181,10 @@ class TrackListViewModel(val root: StackPane,
             }
         }
         if (ableToMove) {
-            _trackListStateFlow.state.filesHighlighted.forEach {
+            _trackListStateFlow.state.filesHighlighted.files.forEach {
                 if (it.isHighlighted) {
                     moveFileToNewTrack(direction, ((it.mutableParent as WaveFormBox).parentTrack as NormalTrack).trackId, it.fileId)
+                    _trackListStateFlow.state.filesHighlighted.hasMovedSinceLastPress = true
                 }
             }
         }
@@ -545,12 +547,68 @@ class TrackListViewModel(val root: StackPane,
         _trackListStateFlow.state = _trackListStateFlow.state.copy(textOpen = false)
     }
 
+    fun filePressed(file: Widget) {
+        if (_trackListStateFlow.state.filesHighlighted.files.size <= 1) {
+            /* highlight group does not exist */
+            if (!_trackListStateFlow.state.shiftPressed) {
+                unclickAllFiles()
+            }
+            (file as WaveFormFile).clickFile()
+        }
+        else {
+            /* highlight group exists */
+            if (_trackListStateFlow.state.filesHighlighted.files.contains(file as WaveFormFile)) {
+                increaseBrightnessOnHighlightGroup()
+                _trackListStateFlow.state.filesHighlighted.pressed = true
+                _trackListStateFlow.state.filesHighlighted.hasMovedSinceLastPress = false
+            }
+            else {
+                if (!_trackListStateFlow.state.shiftPressed)
+                    unclickAllFiles()
+                file.clickFile()
+            }
+        }
+    }
+
+    fun fileReleased(file: Widget) {
+        if (_trackListStateFlow.state.filesHighlighted.files.size <= 1) {
+            /* highlight group does not exist */
+            /* do nothing */
+        }
+        else {
+            /* highlight group exists */
+            if (_trackListStateFlow.state.filesHighlighted.hasMovedSinceLastPress) {
+                decreaseBrightnessOnHighlightGroup()
+            }
+            else {
+                if (!_trackListStateFlow.state.shiftPressed) {
+                    if (_trackListStateFlow.state.filesHighlighted.files.contains(file as WaveFormFile)) {
+                        unclickAllFiles()
+                        file.clickFile()
+                    }
+                }
+            }
+        }
+    }
+
+    fun increaseBrightnessOnHighlightGroup() {
+        _trackListStateFlow.state.filesHighlighted.files.forEach {
+            it.toggleBrightness(true)
+        }
+    }
+
+    fun decreaseBrightnessOnHighlightGroup() {
+        _trackListStateFlow.state.filesHighlighted.files.forEach {
+            it.toggleBrightness(false)
+        }
+    }
+
     fun addToFilesHighlighted(file: Widget) {
-        _trackListStateFlow.state.filesHighlighted.add(file as WaveFormFile)
+        _trackListStateFlow.state.filesHighlighted.files.add(file as WaveFormFile)
     }
 
     fun removeFromFilesHighlighted(file: Widget) {
-        _trackListStateFlow.state.filesHighlighted.remove(file as WaveFormFile)
+        _trackListStateFlow.state.filesHighlighted.files.remove(file as WaveFormFile)
     }
 
     fun mouseClicked() {
@@ -572,7 +630,7 @@ class TrackListViewModel(val root: StackPane,
                 textOpen = _trackListStateFlow.state.textOpen,
                 dropDownOpen = _trackListStateFlow.state.dropDownOpen,
                 infoBoxOpen = _trackListStateFlow.state.infoBoxOpen,
-                filesHighlighted = _trackListStateFlow.state.filesHighlighted.toMutableList())
+                filesHighlighted = _trackListStateFlow.state.filesHighlighted)
         Logger.debug(javaClass.simpleName, currentState.toString(), 4)
     }
 

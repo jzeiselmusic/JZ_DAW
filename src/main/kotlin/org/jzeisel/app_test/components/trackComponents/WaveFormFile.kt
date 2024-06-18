@@ -74,7 +74,11 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     private val mousePressEvent = EventHandler<MouseEvent> {
         clickPointX = it.x
         clickPointY = it.y
-        clickFile()
+        trackListViewModel.filePressed(this)
+    }
+
+    private val mouseReleaseEvent = EventHandler<MouseEvent> {
+        trackListViewModel.fileReleased(this)
     }
 
     private val mouseDragEvent = EventHandler<MouseEvent> {
@@ -182,9 +186,9 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     }
 
     fun clickFile() {
-        runLater(50.0) {
+        runLater {
             for (rect in trackBackgroundRectangles) {
-                rect.fill = Color.LIGHTGRAY.brighter().brighter()
+                rect.fill = Color.LIGHTGRAY.brighter()
             }
             isHighlighted = true
             trackListViewModel.addToFilesHighlighted(this)
@@ -219,6 +223,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             fillingRectangle.viewOrder = wrapperViewOrder
             fillingRectangle.isMouseTransparent = false
             fillingRectangle.onMousePressed = mousePressEvent
+            fillingRectangle.onMouseReleased = mouseReleaseEvent
             fillingRectangle.onMouseDragged = mouseDragEvent
 
             wrappingRectangle.height = trackListState.trackHeight - 8
@@ -340,5 +345,20 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
             trackListState.pixelsInABeat
         )
         trackListViewModel.updateFileOffset(newSampleOffset, fileId, (parentTrack as NormalTrack).trackId)
+    }
+
+    fun toggleBrightness(up: Boolean) {
+        when(up) {
+            true -> {
+                for (rect in trackBackgroundRectangles) {
+                    rect.fill = Color.LIGHTGRAY.brighter().brighter().brighter()
+                }
+            }
+            false -> {
+                for (rect in trackBackgroundRectangles) {
+                    rect.fill = Color.LIGHTGRAY.brighter()
+                }
+            }
+        }
     }
 }
