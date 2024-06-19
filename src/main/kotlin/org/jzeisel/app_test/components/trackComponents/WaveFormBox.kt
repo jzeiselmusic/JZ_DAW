@@ -1,6 +1,7 @@
 package org.jzeisel.app_test.components.trackComponents
 
 import javafx.event.EventHandler
+import javafx.scene.Cursor
 import javafx.scene.input.ScrollEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
@@ -16,6 +17,7 @@ import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.singletons.CursorFollower
 import org.jzeisel.app_test.util.*
+import kotlin.math.abs
 
 class WaveFormBox(override val parent: Widget) :
     NodeWidget, TrackElement, WindowElement, WaveElement {
@@ -39,6 +41,8 @@ class WaveFormBox(override val parent: Widget) :
     private val zValMeasures = viewOrderFlip - 0.11
     private val zValTicks = viewOrderFlip - 0.12
     private val originalLocation: Double get() { return trackListFlow.waveFormTranslateX }
+    private var lastMousePressLocationX: Double = 0.0
+    private var highlightRectangle = Rectangle(0.0, 0.0, Color.TRANSPARENT)
     private val farthestLocation: Double
         get() {
             return (trackListFlow.waveFormTranslateX
@@ -70,13 +74,32 @@ class WaveFormBox(override val parent: Widget) :
         trackRectangle.viewOrder = zValBase
         trackRectangle.onMousePressed = EventHandler {
             /* calculate the nearest allowable x offset given increments of 25 / 22050 */
-            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat/2.0)
+            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.incrementSize)
+            lastMousePressLocationX = trackListState.currentDividerOffset.getValue() + quantizedLoc - trackListState.waveFormOffset
             trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
             trackListViewModel.unclickAllFiles()
         }
         trackRectangle.onMouseDragged = EventHandler {
-            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.pixelsInABeat/2.0)
+            val totalDistanceX = (trackListState.currentDividerOffset.getValue() + it.x - trackListState.waveFormOffset) - lastMousePressLocationX
+            val numIncrementsHighlight = (totalDistanceX / trackListState.incrementSize).toInt()
+            val sign = if (numIncrementsHighlight > 0) 1 else -1
+            highlightRectangle.width = abs(numIncrementsHighlight) * trackListState.incrementSize
+            highlightRectangle.height = trackListState.trackHeight
+            highlightRectangle.translateX = lastMousePressLocationX + (sign * highlightRectangle.width/2.0)
+            highlightRectangle.translateY = parentTrack.trackOffsetY
+            highlightRectangle.fill = Color.LIGHTGRAY
+            highlightRectangle.opacity = 0.3
+            highlightRectangle.viewOrder = viewOrderFlip - 0.105
+            highlightRectangle.isMouseTransparent = true
+            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.incrementSize)
             trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
+        }
+
+        trackRectangle.onMouseEntered = EventHandler {
+            root.cursor = Cursor.TEXT
+        }
+        trackRectangle.onMouseExited = EventHandler {
+            root.cursor = Cursor.DEFAULT
         }
 
         for (i in 0..(waveFormWidth/100).toInt()) {
@@ -166,6 +189,7 @@ class WaveFormBox(override val parent: Widget) :
         this.root = root
         registerForBroadcasts()
         root.children.add(trackRectangle)
+        root.children.add(highlightRectangle)
         for (measureDivider in measureDividers) {
             root.children.add(measureDivider)
         }
@@ -189,6 +213,7 @@ class WaveFormBox(override val parent: Widget) :
         runLater {
             unregisterForBroadcasts()
             root.children.remove(trackRectangle)
+            root.children.remove(highlightRectangle)
             for (measureDivider in measureDividers) {
                 root.children.remove(measureDivider)
             }

@@ -579,6 +579,7 @@ class TrackListViewModel(val root: StackPane,
             /* highlight group exists */
             if (_trackListStateFlow.state.filesHighlighted.hasMovedSinceLastPress) {
                 decreaseBrightnessOnHighlightGroup()
+                _trackListStateFlow.state.filesHighlighted.pressed = false
             }
             else {
                 if (!_trackListStateFlow.state.shiftPressed) {

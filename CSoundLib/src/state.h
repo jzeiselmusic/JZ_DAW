@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "soundio_inc.h"
 #include "tracks.h"
+#include "audio_playback.h"
 
 typedef struct _audioState {
     struct SoundIo* soundio;
@@ -12,7 +13,6 @@ typedef struct _audioState {
     /* playback */
     bool playback_started;
     int current_cursor_offset; // in samples
-
 
     /* initialization */
     bool input_memory_allocated;

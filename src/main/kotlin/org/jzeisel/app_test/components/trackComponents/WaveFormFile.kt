@@ -98,6 +98,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     @Synchronized
     override fun removeMeFromScene(root: StackPane) {
         /* when user wants to delete a recorded file from the track */
+        trackListViewModel.removeFromFilesHighlighted(this)
         unregisterForBroadcasts()
         root.children.remove(wrappingRectangle)
         root.children.remove(fillingRectangle)
@@ -188,7 +189,7 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
     fun clickFile() {
         runLater {
             for (rect in trackBackgroundRectangles) {
-                rect.fill = Color.LIGHTGRAY.brighter()
+                rect.fill = Color.LIGHTGRAY
             }
             isHighlighted = true
             trackListViewModel.addToFilesHighlighted(this)
@@ -299,8 +300,8 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         var realX = event.x
         clickPointX?.let { realX -= it }
         val xDistance =
-            if (realX > trackListState.pixelsInABeat) trackListState.pixelsInABeat
-            else if (realX < -trackListState.pixelsInABeat) -trackListState.pixelsInABeat
+            if (realX > trackListState.incrementSize) trackListState.incrementSize
+            else if (realX < -trackListState.incrementSize) -trackListState.incrementSize
             else 0.0
 
         trackListViewModel.fileXShifted(xDistance)
@@ -351,12 +352,12 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         when(up) {
             true -> {
                 for (rect in trackBackgroundRectangles) {
-                    rect.fill = Color.LIGHTGRAY.brighter().brighter().brighter()
+                    rect.fill = Color.LIGHTGRAY.brighter()
                 }
             }
             false -> {
                 for (rect in trackBackgroundRectangles) {
-                    rect.fill = Color.LIGHTGRAY.brighter()
+                    rect.fill = Color.LIGHTGRAY
                 }
             }
         }

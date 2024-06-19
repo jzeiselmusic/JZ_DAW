@@ -23,6 +23,13 @@ data class FileHighlightGroup(
     var hasMovedSinceLastPress: Boolean
 )
 
+data class PlaybackHighlightSection(
+    var pixelStart: Double = 0.0,
+    var pixelEnd: Double = 0.0,
+    var isEnabled: Boolean = false,
+    var loopEnabled: Boolean = false
+)
+
 data class TrackListState(
     val stageWidthProperty: ReadOnlyDoubleProperty,
     val stageHeightProperty: ReadOnlyDoubleProperty,
@@ -68,6 +75,7 @@ data class TrackListState(
     val panicErrorMessage: PanicErrorMessage? = null,
 
     val pixelsInABeat: Double = 25.0,
+    val incrementSize: Double = pixelsInABeat / 2.0,
     val playBackStarted: Boolean = false,
     val cursorOffset: Double = 0.0, // pixel distance from start of track
     val savedCursorPositionOffset: Double = 0.0,
@@ -77,13 +85,14 @@ data class TrackListState(
     val textOpen: Boolean = false,
     val dropDownOpen: Boolean = false,
     val infoBoxOpen: Boolean = false,
-    val filesHighlighted: FileHighlightGroup = FileHighlightGroup(mutableSetOf(), false, false)
+    val filesHighlighted: FileHighlightGroup = FileHighlightGroup(mutableSetOf(), false, false),
+
+    val playbackHighlightSection: PlaybackHighlightSection = PlaybackHighlightSection()
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {
     var state = TrackListState(stageWidthProperty, stageHeightProperty) // read only state
-    /* state can be updated by using the "copy" method */
-
+    /* state shall be updated by using the "copy" method */
     val numTracks: Int get() { return state.numTracks + 1 }
     val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
     val topOfTracks: Double get() { return state.masterOffsetY - state.trackHeight / 2.0 }
