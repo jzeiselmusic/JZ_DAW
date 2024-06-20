@@ -89,6 +89,9 @@ public class SoundIoInterface {
 
         /* functions for getting overall state */
         double lib_getCurrentRmsOutput();
+
+        /* functions for wav files bouncing etc */
+        int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -183,4 +186,8 @@ public class SoundIoInterface {
     public int lib_muteDisable(int trackId)  { return SoundIoLib.INSTANCE.lib_muteDisable(trackId); }
 
     public double lib_getCurrentRmsOutput() { return SoundIoLib.INSTANCE.lib_getCurrentRmsOutput(); }
+
+    public int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
+        return SoundIoLib.INSTANCE.lib_bounceMasterToWav(start_sample_offset, end_sample_offset);
+    }
 }

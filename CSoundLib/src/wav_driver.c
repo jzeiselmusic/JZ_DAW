@@ -193,6 +193,25 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
     return 0;
 }
 
+int read_wav_file_for_bounce(audioFile* file, char* mixed_buffer, int sample_offset) {
+    if (file->is_file_open) {
+        if (sample_offset >= file->file_sample_offset && 
+            sample_offset < (file->file_sample_offset + file->samples_written)) {
+            int num_samples_into_file = sample_offset - file->file_sample_offset;
+            FILE* fp = file->fp;
+            int fd = fileno(fp);
+            char temp_buffer[4] = {0x00};
+            flock(fd, LOCK_EX);
+            fseek(fp, sizeof(wavHeader) + num_samples_into_file * 3, SEEK_SET);
+            int ret = fread(temp_buffer, sizeof(char), 3, fp);
+            add_audio_buffers_24bitNE(mixed_buffer, temp_buffer, 4);
+            flock(fd, LOCK_UN);
+            return ret;
+        }
+    }
+    return 0;
+}
+
 int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     /* create new wav file */
     FILE* fp = fopen("/Users/jacobzeisel/Desktop/master_bounce.wav", "wb");
@@ -202,12 +221,34 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     /* write wavheader */
     int fd = fileno(fp);
     flock(fd, LOCK_EX);
-    wavHeader header = _createWavHeader(44100 * 60 * 10, 44100, 24, 1);
+    wavHeader header = _createWavHeader(end_sample_offset - start_sample_offset, 44100, 24, 1);
     fwrite(&header, sizeof(wavHeader), 1, fp);
 
-    
-
+    /* open all files for reading */
+    for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
+        for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
+            open_wav_for_playback(&(csoundlib_state->list_of_track_objects[trackIdx]), &(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]));
+        }
+    }
+    for (int sample_offset = start_sample_offset; sample_offset < end_sample_offset; sample_offset++) {
+        /* read from any files available at current sample */
+        char mixed_buffer[4] = {0x00};
+        for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
+            for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
+                read_wav_file_for_bounce(&(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]), mixed_buffer, sample_offset);
+            }
+        }
+        fwrite(mixed_buffer, sizeof(char), 3, fp);
+    }
+    fclose(fp);
     flock(fd, LOCK_UN);
+
+    /* close all files for reading */
+    for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
+        for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
+            close_wav_for_playback(&(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]));
+        }
+    }
 
     return SoundIoErrorNone;
 }

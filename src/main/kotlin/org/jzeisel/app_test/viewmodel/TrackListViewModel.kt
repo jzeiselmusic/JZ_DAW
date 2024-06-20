@@ -717,6 +717,22 @@ class TrackListViewModel(val root: StackPane,
             else if (event.code == KeyCode.A && event.isShortcutDown) {
                 highlightAllTracks()
             }
+            else if (event.code == KeyCode.ENTER && _trackListStateFlow.state.playbackHighlightSection.isEnabled) {
+                audioViewModel.bounceMasterToWav(
+                    pixelsToSamples(
+                        _trackListStateFlow.state.playbackHighlightSection.pixelStartOffset,
+                        audioViewModel.tempo,
+                        audioViewModel.sampleRate,
+                        _trackListStateFlow.state.pixelsInABeat
+                    ),
+                    pixelsToSamples(
+                        _trackListStateFlow.state.playbackHighlightSection.pixelEndOffset,
+                        audioViewModel.tempo,
+                        audioViewModel.sampleRate,
+                        _trackListStateFlow.state.pixelsInABeat
+                    )
+                )
+            }
         }
     }
 

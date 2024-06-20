@@ -243,4 +243,10 @@ class AudioViewModel(
             viewModelController.throwAudioError(it)
         }
     }
+
+    fun bounceMasterToWav(startSample: Int, endSample: Int) {
+        audioEngineManager.bounceMasterToWav(startSample, endSample).whenNot(AudioError.SoundIoErrorNone) {
+            viewModelController.throwAudioError(it)
+        }
+    }
 }

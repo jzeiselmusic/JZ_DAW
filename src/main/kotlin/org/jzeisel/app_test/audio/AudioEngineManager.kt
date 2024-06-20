@@ -323,4 +323,9 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     fun getOutputRms() : Double {
         return soundInterface.lib_getCurrentRmsOutput()
     }
+
+    fun bounceMasterToWav(startSample: Int, endSample: Int) : AudioError {
+        val error = soundInterface.lib_bounceMasterToWav(startSample, endSample)
+        return AudioError.values()[error]
+    }
 }
