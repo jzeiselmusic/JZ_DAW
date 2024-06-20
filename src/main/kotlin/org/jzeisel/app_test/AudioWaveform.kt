@@ -2,6 +2,7 @@ package org.jzeisel.app_test
 
 import javafx.application.Application
 import javafx.scene.Scene
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
@@ -11,6 +12,8 @@ import org.jzeisel.app_test.util.viewOrderFlip
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.audio.viewmodel.ViewModelController
+import org.jzeisel.app_test.viewmodel.MixerViewModel
+import javax.sound.sampled.Mixer
 
 class AudioWaveform : Application() {
     companion object {
@@ -20,9 +23,12 @@ class AudioWaveform : Application() {
     private lateinit var root: StackPane
     private lateinit var everythingPane: StackPane
     private lateinit var verticalScrollBarPane: StackPane
+    private lateinit var mixerPane: StackPane
     private lateinit var scene: Scene
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var audioViewModel: AudioViewModel
+    private lateinit var mixerViewModel: MixerViewModel
+    private lateinit var viewModelController: ViewModelController
     /*
 
     the z values of the nodes should be laid out in the following way
@@ -48,23 +54,29 @@ class AudioWaveform : Application() {
         scene = Scene(root, null)
         everythingPane = StackPane()
         verticalScrollBarPane = StackPane()
+        mixerPane = StackPane()
 
         verticalScrollBarPane.isMouseTransparent = true
         verticalScrollBarPane.viewOrder = viewOrderFlip - 1.0
         everythingPane.viewOrder = viewOrderFlip - 0.5
+        mixerPane.viewOrder = viewOrderFlip - 2.0
+        mixerPane.isMouseTransparent = false
 
-        root.children.addAll(everythingPane, verticalScrollBarPane)
+        root.children.addAll(everythingPane, verticalScrollBarPane, mixerPane)
         scene.fill = Color.DIMGREY.darker().darker()
         stage.scene = scene
 
         trackListViewModel = TrackListViewModel(everythingPane, stage, verticalScrollBarPane)
-        audioViewModel = AudioViewModel(
-            ViewModelController(trackListViewModel), trackListViewModel._trackListStateFlow)
+        viewModelController = ViewModelController(trackListViewModel)
+        audioViewModel = AudioViewModel(viewModelController, trackListViewModel._trackListStateFlow)
         trackListViewModel.addAudioEngine(audioViewModel)
 
         MouseEventBroadcaster.initializeBroadcasts(everythingPane, scene, trackListViewModel)
 
         trackListViewModel.addMeToScene(everythingPane)
+
+        mixerViewModel = MixerViewModel(mixerPane, viewModelController, trackListViewModel._trackListStateFlow)
+        mixerViewModel.addMeToScene(mixerPane)
         stage.show()
     }
 
