@@ -31,4 +31,6 @@ void close_wav_for_playback(audioFile* file);
 
 int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_bytes);
 
+int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset);
+
 #endif

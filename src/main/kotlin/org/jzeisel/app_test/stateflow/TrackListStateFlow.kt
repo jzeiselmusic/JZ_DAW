@@ -24,8 +24,8 @@ data class FileHighlightGroup(
 )
 
 data class PlaybackHighlightSection(
-    var pixelStart: Double = 0.0,
-    var pixelEnd: Double = 0.0,
+    var pixelStartOffset: Double = 0.0,
+    var pixelEndOffset: Double = 0.0,
     var isEnabled: Boolean = false,
     var loopEnabled: Boolean = false
 )

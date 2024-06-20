@@ -193,3 +193,22 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
     return 0;
 }
 
+int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
+    /* create new wav file */
+    FILE* fp = fopen("/Users/jacobzeisel/Desktop/master_bounce.wav", "wb");
+    if (!fp) {
+        return SoundIoErrorOpeningFile;
+    }
+    /* write wavheader */
+    int fd = fileno(fp);
+    flock(fd, LOCK_EX);
+    wavHeader header = _createWavHeader(44100 * 60 * 10, 44100, 24, 1);
+    fwrite(&header, sizeof(wavHeader), 1, fp);
+
+    
+
+    flock(fd, LOCK_UN);
+
+    return SoundIoErrorNone;
+}
+

@@ -16,18 +16,27 @@ import org.jzeisel.app_test.components.interfaces.WaveElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.singletons.CursorFollower
+import org.jzeisel.app_test.stateflow.TrackListState
+import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.*
+import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import kotlin.math.abs
+import kotlin.math.roundToInt
 
 class WaveFormBox(override val parent: Widget) :
     NodeWidget, TrackElement, WindowElement, WaveElement {
 
     private lateinit var root: StackPane
     override val children: MutableList<Widget> = mutableListOf()
-    val parentTrack = parent as Track
-    private val trackListViewModel = parentTrack.trackListViewModel
-    private val trackListFlow = trackListViewModel._trackListStateFlow
-    private val trackListState = trackListViewModel._trackListStateFlow.state
+    val parentTrack: Track
+        get() { return parent as Track }
+    val trackListViewModel: TrackListViewModel
+        get() { return parentTrack.trackListViewModel }
+    val trackListFlow: TrackListStateFlow
+        get() { return trackListViewModel._trackListStateFlow }
+    val trackListState : TrackListState
+        get() { return parentTrack.trackListState }
+
     val waveFormWidth = trackListState.waveFormWidth
     val trackRectangle = Rectangle(waveFormWidth,
         parentTrack.initialTrackHeight,
@@ -74,24 +83,15 @@ class WaveFormBox(override val parent: Widget) :
         trackRectangle.viewOrder = zValBase
         trackRectangle.onMousePressed = EventHandler {
             /* calculate the nearest allowable x offset given increments of 25 / 22050 */
-            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.incrementSize)
+            val quantizedLoc = (it.x / trackListState.incrementSize).roundToInt().toDouble() * trackListState.incrementSize
             lastMousePressLocationX = trackListState.currentDividerOffset.getValue() + quantizedLoc - trackListState.waveFormOffset
             trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
             trackListViewModel.unclickAllFiles()
         }
         trackRectangle.onMouseDragged = EventHandler {
             val totalDistanceX = (trackListState.currentDividerOffset.getValue() + it.x - trackListState.waveFormOffset) - lastMousePressLocationX
-            val numIncrementsHighlight = (totalDistanceX / trackListState.incrementSize).toInt()
-            val sign = if (numIncrementsHighlight > 0) 1 else -1
-            highlightRectangle.width = abs(numIncrementsHighlight) * trackListState.incrementSize
-            highlightRectangle.height = trackListState.trackHeight
-            highlightRectangle.translateX = lastMousePressLocationX + (sign * highlightRectangle.width/2.0)
-            highlightRectangle.translateY = parentTrack.trackOffsetY
-            highlightRectangle.fill = Color.LIGHTGRAY
-            highlightRectangle.opacity = 0.3
-            highlightRectangle.viewOrder = viewOrderFlip - 0.105
-            highlightRectangle.isMouseTransparent = true
-            val quantizedLoc = quantizeNumber(it.x, trackListState.waveFormOffset, trackListState.incrementSize)
+            trackListViewModel.updateHighlightSection(totalDistanceX, lastMousePressLocationX)
+            val quantizedLoc = (it.x / trackListState.incrementSize).roundToInt().toDouble() * trackListState.incrementSize
             trackListViewModel.broadcastMouseClickOnWaveFormBox(quantizedLoc)
         }
 
@@ -167,7 +167,7 @@ class WaveFormBox(override val parent: Widget) :
         trackListViewModel.registerForHeightChanges(this)
         trackListViewModel.registerForScrollChanges(this)
         if (parentTrack is NormalTrack) {
-            parentTrack.registerForIndexChanges(this)
+            (parentTrack as NormalTrack).registerForIndexChanges(this)
         }
     }
 
@@ -177,7 +177,7 @@ class WaveFormBox(override val parent: Widget) :
         trackListViewModel.unregisterForWidthChanges(this)
         trackListViewModel.unregisterForScrollChanges(this)
         if (parentTrack is NormalTrack) {
-            parentTrack.unregisterForIndexChanges(this)
+            (parentTrack as NormalTrack).unregisterForIndexChanges(this)
         }
     }
 
@@ -223,6 +223,7 @@ class WaveFormBox(override val parent: Widget) :
             for (beatTick in ticksForMasterTrack) {
                 root.children.remove(beatTick)
             }
+            root.children.remove(highlightRectangle)
         }
     }
 
@@ -238,6 +239,7 @@ class WaveFormBox(override val parent: Widget) :
             for (tick in ticksForMasterTrack) {
                 tick.translateY -= it
             }
+            highlightRectangle.translateY -= it
         }
     }
 
@@ -253,6 +255,7 @@ class WaveFormBox(override val parent: Widget) :
             for (tick in ticksForMasterTrack) {
                 tick.translateX -= it
             }
+            highlightRectangle.translateX -= it
         }
     }
 
@@ -264,6 +267,7 @@ class WaveFormBox(override val parent: Widget) :
         for (tickDivider in beatDividers) {
             tickDivider.translateY = parentTrack.trackOffsetY
         }
+        highlightRectangle.translateY = parentTrack.trackOffsetY
     }
 
     fun respondToDividerShift(newValue: Double) {
@@ -279,6 +283,7 @@ class WaveFormBox(override val parent: Widget) :
         for (tick in ticksForMasterTrack) {
             tick.translateX += change
         }
+        highlightRectangle.translateX += change
     }
 
     override fun respondToScrollChange(deltaX: Double) {
@@ -293,6 +298,7 @@ class WaveFormBox(override val parent: Widget) :
         for (tick in ticksForMasterTrack) {
             tick.translateX -= deltaX
         }
+        highlightRectangle.translateX -= deltaX
     }
 
     fun startRecording(initialPixelOffset: Double, fileId: Int) {
@@ -343,5 +349,16 @@ class WaveFormBox(override val parent: Widget) :
     fun addAlreadyExistingFile(file: WaveFormFile) {
         file.mutableParent = this
         children.add(file)
+    }
+
+    fun updateHighlightSection(numIncrementsHighlight: Int, direction: Int, broadcastMousePressLocationX: Double) {
+        highlightRectangle.width = abs(numIncrementsHighlight) * trackListState.incrementSize
+        highlightRectangle.height = trackListState.trackHeight
+        highlightRectangle.translateX = broadcastMousePressLocationX + (direction * highlightRectangle.width/2.0)
+        highlightRectangle.translateY = parentTrack.trackOffsetY
+        highlightRectangle.fill = Color.LIGHTGRAY
+        highlightRectangle.opacity = 0.3
+        highlightRectangle.viewOrder = viewOrderFlip - 0.105
+        highlightRectangle.isMouseTransparent = true
     }
 }

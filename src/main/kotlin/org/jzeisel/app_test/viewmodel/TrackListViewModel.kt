@@ -27,6 +27,7 @@ import org.jzeisel.app_test.stateflow.KeyState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.*
 import kotlin.math.log10
+import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 import kotlin.random.Random
 
@@ -139,6 +140,7 @@ class TrackListViewModel(val root: StackPane,
 
     fun onAudioSamplesProcessed(numSamples: Int) {
         if (_trackListStateFlow.state.playBackStarted) {
+            val startingOffsetX = CursorFollower.currentOffsetX
             val pixelsToMove = samplesToPixels(numSamples, audioViewModel.tempo, audioViewModel.sampleRate, _trackListStateFlow.state.pixelsInABeat)
             CursorFollower.moveLocationForward(pixelsToMove)
             children.forEach {
@@ -146,6 +148,12 @@ class TrackListViewModel(val root: StackPane,
                 if (track.isRecording) {
                     val dbLevel = 20 * log10(audioViewModel.getRmsVolumeInputStream(track.trackId))
                     it.processBuffer(dbLevel, pixelsToMove)
+                }
+            }
+            if (_trackListStateFlow.state.playbackHighlightSection.isEnabled) {
+                val realOffsetX = startingOffsetX + pixelsToMove
+                if (realOffsetX >= _trackListStateFlow.state.playbackHighlightSection.pixelEndOffset) {
+                    spacePressed()
                 }
             }
         }
@@ -190,13 +198,52 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
+    fun updateHighlightSection(totalDistanceX: Double, lastMousePressLocationX: Double) {
+        val numIncrementsHighlight = (totalDistanceX / _trackListStateFlow.state.incrementSize).roundToInt()
+        val sign = if (numIncrementsHighlight > 0) 1 else -1
+        masterTrack.waveFormBox.updateHighlightSection(numIncrementsHighlight, sign, lastMousePressLocationX)
+        children.forEach {
+            (it as NormalTrack).waveFormBox.updateHighlightSection(numIncrementsHighlight, sign, lastMousePressLocationX)
+        }
+        val lastMousePressLocationOffsetX = lastMousePressLocationX - _trackListStateFlow.state.currentDividerOffset.getValue() + _trackListStateFlow.state.waveFormOffset
+        _trackListStateFlow.state.playbackHighlightSection.isEnabled = numIncrementsHighlight != 0
+        if (_trackListStateFlow.state.playbackHighlightSection.isEnabled) {
+            _trackListStateFlow.state.playbackHighlightSection.pixelStartOffset =
+                                                    if (sign == 1) lastMousePressLocationOffsetX
+                                                    else lastMousePressLocationOffsetX + numIncrementsHighlight*_trackListStateFlow.state.incrementSize
+            _trackListStateFlow.state.playbackHighlightSection.pixelEndOffset =
+                                                    if (sign == 1) lastMousePressLocationOffsetX + numIncrementsHighlight*_trackListStateFlow.state.incrementSize
+                                                    else lastMousePressLocationOffsetX
+            _trackListStateFlow.state.playbackHighlightSection.loopEnabled = true
+        }
+        else {
+            _trackListStateFlow.state.playbackHighlightSection.pixelStartOffset = CursorFollower.currentOffsetX
+            _trackListStateFlow.state.playbackHighlightSection.pixelEndOffset = CursorFollower.currentOffsetX
+        }
+    }
+
     private fun spacePressed() {
         if (!_trackListStateFlow.state.playBackStarted) {
+            if (_trackListStateFlow.state.playbackHighlightSection.isEnabled) {
+                val offsetX = _trackListStateFlow.state.playbackHighlightSection.pixelStartOffset
+                CursorFollower.updateLocation(offsetX)
+                audioViewModel.updateCursorOffsetSamples(
+                    pixelsToSamples(
+                        offsetX,
+                        audioViewModel.tempo,
+                        audioViewModel.sampleRate,
+                        _trackListStateFlow.state.pixelsInABeat
+                    )
+                )
+                _trackListStateFlow.state = _trackListStateFlow.state.copy(cursorOffset = offsetX)
+            }
             val currentPositionPixels = _trackListStateFlow.state.cursorOffset
             val currentPositionSamples = audioViewModel.cursorOffsetSamples
-
             audioViewModel.saveCurrentCursorOffsetSamples(currentPositionSamples)
-            _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = true, savedCursorPositionOffset = currentPositionPixels)
+            _trackListStateFlow.state = _trackListStateFlow.state.copy(
+                playBackStarted = true,
+                savedCursorPositionOffset = currentPositionPixels
+            )
             var newFileId = Random.nextInt()
             while (newFileId in listOfFileIds) {
                 newFileId = Random.nextInt()
@@ -206,7 +253,6 @@ class TrackListViewModel(val root: StackPane,
                 it.setVUMeterRunning(true)
             }
             audioViewModel.startPlayback(newFileId)
-
         }
         else {
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)

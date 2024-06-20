@@ -104,7 +104,7 @@ char* lib_getNameOfChannelOfInputDevice(int deviceIndex, int channelIndex) {
 
 int lib_loadOutputDevices() {
     soundio_flush_events(csoundlib_state->soundio);
-    logCallback("loading all output devices");
+    // logCallback("loading all output devices");
     int num_output_devices = lib_getNumOutputDevices();
     if (num_output_devices > 0) {
         struct SoundIoDevice** output_devices = malloc(num_output_devices * sizeof( struct SoundIoDevice*) );
