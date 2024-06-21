@@ -37,6 +37,7 @@ public class SoundIoInterface {
         int lib_startPlayback(int fileId);
         void lib_stopPlayback();
         void lib_updateCursorOffsetSamples(int offset);
+        void lib_setMetronome(boolean enabled);
 
 
         /* functions for input devices */
@@ -116,7 +117,7 @@ public class SoundIoInterface {
     public int lib_startPlayback(int fileId) { return SoundIoLib.INSTANCE.lib_startPlayback(fileId); }
     public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
     public void lib_updateCursorOffsetSamples(int offset) { SoundIoLib.INSTANCE.lib_updateCursorOffsetSamples(offset); }
-
+    public void lib_setMetronome(boolean enabled) { SoundIoLib.INSTANCE.lib_setMetronome(enabled); }
 
     public int lib_loadInputDevices() { return SoundIoLib.INSTANCE.lib_loadInputDevices(); }
     public int lib_getDefaultInputDeviceIndex() { return SoundIoLib.INSTANCE.lib_getDefaultInputDeviceIndex(); }

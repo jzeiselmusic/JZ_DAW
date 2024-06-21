@@ -70,3 +70,7 @@ int get_cursor_offset_samples() {
 void lib_updateCursorOffsetSamples(int new_offset) {
     csoundlib_state->current_cursor_offset = new_offset;
 }
+
+void lib_setMetronome(bool enabled) {
+    csoundlib_state->metronome.enabled = enabled;
+}

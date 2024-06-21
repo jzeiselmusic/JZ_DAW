@@ -1,19 +1,16 @@
-package org.jzeisel.app_test.audio.viewmodel
+package org.jzeisel.app_test.viewmodel
 
 import org.jzeisel.app_test.audio.*
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
-import org.jzeisel.app_test.util.Logger
-import kotlin.contracts.contract
-import kotlin.random.Random
 
 class AudioViewModel(
-    private val viewModelController: ViewModelController,
+    private val trackListViewModelController: TrackListViewModelController,
     private val viewModelState: TrackListStateFlow) {
 
     private val audioStateFlow = AudioStateFlow()
     private val audioEngineManager = AudioEngineManager(this)
-    private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController, audioStateFlow)
+    private val vuMeterThread = VUMeterThread(audioEngineManager, trackListViewModelController, audioStateFlow)
     val defaultInputIndex: Int get() { return audioEngineManager.defaultInputIndex }
 
     val tempo: Double get() { return audioStateFlow._state.tempo }
@@ -24,12 +21,12 @@ class AudioViewModel(
     fun initialize() {
         val error = audioEngineManager.initialize()
         if (error != AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(error)
+            trackListViewModelController.throwAudioError(error)
             return
         }
         audioEngineManager.getCurrentBackend()?.let {
             audioStateFlow._state = audioStateFlow._state.copy(isInitialized = true, backend = it)
-        } ?: viewModelController.throwAudioError(AudioError.SoundIoErrorInitAudioBackend)
+        } ?: trackListViewModelController.throwAudioError(AudioError.SoundIoErrorInitAudioBackend)
 
         audioStateFlow._state = audioStateFlow._state.copy(outputDevice =
             audioEngineManager.getOutputDeviceFromIndex(audioEngineManager.defaultOutputIndex))
@@ -66,7 +63,7 @@ class AudioViewModel(
         /* add track to audio library */
         val error = audioEngineManager.addNewTrack(trackId)
         error.whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
         /* then make sure the vu meter thread has the same information */
         vuMeterThread.updateSynchronizedTrackList(trackList = tList)
@@ -85,7 +82,7 @@ class AudioViewModel(
         )
         val error = audioEngineManager.deleteTrack(trackId)
         error.whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
         audioStateFlow._state = audioStateFlow._state.copy(numTracks = nTracks, trackList = tList)
         vuMeterThread.updateSynchronizedTrackList(tList)
@@ -93,13 +90,13 @@ class AudioViewModel(
 
     fun deleteFile(trackId: Int, fileId: Int) {
         audioEngineManager.deleteFile(trackId, fileId).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
     }
 
     fun moveFile(destTrackId: Int, sourceTrackId: Int, sourceFileId: Int) {
         audioEngineManager.moveFile(destTrackId, sourceTrackId, sourceFileId).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
     }
 
@@ -116,12 +113,12 @@ class AudioViewModel(
         audioEngineManager
             .chooseInputDeviceIndexForTrack(track.trackId, deviceIndex)
             .whenNot(AudioError.SoundIoErrorNone) {
-                viewModelController.throwAudioError(it)
+                trackListViewModelController.throwAudioError(it)
             }
         audioEngineManager
             .chooseInputChannelIndexForTrack(track.trackId, channelIndex)
             .whenNot(AudioError.SoundIoErrorNone) {
-                viewModelController.throwAudioError(it)
+                trackListViewModelController.throwAudioError(it)
             }
     }
 
@@ -132,13 +129,13 @@ class AudioViewModel(
     }
 
     fun outputSamplesProcessed(numSamples: Int) {
-        viewModelController.reportAudioSamplesProcessed(numSamples)
+        trackListViewModelController.reportAudioSamplesProcessed(numSamples)
     }
 
     fun startPlayback(fileId: Int) {
         val error = audioEngineManager.startPlayback(fileId)
         if (error != AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(error)
+            trackListViewModelController.throwAudioError(error)
         }
         else {
             audioStateFlow._state = audioStateFlow._state.copy(isPlayingBack = true)
@@ -172,7 +169,7 @@ class AudioViewModel(
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
 
         audioEngineManager.armTrackForRecording(trackId).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
     }
 
@@ -184,7 +181,7 @@ class AudioViewModel(
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
 
         audioEngineManager.disarmTrackForRecording(trackId).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
     }
 
@@ -197,7 +194,7 @@ class AudioViewModel(
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
 
         audioEngineManager.inputEnable(trackId, true).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
             ret = false
         }
         return ret
@@ -212,7 +209,7 @@ class AudioViewModel(
         vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
 
         audioEngineManager.inputEnable(trackId, false).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
             ret = false
         }
         return ret
@@ -228,25 +225,30 @@ class AudioViewModel(
 
     fun updateTrackOffset(trackId: Int, fileId: Int, newOffset: Int) {
         audioEngineManager.updateTrackOffset(trackId, fileId, newOffset).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
     }
 
     fun setSolo(enabled: Boolean, trackId: Int) {
         audioEngineManager.setSolo(enabled, trackId).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
     }
 
     fun setMute(enabled: Boolean, trackId: Int) {
         audioEngineManager.setMute(enabled, trackId).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
     }
 
     fun bounceMasterToWav(startSample: Int, endSample: Int) {
         audioEngineManager.bounceMasterToWav(startSample, endSample).whenNot(AudioError.SoundIoErrorNone) {
-            viewModelController.throwAudioError(it)
+            trackListViewModelController.throwAudioError(it)
         }
+    }
+
+    fun setMetronome(enabled: Boolean) {
+        audioStateFlow._state = audioStateFlow._state.copy(metronome = enabled)
+        audioEngineManager.setMetronome(enabled)
     }
 }

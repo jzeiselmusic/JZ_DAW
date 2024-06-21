@@ -1,8 +1,7 @@
 package org.jzeisel.app_test.audio
 
 import kotlinx.coroutines.*
-import org.jzeisel.app_test.audio.viewmodel.ViewModelController
-import org.jzeisel.app_test.util.Logger
+import org.jzeisel.app_test.viewmodel.TrackListViewModelController
 import org.jzeisel.app_test.util.combineRmsVolumes
 import org.jzeisel.app_test.util.envelopeFollower
 import org.jzeisel.app_test.util.loop
@@ -10,9 +9,9 @@ import java.util.*
 import kotlin.math.log10
 
 class VUMeterThread(
-                    private val audioEngineManager: AudioEngineManager,
-                    private val viewModelController: ViewModelController,
-                    private val audioStateFlow: AudioStateFlow) {
+    private val audioEngineManager: AudioEngineManager,
+    private val trackListViewModelController: TrackListViewModelController,
+    private val audioStateFlow: AudioStateFlow) {
     private val threadDelay = 50L
     private var synchronizedTrackList = Collections.synchronizedList(audioStateFlow._state.trackList)
     private val scope = CoroutineScope(Dispatchers.Default)
@@ -27,7 +26,7 @@ class VUMeterThread(
             vuMeterThreadJob = scope.launch {
                 loop(threadDelay) {
                     if (isActive) {
-                        viewModelController.sendOutputRMSVolume(20 * log10(audioEngineManager.getOutputRms()))
+                        trackListViewModelController.sendOutputRMSVolume(20 * log10(audioEngineManager.getOutputRms()))
                         synchronizedTrackList.forEach { track ->
                             if (track.inputEnabled || track.recordingEnabled || audioStateFlow._state.isPlayingBack) {
                                 val listOfInputs = mutableListOf<Double>()
@@ -41,7 +40,7 @@ class VUMeterThread(
                                     total, audioStateFlow._state.envelopeAttack,
                                     audioStateFlow._state.envelopeRelease, track.lastVUMeterValue)
                                 track.lastVUMeterValue = filteredValue
-                                viewModelController.sendTrackRMSVolume(20 * log10(filteredValue), track.trackId)
+                                trackListViewModelController.sendTrackRMSVolume(20 * log10(filteredValue), track.trackId)
                                 return@forEach
                             }
                             track.lastVUMeterValue = 0.0

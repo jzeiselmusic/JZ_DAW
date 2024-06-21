@@ -7,6 +7,7 @@
 #include "callbacks.h"
 #include <stdlib.h>
 #include "state.h"
+#include "wav_driver.h"
 
 static int _connectToBackend();
 static void _deallocateAllMemory();
@@ -46,6 +47,10 @@ int lib_startSession() {
         csoundlib_state->list_of_track_objects = list_of_track_objects;
         csoundlib_state->environment_initialized = true;
         csoundlib_state->solo_engaged = false;
+        int ret = lib_loadMetronomeFromWav("", true);
+        if (ret != SoundIoErrorNone) {
+            return ret;
+        }
         return _connectToBackend();
     }
     else {

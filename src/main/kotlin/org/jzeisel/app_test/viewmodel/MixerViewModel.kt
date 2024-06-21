@@ -1,28 +1,25 @@
 package org.jzeisel.app_test.viewmodel
 
-import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.scene.Cursor
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
-import org.jzeisel.app_test.audio.viewmodel.ViewModelController
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
-import org.jzeisel.app_test.main
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.animateObjectScale
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class MixerViewModel(
     val root: StackPane,
-    val viewModelController: ViewModelController,
+    val trackListViewModelController: TrackListViewModelController,
+    val audioViewModelController: AudioViewModelController,
     val trackListStateFlow: TrackListStateFlow): NodeWidget {
 
     override val parent: Widget? = null
@@ -33,6 +30,10 @@ class MixerViewModel(
     private val toolBarRect = Rectangle()
     private val metronomeButton = Circle()
     private var metronomeButtonEnabled = false
+        set(value) {
+            audioViewModelController.setMetronome(value)
+            field = value
+        }
     private val metronomeImage = Image("file:/Users/jacobzeisel/git/App_Test/src/main/resources/metronome.png")
     private val imageView = ImageView(metronomeImage)
 
@@ -75,6 +76,7 @@ class MixerViewModel(
         metronomeButton.translateX = 0.0
         metronomeButton.translateY = toolBarRect.translateY
         metronomeButton.fill = Color.TRANSPARENT
+        metronomeButton.opacity = 0.7
         metronomeButton.stroke = Color.BLACK
         metronomeButton.strokeWidth = 1.8
         metronomeButton.viewOrder = viewOrderFlip - 0.02

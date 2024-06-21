@@ -1,9 +1,8 @@
 package org.jzeisel.app_test.audio
 
-import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
+import org.jzeisel.app_test.viewmodel.AudioViewModel
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.util.Logger
-import kotlin.math.log10
 
 class AudioEngineManager(private val viewModel: AudioViewModel) {
     private val soundInterface = SoundIoInterface(this)
@@ -327,5 +326,9 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     fun bounceMasterToWav(startSample: Int, endSample: Int) : AudioError {
         val error = soundInterface.lib_bounceMasterToWav(startSample, endSample)
         return AudioError.values()[error]
+    }
+
+    fun setMetronome(enabled: Boolean) {
+        soundInterface.lib_setMetronome(enabled)
     }
 }

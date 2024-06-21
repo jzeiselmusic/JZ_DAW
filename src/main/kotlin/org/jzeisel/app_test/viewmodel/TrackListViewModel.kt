@@ -4,12 +4,10 @@ import javafx.animation.PauseTransition
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.stage.Stage
 import javafx.util.Duration
 import org.jzeisel.app_test.error.AudioError
-import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.components.Background
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.singletons.CursorFollower
