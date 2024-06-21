@@ -12,5 +12,6 @@
 #define SoundIoErrorOpeningFile                   24
 #define SoundIoErrorFileNotFound                  25
 #define SoundIoErrorLoadingMetronomeFile          26
+#define SoundIoErrorResampling                    27
 
 #endif

@@ -8,7 +8,7 @@
 
 typedef struct _metronomeStruct {
     bool enabled;
-    char* audio_bytes[MAX_METRONOME_BUFFER];
+    char audio_bytes[MAX_METRONOME_BUFFER];
     size_t num_bytes;
 } metronomeStruct;
 
