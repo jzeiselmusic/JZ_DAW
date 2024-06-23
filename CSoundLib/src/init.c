@@ -7,6 +7,8 @@
 #include "callbacks.h"
 #include <stdlib.h>
 #include "state.h"
+#include <string.h>
+#include "wav_driver.h"
 
 static int _connectToBackend();
 static void _deallocateAllMemory();
@@ -46,6 +48,14 @@ int lib_startSession() {
         csoundlib_state->list_of_track_objects = list_of_track_objects;
         csoundlib_state->environment_initialized = true;
         csoundlib_state->solo_engaged = false;
+        csoundlib_state->samples_in_a_beat = 22050;
+        memset(&(csoundlib_state->metronome.audio), 0x00, MAX_METRONOME_BUF_SIZE);
+        csoundlib_state->metronome.enabled = false;
+        csoundlib_state->metronome.num_bytes = MAX_METRONOME_BUF_SIZE;
+        int err = lib_readWavFileForMetronome();
+        if (err != SoundIoErrorNone) {
+            return err;
+        }
         return _connectToBackend();
     }
     else {
@@ -98,4 +108,8 @@ int _checkEnvironmentAndBackendConnected() {
         return SoundIoErrorBackendDisconnected;
     }
     return SoundIoErrorNone;
+}
+
+void lib_setSamplesInABeat(int samples) {
+    csoundlib_state->samples_in_a_beat = samples;
 }

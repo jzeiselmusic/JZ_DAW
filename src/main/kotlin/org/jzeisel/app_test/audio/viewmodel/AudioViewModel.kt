@@ -34,6 +34,7 @@ class AudioViewModel(
         audioStateFlow._state = audioStateFlow._state.copy(outputDevice =
             audioEngineManager.getOutputDeviceFromIndex(audioEngineManager.defaultOutputIndex))
 
+        audioEngineManager.setSamplesInABeat(audioStateFlow._state.samplesInABeat)
         vuMeterThread.addAllTracksToStreaming()
     }
 
@@ -248,5 +249,9 @@ class AudioViewModel(
         audioEngineManager.bounceMasterToWav(startSample, endSample).whenNot(AudioError.SoundIoErrorNone) {
             viewModelController.throwAudioError(it)
         }
+    }
+
+    fun enableMetronome(enabled: Boolean) {
+        audioEngineManager.enableMetronome(enabled)
     }
 }

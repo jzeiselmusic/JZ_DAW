@@ -328,4 +328,12 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         val error = soundInterface.lib_bounceMasterToWav(startSample, endSample)
         return AudioError.values()[error]
     }
+
+    fun setSamplesInABeat(samples: Int) {
+        soundInterface.lib_setSamplesInABeat(samples)
+    }
+
+    fun enableMetronome(enabled: Boolean) {
+        soundInterface.lib_enableMetronome(enabled)
+    }
 }

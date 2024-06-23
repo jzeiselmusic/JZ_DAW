@@ -5,7 +5,7 @@ data class AudioState(
     var backend: AudioBackend = AudioBackend.SoundIoBackendNone,
     var isPlayingBack: Boolean = false,
     var playBackLocation: Double = 0.0,
-    var tempo: Double = 140.0,
+    var tempo: Double = 120.0,
     var tSignatureTop: UInt = 4U,
     var tSignatureBottom: UInt = 4U,
     var sampleRate: Int = 44100,

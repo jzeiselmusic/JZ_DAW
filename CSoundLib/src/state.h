@@ -6,6 +6,14 @@
 #include "tracks.h"
 #include "audio_playback.h"
 
+#define MAX_METRONOME_BUF_SIZE   44100 * 3 * 4 // 4 seconds at 44.1k 24 bit
+
+typedef struct _metronome {
+    bool enabled;
+    char audio[MAX_METRONOME_BUF_SIZE];
+    size_t num_bytes;
+} Metronome;
+
 typedef struct _audioState {
     struct SoundIo* soundio;
     int sample_rate; 
@@ -13,6 +21,8 @@ typedef struct _audioState {
     /* playback */
     bool playback_started;
     int current_cursor_offset; // in samples
+    int samples_in_a_beat;
+    Metronome metronome;
 
     /* initialization */
     bool input_memory_allocated;
@@ -44,7 +54,6 @@ typedef struct _audioState {
 
     /* solo and mute */
     bool solo_engaged;
-
 
 } audio_state;
 

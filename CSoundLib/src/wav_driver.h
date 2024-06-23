@@ -33,4 +33,8 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
 
 int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset);
 
+int lib_readWavFileForMetronome();
+
+void lib_enableMetronome(bool enabled);
+
 #endif

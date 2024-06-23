@@ -253,3 +253,48 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     return SoundIoErrorNone;
 }
 
+void lib_enableMetronome(bool enabled) {
+    csoundlib_state->metronome.enabled = enabled;
+}
+
+int lib_readWavFileForMetronome() {
+    FILE* fp = fopen("/Users/jacobzeisel/git/App_Test/CSoundLib/res/SynthSineChi.wav", "rb");
+
+    wavHeader fileHeader;
+    fread(&fileHeader, sizeof(char), sizeof(fileHeader), fp);
+
+    uint16_t num_channels = fileHeader.numChannels;
+    uint16_t bits_per_sample = fileHeader.bitsPerSample;
+    uint32_t sample_rate = fileHeader.sampleRate;
+    size_t amt_bytes = fileHeader.subchunk2Size;
+
+    /* solution for now. will make more general later */
+    if (num_channels != 1) {
+        return SoundIoErrorReadingWavForMetronome;
+    }
+
+    if (bits_per_sample != 24) {
+        return SoundIoErrorReadingWavForMetronome;
+    }
+
+    if (sample_rate != 44100) {
+        return SoundIoErrorReadingWavForMetronome;
+    }
+
+    char temp_buffer[MAX_METRONOME_BUF_SIZE] = {0x00};
+    int32_t* int_buffer = (int32_t*)temp_buffer;
+
+    int idx;
+    for (idx = 0; idx < amt_bytes/3; idx ++) {
+        char sample[4] = {0x00};
+        fread(&sample, 1, 3, fp);
+        memcpy(int_buffer+idx, (int32_t*)sample, 1);
+    }
+
+    fclose(fp);
+
+    memcpy(&(csoundlib_state->metronome.audio), (char*)int_buffer, idx*4);
+    csoundlib_state->metronome.num_bytes = idx*4;
+
+    return SoundIoErrorNone;
+}
