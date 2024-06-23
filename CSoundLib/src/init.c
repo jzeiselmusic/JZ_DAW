@@ -47,6 +47,7 @@ int lib_startSession() {
         csoundlib_state->list_of_track_objects = list_of_track_objects;
         csoundlib_state->environment_initialized = true;
         csoundlib_state->solo_engaged = false;
+        csoundlib_state->num_samples_in_a_beat = 18900;
         int ret = lib_loadMetronomeFromWav("", true);
         if (ret != SoundIoErrorNone) {
             return ret;
@@ -103,4 +104,8 @@ int _checkEnvironmentAndBackendConnected() {
         return SoundIoErrorBackendDisconnected;
     }
     return SoundIoErrorNone;
+}
+
+void lib_setSamplesInABeat(int samples) {
+    csoundlib_state->num_samples_in_a_beat = samples;
 }

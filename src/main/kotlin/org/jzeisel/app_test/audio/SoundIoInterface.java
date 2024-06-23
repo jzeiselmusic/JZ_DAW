@@ -33,6 +33,7 @@ public class SoundIoInterface {
         int lib_deinitializeEnvironment();
         int lib_getCurrentBackend();
         int lib_checkEnvironmentAndBackendConnected();
+        void lib_setSamplesInABeat(int samples);
 
         int lib_startPlayback(int fileId);
         void lib_stopPlayback();
@@ -93,6 +94,7 @@ public class SoundIoInterface {
 
         /* functions for wav files bouncing etc */
         int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset);
+        int lib_loadMetronomeFromWav(String filepath, boolean default_val);
     }
 
     private final SoundIoLib.soundLibCallback audioPanic = message -> engineManager.audioPanic(message);
@@ -118,6 +120,7 @@ public class SoundIoInterface {
     public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
     public void lib_updateCursorOffsetSamples(int offset) { SoundIoLib.INSTANCE.lib_updateCursorOffsetSamples(offset); }
     public void lib_setMetronome(boolean enabled) { SoundIoLib.INSTANCE.lib_setMetronome(enabled); }
+    public void lib_setSamplesInABeat(int samples) { SoundIoLib.INSTANCE.lib_setSamplesInABeat(samples); }
 
     public int lib_loadInputDevices() { return SoundIoLib.INSTANCE.lib_loadInputDevices(); }
     public int lib_getDefaultInputDeviceIndex() { return SoundIoLib.INSTANCE.lib_getDefaultInputDeviceIndex(); }
@@ -190,5 +193,9 @@ public class SoundIoInterface {
 
     public int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
         return SoundIoLib.INSTANCE.lib_bounceMasterToWav(start_sample_offset, end_sample_offset);
+    }
+
+    public int lib_loadMetronomeFromWav(String filepath, boolean default_val) {
+        return SoundIoLib.INSTANCE.lib_loadMetronomeFromWav(filepath, default_val);
     }
 }

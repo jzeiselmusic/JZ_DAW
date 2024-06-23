@@ -7,6 +7,8 @@ int lib_destroySession();
 
 int lib_getCurrentBackend();
 
+void lib_setSamplesInABeat(int samples);
+
 int _checkEnvironmentAndBackendConnected();
 
 #endif 

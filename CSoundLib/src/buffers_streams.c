@@ -220,6 +220,11 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
     csoundlib_state->current_rms_ouput = calculate_rms_level(csoundlib_state->mixed_output_buffer, frame_count_max * outstream->bytes_per_frame);
 
+    /* add metronome audio to output buffer */
+    if (csoundlib_state->metronome.enabled && csoundlib_state->playback_started) {
+        add_metronome_to_output_buffer(max_fill_count);
+    }
+
     /* now place data from mixed output buffer into output stream */
     int read_count = min_int(frame_count_max, max_fill_count);
     /* handle case of no input streams */

@@ -68,6 +68,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
         outputDevicesLoaded = true
         initialized = true
+
         return AudioError.SoundIoErrorNone
     }
 
@@ -330,5 +331,9 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun setMetronome(enabled: Boolean) {
         soundInterface.lib_setMetronome(enabled)
+    }
+
+    fun setSamplesInABeat(samples: Int) {
+        soundInterface.lib_setSamplesInABeat(samples)
     }
 }

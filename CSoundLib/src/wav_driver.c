@@ -284,6 +284,7 @@ int lib_loadMetronomeFromWav(const char* file_path, bool default_metronome) {
         logCallback("wav file does not say wave");
         return SoundIoErrorLoadingMetronomeFile;
     }
+
     uint32_t sample_rate = localHeader.sampleRate;
     uint16_t bits_per_sample = localHeader.bitsPerSample;
     uint16_t num_channels = localHeader.numChannels;
@@ -312,6 +313,7 @@ int lib_loadMetronomeFromWav(const char* file_path, bool default_metronome) {
                         csoundlib_state->metronome.num_bytes);
         memset(csoundlib_state->metronome.audio_bytes, 0x00, csoundlib_state->metronome.num_bytes);
         memcpy(csoundlib_state->metronome.audio_bytes, temp_buffer, num_bytes_mono);
+        csoundlib_state->metronome.num_bytes = num_bytes_mono;
     }
     else if (num_channels != 1) {
         logCallback("file contains too many channels");
@@ -322,15 +324,42 @@ int lib_loadMetronomeFromWav(const char* file_path, bool default_metronome) {
     if (sample_rate == 48000) {
         char temp_buffer[MAX_METRONOME_BUFFER] = {0x00};
         size_t num_bytes_resampled;
-        resample(bits_per_sample / 8,
+        int err = mono_resample(bits_per_sample / 8,
                 temp_buffer, 
                 csoundlib_state->metronome.audio_bytes, 
                 &num_bytes_resampled, 
                 csoundlib_state->metronome.num_bytes,
                 44100,
                 48000);
-        
+        if (err != SoundIoErrorNone) {
+            return SoundIoErrorResampling;
+        }
+        memset(csoundlib_state->metronome.audio_bytes, 0x00, csoundlib_state->metronome.num_bytes);
+        memcpy(csoundlib_state->metronome.audio_bytes, temp_buffer, num_bytes_resampled);
+        csoundlib_state->metronome.num_bytes = num_bytes_resampled;
+        /* audio is now 16 bit 44.1k */
+    }
+
+    if (bits_per_sample == 16) {
+        int16_t* buf = (int16_t*)csoundlib_state->metronome.audio_bytes;
+        int32_t out_buf[MAX_METRONOME_BUFFER];
+        c16bit_to_24bit(buf, out_buf, csoundlib_state->metronome.num_bytes / 2);
+        char* byte_buffer = (char*)out_buf;
+        memset(csoundlib_state->metronome.audio_bytes, 0x00, csoundlib_state->metronome.num_bytes);
+        csoundlib_state->metronome.num_bytes *= 2;
+        memcpy(csoundlib_state->metronome.audio_bytes, byte_buffer, csoundlib_state->metronome.num_bytes) ;
     }
 
     return SoundIoErrorNone;
+}
+
+void add_metronome_to_output_buffer(int max_bytes) {
+    if (csoundlib_state->current_cursor_offset % csoundlib_state->num_samples_in_a_beat < (csoundlib_state->metronome.num_bytes / 4)) {
+        int bytes_into_file = (csoundlib_state->current_cursor_offset % csoundlib_state->num_samples_in_a_beat) * 4;
+        add_audio_buffers_24bitNE(
+            csoundlib_state->mixed_output_buffer, 
+            csoundlib_state->metronome.audio_bytes + bytes_into_file,
+            max_bytes
+        );
+    }
 }

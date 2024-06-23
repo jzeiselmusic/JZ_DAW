@@ -10,7 +10,7 @@ data class AudioState(
     var tSignatureTop: UInt = 4U,
     var tSignatureBottom: UInt = 4U,
     var sampleRate: Int = 44100,
-    var samplesInABeat: Int = 22050,
+    var samplesInABeat: Int = 18900,
     var numTracks: Int = 0,
     var trackList: MutableList<TrackData> = mutableListOf(),
     var outputDevice: Device? = null,

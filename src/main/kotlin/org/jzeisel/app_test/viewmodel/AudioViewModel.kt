@@ -32,6 +32,8 @@ class AudioViewModel(
             audioEngineManager.getOutputDeviceFromIndex(audioEngineManager.defaultOutputIndex))
 
         vuMeterThread.addAllTracksToStreaming()
+
+        audioEngineManager.setSamplesInABeat(audioStateFlow._state.samplesInABeat)
     }
 
     fun deinitialize() {

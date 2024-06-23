@@ -23,6 +23,8 @@ void stereo_to_mono(size_t sample_width, char* mono_buffer, const char* stereo_b
 
 void mono_to_stereo(size_t sample_width, char* stereo_buffer, const char* mono_buffer, size_t* stereo_bytes, size_t mono_bytes);
 
-int resample(size_t sample_width, char* out_buffer, const char* in_buffer, size_t* out_bytes, size_t in_bytes, int out_sample_rate, int in_sample_rate);
+int mono_resample(size_t sample_width, char* out_buffer, const char* in_buffer, size_t* out_bytes, size_t in_bytes, int out_sample_rate, int in_sample_rate);
+
+void c16bit_to_24bit(const int16_t* input, int32_t* output, size_t sample_count);
 
 #endif

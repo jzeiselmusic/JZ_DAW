@@ -35,4 +35,6 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset);
 
 int lib_loadMetronomeFromWav(const char* file_path, bool default_metronome);
 
+void add_metronome_to_output_buffer(int max_bytes);
+
 #endif
