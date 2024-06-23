@@ -2,13 +2,18 @@ package org.jzeisel.app_test
 
 import javafx.application.Application
 import javafx.scene.Scene
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.stage.Stage
 import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.MouseEventBroadcaster
 import org.jzeisel.app_test.util.viewOrderFlip
-import org.jzeisel.app_test.viewmodel.*
+import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
+import org.jzeisel.app_test.viewmodel.TrackListViewModel
+import org.jzeisel.app_test.audio.viewmodel.ViewModelController
+import org.jzeisel.app_test.viewmodel.MixerViewModel
+import javax.sound.sampled.Mixer
 
 class AudioWaveform : Application() {
     companion object {
@@ -23,8 +28,7 @@ class AudioWaveform : Application() {
     private lateinit var trackListViewModel: TrackListViewModel
     private lateinit var audioViewModel: AudioViewModel
     private lateinit var mixerViewModel: MixerViewModel
-    private lateinit var trackListViewModelController: TrackListViewModelController
-    private lateinit var audioViewModelController: AudioViewModelController
+    private lateinit var viewModelController: ViewModelController
     /*
 
     the z values of the nodes should be laid out in the following way
@@ -63,18 +67,15 @@ class AudioWaveform : Application() {
         stage.scene = scene
 
         trackListViewModel = TrackListViewModel(everythingPane, stage, verticalScrollBarPane)
-        trackListViewModelController = TrackListViewModelController(trackListViewModel)
-        audioViewModel = AudioViewModel(trackListViewModelController, trackListViewModel._trackListStateFlow)
+        viewModelController = ViewModelController(trackListViewModel)
+        audioViewModel = AudioViewModel(viewModelController, trackListViewModel._trackListStateFlow)
         trackListViewModel.addAudioEngine(audioViewModel)
 
         MouseEventBroadcaster.initializeBroadcasts(everythingPane, scene, trackListViewModel)
 
         trackListViewModel.addMeToScene(everythingPane)
 
-        audioViewModelController = AudioViewModelController(audioViewModel)
-
-        mixerViewModel = MixerViewModel(mixerPane, trackListViewModelController,
-                        audioViewModelController, trackListViewModel._trackListStateFlow)
+        mixerViewModel = MixerViewModel(mixerPane, viewModelController, trackListViewModel._trackListStateFlow)
         mixerViewModel.addMeToScene(mixerPane)
         stage.show()
     }

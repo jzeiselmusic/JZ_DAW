@@ -13,9 +13,6 @@
 #include "buffers_streams.h"
 
 #include <fcntl.h>
-#include <unistd.h>
-
-#include "audio_manipulation.h"
 
 typedef struct _writeArgs {
     FILE* fp;
@@ -38,7 +35,7 @@ static wavHeader _createWavHeader(int numSamples, int sampleRate, int bitDepth, 
     header.blockAlign = numChannels * (bitDepth / 8);
     header.bitsPerSample = bitDepth;
     header.subchunk2Id[0] = 'd'; header.subchunk2Id[1] = 'a'; header.subchunk2Id[2] = 't'; header.subchunk2Id[3] = 'a';
-    header.subchunk2Size = numSamples * numChannels * (bitDepth / 8); // num bytes of data
+    header.subchunk2Size = numSamples * numChannels * (bitDepth / 8);
     return header;
 }
 
@@ -256,57 +253,3 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     return SoundIoErrorNone;
 }
 
-
-int lib_loadMetronomeFromWav(const char* file_path, bool default_metronome) {
-    wavHeader localHeader;
-    char* local_file_path;
-    if (default_metronome) {
-        local_file_path = "CSoundLib/res/metronomes/Synth_Sine_C_hi.wav";
-    }
-    else {
-        local_file_path = file_path;
-    }
-    FILE* fp = fopen(local_file_path, "rb");
-    if (!fp) {
-        logCallback("error opening file");
-        return SoundIoErrorLoadingMetronomeFile;
-    }
-    fseek(fp, 0, SEEK_SET);
-    size_t num_read = fread(&localHeader, sizeof(char), sizeof(wavHeader), fp);
-
-    if (num_read != sizeof(wavHeader)) {
-        logCallback("error reading header");
-        return SoundIoErrorLoadingMetronomeFile;
-    }
-    if (localHeader.audioFormat != 1 || localHeader.subchunk1Size != 16) {
-        logCallback("wav file not pcm");
-        return SoundIoErrorLoadingMetronomeFile;
-    }
-    if (0 != memcmp(localHeader.format, (char[]){'W', 'A', 'V', 'E'}, 4)) {
-        logCallback("wav file does not say wave");
-        return SoundIoErrorLoadingMetronomeFile;
-    }
-    uint32_t sample_rate = localHeader.sampleRate;
-    uint16_t bits_per_sample = localHeader.bitsPerSample;
-    uint16_t num_channels = localHeader.numChannels;
-
-    int data_bytes = localHeader.subchunk2Size;
-    if (data_bytes > MAX_METRONOME_BUFFER) {
-        logCallback("metronome file too large");
-        return SoundIoErrorLoadingMetronomeFile;
-    }
-
-    fseek(fp, sizeof(wavHeader), SEEK_SET);
-    for (int idx = 0; idx < data_bytes; idx++) {
-        fread(&(csoundlib_state->metronome.audio_bytes[idx]), sizeof(char), 1, fp);
-    }
-    csoundlib_state->metronome.num_bytes = data_bytes;
-    fclose(fp);
-
-    /* convert from current sample and bits and channels to 44.1k, 24 bit, 1 channel */
-    if (sample_rate != (uint32_t)csoundlib_state->sample_rate) {
-
-    }
-
-    return SoundIoErrorNone;
-}

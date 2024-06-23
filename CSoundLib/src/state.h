@@ -45,8 +45,6 @@ typedef struct _audioState {
     /* solo and mute */
     bool solo_engaged;
 
-    /* metronome */
-    metronomeStruct metronome;
 
 } audio_state;
 

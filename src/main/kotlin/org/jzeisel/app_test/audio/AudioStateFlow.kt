@@ -6,7 +6,6 @@ data class AudioState(
     var isPlayingBack: Boolean = false,
     var playBackLocation: Double = 0.0,
     var tempo: Double = 140.0,
-    var metronome: Boolean = false,
     var tSignatureTop: UInt = 4U,
     var tSignatureBottom: UInt = 4U,
     var sampleRate: Int = 44100,

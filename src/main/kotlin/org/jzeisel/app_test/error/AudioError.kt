@@ -29,6 +29,5 @@ enum class AudioError(val readable: String) {
     SoundIoOutputMemoryNotAllocated("Output memory not allocated, cannot access data"),
     SoundIoErrorTrackNotFound("Track not found with that track ID"),
     SoundIoErrorOpeningFile("Error opening file for recording"),
-    SoundIoErrorFileNotFound("Error during playback: file not found"),
-    SoundIoErrorLoadingMetronomeFile("Error loading metronome wav file")
+    SoundIoErrorFileNotFound("Error during playback: file not found")
 }
