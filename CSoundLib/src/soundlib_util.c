@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "soundio_inc.h"
-#include "audio_errors.h"
-#include "callbacks.h"
 
 int min_int(int a, int b) {
     return (a < b) ? a : b;
@@ -67,27 +65,4 @@ double four_bytes_to_sample(const char* bytes) {
                     | (bytes[1] << 8) 
                     | bytes[0]);
     return sample_value / MAX_24_BIT_SIGNED;
-}
-
-void stereo_to_mono(size_t sample_width, char* mono_buffer, const char* stereo_buffer, size_t* mono_bytes, size_t stereo_bytes) {
-    /* go through stereo_bytes amt of data, copying only every other sample into mono buffer */
-    for (int idx = 0; idx < stereo_bytes; idx += (sample_width*2)) {
-        memcpy(mono_buffer, stereo_buffer + idx, sample_width);
-        *mono_bytes += sample_width;
-        mono_buffer += sample_width;
-    }
-}
-
-void mono_to_stereo(size_t sample_width, char* stereo_buffer, const char* mono_buffer, size_t* stereo_bytes, size_t mono_bytes) {
-    /* go through mono_bytes amt of data, writing two copies to every other sample in stereo buffer */
-    for (int idx = 0; idx < mono_bytes; idx += sample_width) {
-        memcpy(stereo_buffer, mono_buffer + idx, sample_width);
-        memcpy(stereo_buffer + sample_width, mono_buffer + idx, sample_width);
-        *stereo_bytes += sample_width*2;
-        stereo_buffer += sample_width*2;
-    }   
-}
-
-int resample(size_t sample_width, char* out_buffer, const char* in_buffer, size_t* out_bytes, size_t in_bytes, int out_sample_rate, int in_sample_rate) {
-    return SoundIoErrorNone;
 }

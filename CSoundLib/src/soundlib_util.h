@@ -19,10 +19,4 @@ double calculate_rms_level(const char* source, int num_bytes);
 
 double four_bytes_to_sample(const char* bytes);
 
-void stereo_to_mono(size_t sample_width, char* mono_buffer, const char* stereo_buffer, size_t* mono_bytes, size_t stereo_bytes);
-
-void mono_to_stereo(size_t sample_width, char* stereo_buffer, const char* mono_buffer, size_t* stereo_bytes, size_t mono_bytes);
-
-int resample(size_t sample_width, char* out_buffer, const char* in_buffer, size_t* out_bytes, size_t in_bytes, int out_sample_rate, int in_sample_rate);
-
 #endif

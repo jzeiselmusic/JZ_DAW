@@ -15,6 +15,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "audio_manipulation.h"
+
 typedef struct _writeArgs {
     FILE* fp;
     trackObject* track;
@@ -301,35 +303,9 @@ int lib_loadMetronomeFromWav(const char* file_path, bool default_metronome) {
     csoundlib_state->metronome.num_bytes = data_bytes;
     fclose(fp);
 
-    /* convert input file to mono */
-    if (num_channels == 2) {
-        char temp_buffer[MAX_METRONOME_BUFFER] = {0x00};
-        size_t num_bytes_mono;
-        stereo_to_mono(bits_per_sample / 8, 
-                        temp_buffer, 
-                        csoundlib_state->metronome.audio_bytes, 
-                        &num_bytes_mono, 
-                        csoundlib_state->metronome.num_bytes);
-        memset(csoundlib_state->metronome.audio_bytes, 0x00, csoundlib_state->metronome.num_bytes);
-        memcpy(csoundlib_state->metronome.audio_bytes, temp_buffer, num_bytes_mono);
-    }
-    else if (num_channels != 1) {
-        logCallback("file contains too many channels");
-        return SoundIoErrorLoadingMetronomeFile;
-    }
-
     /* convert from current sample and bits and channels to 44.1k, 24 bit, 1 channel */
-    if (sample_rate == 48000) {
-        char temp_buffer[MAX_METRONOME_BUFFER] = {0x00};
-        size_t num_bytes_resampled;
-        resample(bits_per_sample / 8,
-                temp_buffer, 
-                csoundlib_state->metronome.audio_bytes, 
-                &num_bytes_resampled, 
-                csoundlib_state->metronome.num_bytes,
-                44100,
-                48000);
-        
+    if (sample_rate != (uint32_t)csoundlib_state->sample_rate) {
+
     }
 
     return SoundIoErrorNone;
