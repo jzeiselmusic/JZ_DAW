@@ -741,4 +741,8 @@ class TrackListViewModel(val root: StackPane,
             shiftReleased()
         }
     }
+
+    fun enableMetronome(enabled: Boolean) {
+        audioViewModel.enableMetronome(enabled)
+    }
 }

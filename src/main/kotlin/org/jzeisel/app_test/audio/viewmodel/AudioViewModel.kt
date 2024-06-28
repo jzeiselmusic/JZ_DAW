@@ -253,5 +253,6 @@ class AudioViewModel(
 
     fun enableMetronome(enabled: Boolean) {
         audioEngineManager.enableMetronome(enabled)
+        audioStateFlow._state = audioStateFlow._state.copy(metronomeEnabled = enabled)
     }
 }

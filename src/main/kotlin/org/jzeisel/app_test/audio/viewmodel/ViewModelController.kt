@@ -29,4 +29,8 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
     fun reportAudioSamplesProcessed(numSamples: Int) {
         viewModel.onAudioSamplesProcessed(numSamples)
     }
+
+    fun enableMetronome(enabled: Boolean) {
+        viewModel.enableMetronome(enabled)
+    }
 }

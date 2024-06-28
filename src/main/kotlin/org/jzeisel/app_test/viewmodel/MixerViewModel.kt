@@ -86,10 +86,12 @@ class MixerViewModel(
             if (metronomeButtonEnabled) {
                 metronomeButtonEnabled = false
                 metronomeButton.fill = Color.TRANSPARENT
+                viewModelController.enableMetronome(false)
             }
             else {
                 metronomeButtonEnabled = true
                 metronomeButton.fill = trackListStateFlow.state.generalPurple
+                viewModelController.enableMetronome(true)
             }
         }
         imageView.translateY = metronomeButton.translateY

@@ -16,7 +16,8 @@ data class AudioState(
     var cursorOffsetSamples: Int = 0,
     var savedCursorOffsetSamples: Int = 0,
     var envelopeAttack: Double = 0.00001,
-    var envelopeRelease: Double = 0.12
+    var envelopeRelease: Double = 0.12,
+    var metronomeEnabled: Boolean = false,
 )
 class AudioStateFlow {
     var _state = AudioState()
