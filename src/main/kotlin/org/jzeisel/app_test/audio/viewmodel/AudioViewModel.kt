@@ -16,7 +16,7 @@ class AudioViewModel(
     private val vuMeterThread = VUMeterThread(audioEngineManager, viewModelController, audioStateFlow)
     val defaultInputIndex: Int get() { return audioEngineManager.defaultInputIndex }
 
-    val tempo: Double get() { return audioStateFlow._state.tempo }
+    val tempo: Double get() { return audioStateFlow._state.beatsPerMinute }
     val sampleRate: Int get() { return audioStateFlow._state.sampleRate }
     val numBeats: UInt get() { return audioStateFlow._state.tSignatureTop }
     val cursorOffsetSamples: Int get() { return audioStateFlow._state.cursorOffsetSamples }

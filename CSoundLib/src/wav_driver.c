@@ -314,7 +314,7 @@ int lib_readWavFileForMetronome() {
 
     char temp_buffer[MAX_METRONOME_BUF_SIZE] = {0x00};
 
-    int idx;
+    int idx = 0;
     int jdx = 0;
     for (idx = 0; idx < fileHeader.data_bytes; idx += 3) {
         char sample[4] = {0x00};
@@ -325,8 +325,8 @@ int lib_readWavFileForMetronome() {
 
     fclose(fp);
 
-    memcpy(csoundlib_state->metronome.audio, temp_buffer, (fileHeader.data_bytes / 3)*4);
-    csoundlib_state->metronome.num_bytes = (fileHeader.data_bytes / 3)*4;
+    memcpy(csoundlib_state->metronome.audio, temp_buffer, jdx);
+    csoundlib_state->metronome.num_bytes = jdx;
 
     return SoundIoErrorNone;
 } 
@@ -336,11 +336,7 @@ int read_metronome_into_buffer(char* mixed_buffer, int offset_bytes, int max_fil
 
     /* currently we know the metronome buffer is always 24 bit words in 32 bit samples */
     int idx;
-    for (idx = 0; idx < max_fill; idx += 4) {
-        if (offset_bytes + idx >= csoundlib_state->metronome.num_bytes) {
-            break;
-        }
-        add_audio_buffers_24bitNE(mixed_buffer + idx, csoundlib_state->metronome.audio + offset_bytes + idx, 4);
-    }
+    int read_bytes = min_int(csoundlib_state->metronome.num_bytes - offset_bytes, max_fill);
+    add_audio_buffers_24bitNE(mixed_buffer, csoundlib_state->metronome.audio + offset_bytes, read_bytes);
     return idx; 
 }
