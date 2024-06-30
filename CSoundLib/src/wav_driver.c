@@ -23,19 +23,19 @@ typedef struct _writeArgs {
 
 static wavHeader _createWavHeader(int numSamples, int sampleRate, int bitDepth, int numChannels) {
     wavHeader header;
-    header.chunkId[0] = 'R'; header.chunkId[1] = 'I'; header.chunkId[2] = 'F'; header.chunkId[3] = 'F';
-    header.chunkSize = 36 + numSamples * numChannels * (bitDepth / 8);
-    header.format[0] = 'W'; header.format[1] = 'A'; header.format[2] = 'V'; header.format[3] = 'E';
-    header.subchunk1Id[0] = 'f'; header.subchunk1Id[1] = 'm'; header.subchunk1Id[2] = 't'; header.subchunk1Id[3] = ' ';
-    header.subchunk1Size = 16; // PCM
-    header.audioFormat = 1; // PCM
-    header.numChannels = numChannels;
-    header.sampleRate = sampleRate;
-    header.byteRate = sampleRate * numChannels * (bitDepth / 8);
-    header.blockAlign = numChannels * (bitDepth / 8);
-    header.bitsPerSample = bitDepth;
-    header.subchunk2Id[0] = 'd'; header.subchunk2Id[1] = 'a'; header.subchunk2Id[2] = 't'; header.subchunk2Id[3] = 'a';
-    header.subchunk2Size = numSamples * numChannels * (bitDepth / 8);
+    header.riff_header[0] = 'R'; header.riff_header[1] = 'I'; header.riff_header[2] = 'F'; header.riff_header[3] = 'F';
+    header.wav_size = 36 + numSamples * numChannels * (bitDepth / 8);
+    header.wave_header[0] = 'W'; header.wave_header[1] = 'A'; header.wave_header[2] = 'V'; header.wave_header[3] = 'E';
+    header.fmt_header[0] = 'f'; header.fmt_header[1] = 'm'; header.fmt_header[2] = 't'; header.fmt_header[3] = ' ';
+    header.fmt_chunk_size = 16; // PCM
+    header.audio_format = 1; // PCM
+    header.num_channels = numChannels;
+    header.sample_rate = sampleRate;
+    header.byte_rate = sampleRate * numChannels * (bitDepth / 8);
+    header.sample_alignment = numChannels * (bitDepth / 8);
+    header.bit_depth = bitDepth;
+    header.data_header[0] = 'd'; header.data_header[1] = 'a'; header.data_header[2] = 't'; header.data_header[3] = 'a';
+    header.data_bytes = numSamples * numChannels * (bitDepth / 8);
     return header;
 }
 
@@ -253,48 +253,94 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     return SoundIoErrorNone;
 }
 
+int _read_wav_header(FILE* fp, wavHeader* header) {
+    // Read RIFF chunk descriptor
+    fread(header->riff_header, sizeof(header->riff_header), 1, fp);
+    fread(&header->wav_size, sizeof(header->wav_size), 1, fp);
+    fread(header->wave_header, sizeof(header->wave_header), 1, fp);
+
+    // Read "fmt " sub-chunk
+    fread(header->fmt_header, sizeof(header->fmt_header), 1, fp);
+    fread(&header->fmt_chunk_size, sizeof(header->fmt_chunk_size), 1, fp);
+    fread(&header->audio_format, sizeof(header->audio_format), 1, fp);
+    fread(&header->num_channels, sizeof(header->num_channels), 1, fp);
+    fread(&header->sample_rate, sizeof(header->sample_rate), 1, fp);
+    fread(&header->byte_rate, sizeof(header->byte_rate), 1, fp);
+    fread(&header->sample_alignment, sizeof(header->sample_alignment), 1, fp);
+    fread(&header->bit_depth, sizeof(header->bit_depth), 1, fp);
+
+    // Find "data" sub-chunk
+    char chunk_id[4];
+    uint32_t chunk_size;
+    while (1) {
+        fread(chunk_id, sizeof(chunk_id), 1, fp);
+        fread(&chunk_size, sizeof(chunk_size), 1, fp);
+
+        if (memcmp(chunk_id, "data", 4) == 0) {
+            memcpy(header->data_header, chunk_id, 4);
+            header->data_bytes = chunk_size;
+            break;
+        }
+
+        // Skip this chunk
+        fseek(fp, chunk_size, SEEK_CUR);
+    }
+
+    return 0;
+}
+
 void lib_enableMetronome(bool enabled) {
     csoundlib_state->metronome.enabled = enabled;
 }
 
 int lib_readWavFileForMetronome() {
-    FILE* fp = fopen("/Users/jacobzeisel/git/App_Test/CSoundLib/res/SynthSineChi.wav", "rb");
+    FILE* fp = fopen("/Users/jacobzeisel/git/App_Test/CSoundLib/res/synthsine.wav", "rb");
 
     wavHeader fileHeader;
-    fread(&fileHeader, sizeof(char), sizeof(fileHeader), fp);
-
-    uint16_t num_channels = fileHeader.numChannels;
-    uint16_t bits_per_sample = fileHeader.bitsPerSample;
-    uint32_t sample_rate = fileHeader.sampleRate;
-    size_t amt_bytes = fileHeader.subchunk2Size;
+    _read_wav_header(fp, &fileHeader);
 
     /* solution for now. will make more general later */
-    if (num_channels != 1) {
+    if (fileHeader.num_channels != 1) {
         return SoundIoErrorReadingWavForMetronome;
     }
 
-    if (bits_per_sample != 24) {
+    if (fileHeader.bit_depth != 24) {
         return SoundIoErrorReadingWavForMetronome;
     }
 
-    if (sample_rate != 44100) {
+    if (fileHeader.sample_rate != 44100) {
         return SoundIoErrorReadingWavForMetronome;
     }
 
     char temp_buffer[MAX_METRONOME_BUF_SIZE] = {0x00};
-    int32_t* int_buffer = (int32_t*)temp_buffer;
 
     int idx;
-    for (idx = 0; idx < amt_bytes/3; idx ++) {
+    int jdx = 0;
+    for (idx = 0; idx < fileHeader.data_bytes; idx += 3) {
         char sample[4] = {0x00};
-        fread(&sample, 1, 3, fp);
-        memcpy(int_buffer+idx, (int32_t*)sample, 1);
+        fread(sample, sizeof(char), 3, fp);
+        memcpy(temp_buffer + jdx, sample, 4);
+        jdx += 4;
     }
 
     fclose(fp);
 
-    memcpy(&(csoundlib_state->metronome.audio), (char*)int_buffer, idx*4);
-    csoundlib_state->metronome.num_bytes = idx*4;
+    memcpy(csoundlib_state->metronome.audio, temp_buffer, (fileHeader.data_bytes / 3)*4);
+    csoundlib_state->metronome.num_bytes = (fileHeader.data_bytes / 3)*4;
 
     return SoundIoErrorNone;
+} 
+
+int read_metronome_into_buffer(char* mixed_buffer, int offset_bytes, int max_fill) {
+    /* return num bytes read */
+
+    /* currently we know the metronome buffer is always 24 bit words in 32 bit samples */
+    int idx;
+    for (idx = 0; idx < max_fill; idx += 4) {
+        if (offset_bytes + idx >= csoundlib_state->metronome.num_bytes) {
+            break;
+        }
+        add_audio_buffers_24bitNE(mixed_buffer + idx, csoundlib_state->metronome.audio + offset_bytes + idx, 4);
+    }
+    return idx; 
 }
