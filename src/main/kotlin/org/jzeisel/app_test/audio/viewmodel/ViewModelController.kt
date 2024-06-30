@@ -33,4 +33,8 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
     fun enableMetronome(enabled: Boolean) {
         viewModel.enableMetronome(enabled)
     }
+
+    fun spacePressed() {
+        viewModel.spacePressed()
+    }
 }

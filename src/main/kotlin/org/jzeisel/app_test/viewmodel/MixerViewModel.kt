@@ -90,10 +90,12 @@ class MixerViewModel(
             if (playButtonEnabled) {
                 playButtonEnabled = false
                 playButton.fill = Color.TRANSPARENT
+                viewModelController.spacePressed()
             }
             else {
                 playButtonEnabled = true
                 playButton.fill = trackListStateFlow.state.generalPurple
+                viewModelController.spacePressed()
             }
         }
         playView.translateY = playButton.translateY
@@ -180,6 +182,19 @@ class MixerViewModel(
             playView.translateY = playButton.translateY
         }
         root.children.addAll(dividerRect, toolBarRect, metronomeButton, metronomeView, playButton, playView)
+    }
+
+    fun play(enabled: Boolean) {
+        when(enabled) {
+            true -> {
+                playButtonEnabled = true
+                playButton.fill = trackListStateFlow.state.generalPurple
+            }
+            false -> {
+                playButtonEnabled = false
+                playButton.fill = Color.TRANSPARENT
+            }
+        }
     }
 
     override fun removeMeFromScene(root: StackPane) {

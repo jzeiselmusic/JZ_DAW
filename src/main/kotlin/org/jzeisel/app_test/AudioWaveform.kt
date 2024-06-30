@@ -70,13 +70,12 @@ class AudioWaveform : Application() {
         viewModelController = ViewModelController(trackListViewModel)
         audioViewModel = AudioViewModel(viewModelController, trackListViewModel._trackListStateFlow)
         trackListViewModel.addAudioEngine(audioViewModel)
+        mixerViewModel = MixerViewModel(mixerPane, viewModelController, trackListViewModel._trackListStateFlow)
+        trackListViewModel.addMixer(mixerViewModel, mixerPane)
 
         MouseEventBroadcaster.initializeBroadcasts(everythingPane, scene, trackListViewModel)
 
         trackListViewModel.addMeToScene(everythingPane)
-
-        mixerViewModel = MixerViewModel(mixerPane, viewModelController, trackListViewModel._trackListStateFlow)
-        mixerViewModel.addMeToScene(mixerPane)
         stage.show()
     }
 

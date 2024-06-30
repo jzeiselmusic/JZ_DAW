@@ -26,6 +26,8 @@ import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.stateflow.KeyState
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.*
+import java.util.Stack
+import javax.sound.sampled.Mixer
 import kotlin.math.log10
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
@@ -35,6 +37,7 @@ class TrackListViewModel(val root: StackPane,
                          val stage: Stage, extraPane: StackPane): NodeWidget {
 
     lateinit var audioViewModel: AudioViewModel
+    lateinit var mixerViewModel: MixerViewModel
     val stageWidthProperty: ReadOnlyDoubleProperty = stage.widthProperty()
     val stageHeightProperty: ReadOnlyDoubleProperty = stage.heightProperty()
 
@@ -72,6 +75,11 @@ class TrackListViewModel(val root: StackPane,
     fun addAudioEngine(model: AudioViewModel) {
         audioViewModel = model
         audioViewModel.initialize()
+    }
+
+    fun addMixer(mixer: MixerViewModel, mixerPane: StackPane) {
+        mixerViewModel = mixer
+        mixerViewModel.addMeToScene(mixerPane)
     }
 
     override fun addChild(child: Widget) {
@@ -222,7 +230,7 @@ class TrackListViewModel(val root: StackPane,
         }
     }
 
-    private fun spacePressed() {
+    fun spacePressed() {
         if (!_trackListStateFlow.state.playBackStarted) {
             if (_trackListStateFlow.state.playbackHighlightSection.isEnabled) {
                 val offsetX = _trackListStateFlow.state.playbackHighlightSection.pixelStartOffset
@@ -253,8 +261,10 @@ class TrackListViewModel(val root: StackPane,
                 it.setVUMeterRunning(true)
             }
             audioViewModel.startPlayback(newFileId)
+            mixerViewModel.play(true)
         }
         else {
+            mixerViewModel.play(false)
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
             audioViewModel.stopPlayback()
             children.forEach {
