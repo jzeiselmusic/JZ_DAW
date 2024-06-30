@@ -39,6 +39,9 @@ class MixerViewModel(
     private var playButtonEnabled = false
     private val playButtonImage = Image("file:/Users/jacobzeisel/git/App_Test/src/main/resources/play.png")
     private val playView = ImageView(playButtonImage)
+    private val stopButton = Circle()
+    private val stopButtonImage = Image("file:/Users/jacobzeisel/git/App_Test/src/main/resources/stop.png")
+    private val stopView = ImageView(stopButtonImage)
 
 
     init {
@@ -76,7 +79,7 @@ class MixerViewModel(
         toolBarRect.viewOrder = viewOrderFlip - 0.01
 
         playButton.radius = 17.0
-        playButton.translateX = -25.0
+        playButton.translateX = -45.0
         playButton.translateY = toolBarRect.translateY
         playButton.fill = Color.TRANSPARENT
         playButton.stroke = Color.BLACK
@@ -105,8 +108,28 @@ class MixerViewModel(
         playView.fitWidth = 20.0
         playView.fitHeight = 20.0
 
+        stopButton.radius = 17.0
+        stopButton.translateX = 0.0
+        stopButton.translateY = toolBarRect.translateY
+        stopButton.fill = Color.TRANSPARENT
+        stopButton.stroke = Color.BLACK
+        stopButton.strokeWidth = 1.8
+        stopButton.viewOrder = viewOrderFlip - 0.02
+        stopButton.onMousePressed = EventHandler {
+            animateObjectScale(1.0, 0.9, stopButton, 50.0)
+        }
+        stopButton.onMouseReleased = EventHandler {
+            animateObjectScale(0.9, 1.0, stopButton, 40.0)
+        }
+        stopView.translateY = stopButton.translateY
+        stopView.translateX = stopButton.translateX
+        stopView.viewOrder = viewOrderFlip - 0.03
+        stopView.isMouseTransparent = true
+        stopView.fitWidth = 20.0
+        stopView.fitHeight = 20.0
+
         metronomeButton.radius = 17.0
-        metronomeButton.translateX = 25.0
+        metronomeButton.translateX = 45.0
         metronomeButton.translateY = toolBarRect.translateY
         metronomeButton.fill = Color.TRANSPARENT
         metronomeButton.stroke = Color.BLACK
@@ -180,8 +203,13 @@ class MixerViewModel(
             metronomeView.translateY = metronomeButton.translateY
             playButton.translateY = toolBarRect.translateY
             playView.translateY = playButton.translateY
+            stopButton.translateY = toolBarRect.translateY
+            stopView.translateY = toolBarRect.translateY
         }
-        root.children.addAll(dividerRect, toolBarRect, metronomeButton, metronomeView, playButton, playView)
+        root.children.addAll(dividerRect, toolBarRect,
+                        metronomeButton, metronomeView,
+                        playButton, playView,
+                        stopButton, stopView)
     }
 
     fun play(enabled: Boolean) {
