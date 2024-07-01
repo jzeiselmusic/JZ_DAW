@@ -37,4 +37,12 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
     fun spacePressed() {
         viewModel.spacePressed()
     }
+
+    fun stopPressed() {
+        viewModel.stopPressed()
+    }
+
+    fun enableLooper(enabled: Boolean) {
+        viewModel.enableLooper(enabled)
+    }
 }

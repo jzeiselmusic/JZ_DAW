@@ -161,7 +161,12 @@ class TrackListViewModel(val root: StackPane,
             if (_trackListStateFlow.state.playbackHighlightSection.isEnabled) {
                 val realOffsetX = startingOffsetX + pixelsToMove
                 if (realOffsetX >= _trackListStateFlow.state.playbackHighlightSection.pixelEndOffset) {
-                    spacePressed()
+                    if (_trackListStateFlow.state.playbackHighlightSection.loopEnabled) {
+                        CursorFollower.updateLocation(_trackListStateFlow.state.playbackHighlightSection.pixelStartOffset)
+                    }
+                    else {
+                        spacePressed()
+                    }
                 }
             }
         }
@@ -222,11 +227,16 @@ class TrackListViewModel(val root: StackPane,
             _trackListStateFlow.state.playbackHighlightSection.pixelEndOffset =
                                                     if (sign == 1) lastMousePressLocationOffsetX + numIncrementsHighlight*_trackListStateFlow.state.incrementSize
                                                     else lastMousePressLocationOffsetX
-            _trackListStateFlow.state.playbackHighlightSection.loopEnabled = true
         }
         else {
             _trackListStateFlow.state.playbackHighlightSection.pixelStartOffset = CursorFollower.currentOffsetX
             _trackListStateFlow.state.playbackHighlightSection.pixelEndOffset = CursorFollower.currentOffsetX
+        }
+    }
+
+    fun stopPressed() {
+        if (_trackListStateFlow.state.playBackStarted) {
+            spacePressed()
         }
     }
 
@@ -754,5 +764,9 @@ class TrackListViewModel(val root: StackPane,
 
     fun enableMetronome(enabled: Boolean) {
         audioViewModel.enableMetronome(enabled)
+    }
+
+    fun enableLooper(enabled: Boolean) {
+        _trackListStateFlow.state.playbackHighlightSection.loopEnabled = enabled
     }
 }

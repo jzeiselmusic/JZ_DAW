@@ -5,6 +5,7 @@ import javafx.event.EventHandler
 import javafx.scene.Cursor
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.image.WritableImage
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
@@ -18,6 +19,7 @@ import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.main
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.animateObjectScale
+import org.jzeisel.app_test.util.loop
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class MixerViewModel(
@@ -42,6 +44,10 @@ class MixerViewModel(
     private val stopButton = Circle()
     private val stopButtonImage = Image("file:/Users/jacobzeisel/git/App_Test/src/main/resources/stop.png")
     private val stopView = ImageView(stopButtonImage)
+    private val loopButton = Circle()
+    private val loopButtonImage = Image("file:/Users/jacobzeisel/git/App_Test/src/main/resources/loop.png")
+    private val loopView = ImageView(loopButtonImage)
+    private var loopButtonEnabled = false
 
 
     init {
@@ -83,6 +89,7 @@ class MixerViewModel(
         playButton.translateY = toolBarRect.translateY
         playButton.fill = Color.TRANSPARENT
         playButton.stroke = Color.BLACK
+        playButton.opacity = 0.5
         playButton.strokeWidth = 1.8
         playButton.viewOrder = viewOrderFlip - 0.02
         playButton.onMousePressed = EventHandler {
@@ -93,10 +100,12 @@ class MixerViewModel(
             if (playButtonEnabled) {
                 playButtonEnabled = false
                 playButton.fill = Color.TRANSPARENT
+                playButton.opacity = 0.5
                 viewModelController.spacePressed()
             }
             else {
                 playButtonEnabled = true
+                playButton.opacity = 1.0
                 playButton.fill = trackListStateFlow.state.generalPurple
                 viewModelController.spacePressed()
             }
@@ -114,12 +123,14 @@ class MixerViewModel(
         stopButton.fill = Color.TRANSPARENT
         stopButton.stroke = Color.BLACK
         stopButton.strokeWidth = 1.8
+        stopButton.opacity = 0.5
         stopButton.viewOrder = viewOrderFlip - 0.02
         stopButton.onMousePressed = EventHandler {
             animateObjectScale(1.0, 0.9, stopButton, 50.0)
         }
         stopButton.onMouseReleased = EventHandler {
             animateObjectScale(0.9, 1.0, stopButton, 40.0)
+            viewModelController.stopPressed()
         }
         stopView.translateY = stopButton.translateY
         stopView.translateX = stopButton.translateX
@@ -128,12 +139,45 @@ class MixerViewModel(
         stopView.fitWidth = 20.0
         stopView.fitHeight = 20.0
 
+        loopButton.radius = 17.0
+        loopButton.translateX = 90.0
+        loopButton.opacity = 0.5
+        loopButton.translateY = toolBarRect.translateY
+        loopButton.fill = Color.TRANSPARENT
+        loopButton.stroke = Color.BLACK
+        loopButton.strokeWidth = 1.8
+        loopButton.viewOrder = viewOrderFlip - 0.02
+        loopButton.onMousePressed = EventHandler {
+            animateObjectScale(1.0, 0.9, loopButton, 50.0)
+        }
+        loopButton.onMouseReleased = EventHandler {
+            animateObjectScale(0.9, 1.0, loopButton, 40.0)
+            if (loopButtonEnabled) {
+                loopButtonEnabled = false
+                loopButton.fill = Color.TRANSPARENT
+                viewModelController.enableLooper(false)
+            }
+            else {
+                loopButtonEnabled = true
+                loopButton.fill = Color.WHITESMOKE
+                viewModelController.enableLooper(true)
+            }
+        }
+        loopView.translateY = loopButton.translateY
+        loopView.translateX = loopButton.translateX
+        loopView.viewOrder = viewOrderFlip - 0.03
+        loopView.isMouseTransparent = true
+        loopView.isSmooth = true
+        loopView.fitWidth = 25.0
+        loopView.fitHeight = 25.0
+
         metronomeButton.radius = 17.0
         metronomeButton.translateX = 45.0
         metronomeButton.translateY = toolBarRect.translateY
         metronomeButton.fill = Color.TRANSPARENT
         metronomeButton.stroke = Color.BLACK
         metronomeButton.strokeWidth = 1.8
+        metronomeButton.opacity = 0.5
         metronomeButton.viewOrder = viewOrderFlip - 0.02
         metronomeButton.onMousePressed = EventHandler {
             animateObjectScale(1.0, 0.9, metronomeButton, 50.0)
@@ -147,7 +191,7 @@ class MixerViewModel(
             }
             else {
                 metronomeButtonEnabled = true
-                metronomeButton.fill = trackListStateFlow.state.generalPurple
+                metronomeButton.fill = Color.WHITESMOKE
                 viewModelController.enableMetronome(true)
             }
         }
@@ -209,17 +253,20 @@ class MixerViewModel(
         root.children.addAll(dividerRect, toolBarRect,
                         metronomeButton, metronomeView,
                         playButton, playView,
-                        stopButton, stopView)
+                        stopButton, stopView,
+                        loopButton, loopView)
     }
 
     fun play(enabled: Boolean) {
         when(enabled) {
             true -> {
                 playButtonEnabled = true
+                playButton.opacity = 1.0
                 playButton.fill = trackListStateFlow.state.generalPurple
             }
             false -> {
                 playButtonEnabled = false
+                playButton.opacity = 0.5
                 playButton.fill = Color.TRANSPARENT
             }
         }
