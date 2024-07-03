@@ -223,7 +223,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     if (csoundlib_state->metronome.enabled && csoundlib_state->playback_started) {
         if ((csoundlib_state->current_cursor_offset % csoundlib_state->samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / 4)) {
             int offset_bytes = (csoundlib_state->current_cursor_offset % csoundlib_state->samples_in_a_beat) * 4;
-            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, max_fill_count);
+            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, max_fill_count * 4);
         }
     }
     /* now place data from mixed output buffer into output stream */

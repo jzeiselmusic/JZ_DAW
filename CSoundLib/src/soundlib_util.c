@@ -44,7 +44,8 @@ void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes) {
 
         int32_t dest_sample = *(int32_t*)dest_ptr;
         int32_t source_sample = *(int32_t*)src_ptr;
-        int32_t sum = dest_sample + source_sample;
+        int32_t sum = (dest_sample + source_sample) & 0x00FFFFFF;
+
         memcpy(dest + idx, &sum, 4);
     }
 }
