@@ -62,6 +62,15 @@ class MixerViewModel(
             root.maxWidth = new.toDouble()
             toolBarRect.width = new.toDouble()
             dividerRect.width = new.toDouble()
+
+            playButton.translateX = -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 45.0
+            playView.translateX = playButton.translateX
+            stopButton.translateX = -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 90.0
+            stopView.translateX = stopButton.translateX
+            loopButton.translateX = -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 135.0
+            loopView.translateX = loopButton.translateX
+            metronomeButton.translateX = -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 180.0
+            metronomeView.translateX = metronomeButton.translateX
         }
     }
     override fun addChild(child: Widget) {
@@ -85,7 +94,7 @@ class MixerViewModel(
         toolBarRect.viewOrder = viewOrderFlip - 0.01
 
         playButton.radius = 17.0
-        playButton.translateX = -45.0
+        playButton.translateX = -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 45.0
         playButton.translateY = toolBarRect.translateY
         playButton.fill = Color.TRANSPARENT
         playButton.stroke = Color.BLACK
@@ -118,7 +127,7 @@ class MixerViewModel(
         playView.fitHeight = 20.0
 
         stopButton.radius = 17.0
-        stopButton.translateX = 0.0
+        stopButton.translateX =  -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 90.0
         stopButton.translateY = toolBarRect.translateY
         stopButton.fill = Color.TRANSPARENT
         stopButton.stroke = Color.BLACK
@@ -140,7 +149,7 @@ class MixerViewModel(
         stopView.fitHeight = 20.0
 
         loopButton.radius = 17.0
-        loopButton.translateX = 90.0
+        loopButton.translateX =  -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 135.0
         loopButton.opacity = 0.5
         loopButton.translateY = toolBarRect.translateY
         loopButton.fill = Color.TRANSPARENT
@@ -172,7 +181,7 @@ class MixerViewModel(
         loopView.fitHeight = 25.0
 
         metronomeButton.radius = 17.0
-        metronomeButton.translateX = 45.0
+        metronomeButton.translateX =  -trackListStateFlow.state.stageWidthProperty.value / 2.0 + 180.0
         metronomeButton.translateY = toolBarRect.translateY
         metronomeButton.fill = Color.TRANSPARENT
         metronomeButton.stroke = Color.BLACK
@@ -249,6 +258,8 @@ class MixerViewModel(
             playView.translateY = playButton.translateY
             stopButton.translateY = toolBarRect.translateY
             stopView.translateY = toolBarRect.translateY
+            loopButton.translateY = toolBarRect.translateY
+            loopView.translateY = toolBarRect.translateY
         }
         root.children.addAll(dividerRect, toolBarRect,
                         metronomeButton, metronomeView,
