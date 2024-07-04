@@ -8,6 +8,7 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import org.jzeisel.app_test.components.interfaces.widget.Widget
+import org.jzeisel.app_test.util.animateObjectScale
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class MixerButton(
@@ -36,6 +37,10 @@ class MixerButton(
         buttonView.isMouseTransparent = true
         buttonView.fitWidth = 20.0
         buttonView.fitHeight = 20.0
+
+        button.onMousePressed = EventHandler {
+            animateObjectScale(1.0, 0.9, button, 50.0)
+        }
     }
 
     fun updateStageWidth(new: Double) {

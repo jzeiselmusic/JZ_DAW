@@ -296,6 +296,7 @@ class TrackListViewModel(val root: StackPane,
             _trackListStateFlow.state.pixelsInABeat
         )
         audioViewModel.updateCursorOffsetSamples(sampleOffsetFromStart)
+        mixerViewModel.updateSamples(sampleOffsetFromStart, audioViewModel.sampleRate)
     }
 
     fun removeTrack(child: Widget) {

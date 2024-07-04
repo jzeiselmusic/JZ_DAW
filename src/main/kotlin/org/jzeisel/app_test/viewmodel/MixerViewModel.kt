@@ -17,6 +17,7 @@ import org.jzeisel.app_test.audio.viewmodel.ViewModelController
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.mixerComponents.MixerButton
+import org.jzeisel.app_test.components.mixerComponents.TimeDisplay
 import org.jzeisel.app_test.main
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.Logger
@@ -28,6 +29,13 @@ class MixerViewModel(
     val root: StackPane,
     val viewModelController: ViewModelController,
     val trackListStateFlow: TrackListStateFlow): NodeWidget {
+    init {
+        root.maxWidth = trackListStateFlow.state.stageWidthProperty.value
+        root.maxHeight = trackListStateFlow.state.stageHeightProperty.value/3.5
+        root.background = Background(BackgroundFill(Color.DARKGRAY.darker().darker().darker(), null, null))
+        root.translateX = 0.0
+        root.translateY = trackListStateFlow.state.stageHeightProperty.value /2.0 - root.maxHeight / 2.0
+    }
 
     override val parent: Widget? = null
     override val children = mutableListOf<Widget>()
@@ -36,9 +44,6 @@ class MixerViewModel(
     val toolBarInitHeight = 35.0
     val toolBarY = -root.maxHeight/2.0 + toolBarInitHeight/2.0
 
-    init {
-        Logger.debug(javaClass.simpleName, "toolBarY: $toolBarY", 3)
-    }
     private val dividerRect = Rectangle()
     private var dividerPressed = false
     private val toolBarRect = Rectangle()
@@ -66,54 +71,14 @@ class MixerViewModel(
         trackListStateFlow.state.stageWidthProperty.value,
         toolBarY
     )
+    private val timeDisplay = TimeDisplay(
+        trackListStateFlow.state.stageWidthProperty.value,
+        toolBarY,
+        toolBarInitHeight
+    )
 
     init {
-        playButton.setOnMousePressed {
-            animateObjectScale(1.0, 0.9, playButton.button, 50.0)
-        }
-        playButton.setOnMouseReleased {
-            animateObjectScale(0.9, 1.0, playButton.button, 40.0)
-            play(!playButton.buttonEnabled, true)
-        }
-        stopButton.setOnMousePressed {
-            animateObjectScale(1.0, 0.9, stopButton.button, 50.0)
-        }
-        stopButton.setOnMouseReleased {
-            animateObjectScale(0.9, 1.0, stopButton.button, 40.0)
-            viewModelController.stopPressed()
-        }
-        loopButton.setOnMousePressed {
-            animateObjectScale(1.0, 0.9, loopButton.button, 50.0)
-        }
-        loopButton.setOnMouseReleased {
-            animateObjectScale(0.9, 1.0, loopButton.button, 40.0)
-            if (loopButton.buttonEnabled) {
-                loopButton.buttonEnabled = false
-                loopButton.button.fill = Color.TRANSPARENT
-                viewModelController.enableLooper(false)
-            }
-            else {
-                loopButton.buttonEnabled = true
-                loopButton.button.fill = Color.WHITESMOKE
-                viewModelController.enableLooper(true)
-            }
-        }
-        metronomeButton.setOnMousePressed {
-            animateObjectScale(1.0, 0.9, metronomeButton.button, 50.0)
-        }
-        metronomeButton.setOnMouseReleased {
-            animateObjectScale(0.9, 1.0, metronomeButton.button, 40.0)
-            if (metronomeButton.buttonEnabled) {
-                metronomeButton.buttonEnabled = false
-                metronomeButton.button.fill = Color.TRANSPARENT
-                viewModelController.enableMetronome(false)
-            }
-            else {
-                metronomeButton.buttonEnabled = true
-                metronomeButton.button.fill = Color.WHITESMOKE
-                viewModelController.enableMetronome(true)
-            }
-        }
+        setMousePressFunctions()
         toolBarButtons.addAll(listOf(playButton, stopButton, loopButton, metronomeButton))
         trackListStateFlow.state.stageHeightProperty.addListener { _, _, new ->
             root.translateY = new.toDouble()/2.0 - root.maxHeight / 2.0
@@ -135,12 +100,76 @@ class MixerViewModel(
     }
 
     override fun addMeToScene(root: StackPane) {
-        root.maxWidth = trackListStateFlow.state.stageWidthProperty.value
-        root.maxHeight = trackListStateFlow.state.stageHeightProperty.value/3.5
-        root.background = Background(BackgroundFill(Color.DARKGRAY.darker().darker().darker(), null, null))
-        root.translateX = 0.0
-        root.translateY = trackListStateFlow.state.stageHeightProperty.value /2.0 - root.maxHeight / 2.0
+        setUpDividerRectangles()
+        root.children.addAll(dividerRect, toolBarRect)
+        toolBarButtons.forEach {button->
+            button.addMeToScene(root)
+        }
+        timeDisplay.addMeToScene(root)
+    }
 
+    fun play(enabled: Boolean, action: Boolean) {
+        when(enabled) {
+            true -> {
+                playButton.buttonEnabled = true
+                playButton.button.opacity = 1.0
+                playButton.button.fill = trackListStateFlow.state.generalPurple
+            }
+            false -> {
+                playButton.buttonEnabled = false
+                playButton.button.opacity = 0.5
+                playButton.button.fill = Color.TRANSPARENT
+            }
+        }
+        if (action) viewModelController.spacePressed()
+    }
+
+    override fun removeMeFromScene(root: StackPane) {
+        root.children.removeAll(dividerRect, toolBarRect)
+        toolBarButtons.forEach {
+            it.removeMeFromScene(root)
+        }
+        timeDisplay.removeMeFromScene(root)
+    }
+
+    fun setMousePressFunctions() {
+        playButton.setOnMouseReleased {
+            animateObjectScale(0.9, 1.0, playButton.button, 40.0)
+            play(!playButton.buttonEnabled, true)
+        }
+        stopButton.setOnMouseReleased {
+            animateObjectScale(0.9, 1.0, stopButton.button, 40.0)
+            viewModelController.stopPressed()
+        }
+        loopButton.setOnMouseReleased {
+            animateObjectScale(0.9, 1.0, loopButton.button, 40.0)
+            if (loopButton.buttonEnabled) {
+                loopButton.buttonEnabled = false
+                loopButton.button.fill = Color.TRANSPARENT
+                viewModelController.enableLooper(false)
+            }
+            else {
+                loopButton.buttonEnabled = true
+                loopButton.button.fill = Color.WHITESMOKE
+                viewModelController.enableLooper(true)
+            }
+        }
+        metronomeButton.setOnMouseReleased {
+            animateObjectScale(0.9, 1.0, metronomeButton.button, 40.0)
+            if (metronomeButton.buttonEnabled) {
+                metronomeButton.buttonEnabled = false
+                metronomeButton.button.fill = Color.TRANSPARENT
+                viewModelController.enableMetronome(false)
+            }
+            else {
+                metronomeButton.buttonEnabled = true
+                metronomeButton.button.fill = Color.WHITESMOKE
+                viewModelController.enableMetronome(true)
+            }
+        }
+    }
+
+    fun setUpDividerRectangles() {
         toolBarRect.width = root.maxWidth
         toolBarRect.height = 65.0
         toolBarRect.fill = Color.DARKGRAY.darker()
@@ -153,6 +182,7 @@ class MixerViewModel(
         toolBarButtons.forEach {
             it.updateTranslateY(toolBarRect.translateY)
         }
+        timeDisplay.updateTranslateY(toolBarRect.translateY)
 
         dividerRect.width = root.maxWidth
         dividerRect.height = 1.8
@@ -199,30 +229,11 @@ class MixerViewModel(
             toolBarButtons.forEach {button->
                 button.updateTranslateY(toolBarRect.translateY)
             }
-        }
-        root.children.addAll(dividerRect, toolBarRect)
-        toolBarButtons.forEach {button->
-            button.addMeToScene(root)
+            timeDisplay.updateTranslateY(toolBarRect.translateY)
         }
     }
 
-    fun play(enabled: Boolean, action: Boolean) {
-        when(enabled) {
-            true -> {
-                playButton.buttonEnabled = true
-                playButton.button.opacity = 1.0
-                playButton.button.fill = trackListStateFlow.state.generalPurple
-            }
-            false -> {
-                playButton.buttonEnabled = false
-                playButton.button.opacity = 0.5
-                playButton.button.fill = Color.TRANSPARENT
-            }
-        }
-        if (action) viewModelController.spacePressed()
-    }
-
-    override fun removeMeFromScene(root: StackPane) {
-
+    fun updateSamples(newSamples: Int, sampleRate: Int) {
+        timeDisplay.updateSamples(newSamples, sampleRate)
     }
 }
