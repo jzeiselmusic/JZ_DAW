@@ -1,9 +1,12 @@
 package org.jzeisel.app_test.util
 
+import javafx.animation.FillTransition
 import javafx.animation.Interpolator
 import javafx.animation.PauseTransition
 import javafx.animation.ScaleTransition
 import javafx.application.Platform
+import javafx.event.EventHandler
+import javafx.scene.paint.Color
 import javafx.scene.shape.Shape
 import javafx.util.Duration
 import kotlinx.coroutines.delay
@@ -11,6 +14,7 @@ import java.lang.Math.pow
 import kotlin.math.pow
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import kotlin.time.toDuration
 
 
 fun animateObjectScale(from: Double, to: Double, obj: Shape, duration: Double = 100.0) {
@@ -21,6 +25,23 @@ fun animateObjectScale(from: Double, to: Double, obj: Shape, duration: Double = 
     animate.toY = to
     animate.cycleCount = 1
     animate.interpolator = Interpolator.EASE_IN
+    animate.play()
+}
+
+fun animateObjectColor(from: Color, to: Color, obj: Shape, duration: Double = 100.0) {
+    var animate = FillTransition(Duration.millis(5.0), obj)
+    animate.fromValue = from
+    animate.toValue = to
+    animate.cycleCount = 1
+    animate.interpolator = Interpolator.EASE_IN
+    animate.onFinished = EventHandler {
+        animate = FillTransition(Duration.millis(duration), obj)
+        animate.fromValue = to
+        animate.toValue = from
+        animate.cycleCount = 1
+        animate.interpolator = Interpolator.EASE_IN
+        animate.play()
+    }
     animate.play()
 }
 

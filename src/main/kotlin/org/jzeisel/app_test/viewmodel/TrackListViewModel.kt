@@ -769,4 +769,8 @@ class TrackListViewModel(val root: StackPane,
     fun enableLooper(enabled: Boolean) {
         _trackListStateFlow.state.playbackHighlightSection.loopEnabled = enabled
     }
+
+    fun isMetronomeEnabled(): Boolean {
+        return audioViewModel.isMetronomeEnabled()
+    }
 }

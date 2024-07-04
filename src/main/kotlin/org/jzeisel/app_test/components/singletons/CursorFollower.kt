@@ -27,7 +27,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     private const val zValCursorTriangle = viewOrderFlip - 0.165
     private val rectangleHeight: Double
         get() {
-            return trackListFlow.numTracks * trackListState.trackHeight
+            return trackListFlow.numTracks * trackListFlow.state.trackHeight
         }
     private val rectangleTranslateY: Double
         get() {
@@ -42,6 +42,11 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         set(value) {
             field = value
             trackListViewModel.updateCursorOffsetFromWaveformStart(value)
+            if (trackListFlow.state.playBackStarted) {
+                if (value % trackListFlow.state.pixelsInABeat < 1) {
+                    animateObjectColor(Color.DARKGRAY, Color.WHITE, cursorRectangle, 250.0)
+                }
+            }
         }
 
     override fun addMeToScene(root:StackPane) {}
@@ -51,10 +56,11 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         registerForBroadcasts()
         currentOffsetX = offsetX
         cursorRectangle = Rectangle(rectangleWidth, rectangleHeight, trackListState.generalGray)
-        cursorRectangle.opacity = 0.9
+        cursorRectangle.opacity = 1.0
         cursorRectangle.translateY = rectangleTranslateY
-        cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + offsetX - waveFormOffset
+        cursorRectangle.translateX = trackListFlow.state.currentDividerOffset.getValue() + offsetX - waveFormOffset
         cursorRectangle.viewOrder = zValCursor
+        cursorRectangle.fill = Color.DARKGRAY
         cursorRectangle.isMouseTransparent = true
         root.children.add(cursorRectangle)
 
@@ -85,7 +91,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     override fun respondToChange(broadcastType: BroadcastType, old: Double, new: Double) {
         when (broadcastType) {
             BroadcastType.DIVIDER -> {
-                cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
+                cursorRectangle.translateX = trackListFlow.state.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
                 cursorPointer.translateX = cursorRectangle.translateX
             }
             BroadcastType.STAGE_WIDTH -> { respondToWidthChange(old, new) }
@@ -113,7 +119,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         runLater {
             cursorRectangle.height = rectangleHeight
             cursorRectangle.translateY = rectangleTranslateY
-            cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
+            cursorRectangle.translateX = trackListFlow.state.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
             cursorPointer.translateX = cursorRectangle.translateX
         }
     }
@@ -156,7 +162,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     fun updateLocation(offsetX: Double) {
         runLater {
             currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
-            cursorRectangle.translateX = trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
+            cursorRectangle.translateX = trackListFlow.state.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
             cursorPointer.translateX = cursorRectangle.translateX
         }
     }
@@ -166,7 +172,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         runLater {
             currentOffsetX += shiftX
             cursorRectangle.translateX =
-                trackListState.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
+                trackListFlow.state.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
             cursorPointer.translateX = cursorRectangle.translateX
         }
     }

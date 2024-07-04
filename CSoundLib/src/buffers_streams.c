@@ -132,6 +132,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     int err;
     struct SoundIoChannelArea *areas;
     struct SoundIoRingBuffer* ring_buffer;
+    int max_fill_samples = 0;
 
     /* search for device index of this output stream */
     int device_index = -1;
@@ -158,15 +159,14 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
         memset(csoundlib_state->list_of_track_objects[track].input_buffer.buffer, 0, MAX_BUFFER_SIZE_BYTES);
     }
 
-    int max_fill_count = 0;
     for (int channel = 0; channel < csoundlib_state->num_channels_available; channel++) {
         if (csoundlib_state->input_stream_started == true) {
             ring_buffer = csoundlib_state->input_channel_buffers[channel];
             char *read_ptr = soundio_ring_buffer_read_ptr(ring_buffer);
             /* number of bytes available for reading */
             int fill_bytes = soundio_ring_buffer_fill_count(ring_buffer);
-            int fill_count = fill_bytes / BYTES_PER_FRAME_MONO;
-            if (fill_count > max_fill_count) max_fill_count = fill_count;
+            int fill_samples = fill_bytes / BYTES_PER_FRAME_MONO;
+            if (fill_samples > max_fill_samples) max_fill_samples = fill_samples;
             double rms_val = calculate_rms_level(read_ptr, fill_bytes);
 
             for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
@@ -223,15 +223,15 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     if (csoundlib_state->metronome.enabled && csoundlib_state->playback_started) {
         if ((csoundlib_state->current_cursor_offset % csoundlib_state->samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / 4)) {
             int offset_bytes = (csoundlib_state->current_cursor_offset % csoundlib_state->samples_in_a_beat) * 4;
-            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, max_fill_count * 4);
+            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, max_fill_samples * 4);
         }
     }
     /* now place data from mixed output buffer into output stream */
-    int read_count = min_int(frame_count_max, max_fill_count);
+    int read_count_samples = min_int(frame_count_max, max_fill_samples);
     /* handle case of no input streams */
-    if (read_count == 0) read_count = frame_count_min;
+    if (read_count_samples == 0) read_count_samples = frame_count_min;
     /* there is data to be read to output */
-    frames_left = read_count;
+    frames_left = read_count_samples;
     char* mixed_read_ptr = csoundlib_state->mixed_output_buffer;
     while (frames_left > 0) {
         int frame_count = frames_left;
@@ -253,7 +253,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
         frames_left -= frame_count;
     }
     csoundlib_state->input_stream_written = false;
-    if (csoundlib_state->playback_started) outputProcessed(read_count);
+    if (csoundlib_state->playback_started) outputProcessed(read_count_samples);
 }
 
 static int _createInputStream(int device_index, double microphone_latency, int sample_rate) {
