@@ -5,7 +5,7 @@ data class AudioState(
     var backend: AudioBackend = AudioBackend.SoundIoBackendNone,
     var isPlayingBack: Boolean = false,
     var playBackLocation: Double = 0.0,
-    var beatsPerMinute: Double = 120.0, // if this goes above ~275 metronome will sound weird
+    var beatsPerMinute: Double = 60.0, // if this goes above ~275 metronome will sound weird
     var beatsPerSecond: Double = beatsPerMinute/60.0,
     var tSignatureTop: UInt = 4U,
     var tSignatureBottom: UInt = 4U,

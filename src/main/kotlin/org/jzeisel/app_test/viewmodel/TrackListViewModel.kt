@@ -271,10 +271,10 @@ class TrackListViewModel(val root: StackPane,
                 it.setVUMeterRunning(true)
             }
             audioViewModel.startPlayback(newFileId)
-            mixerViewModel.play(true)
+            mixerViewModel.play(enabled=true, action=false)
         }
         else {
-            mixerViewModel.play(false)
+            mixerViewModel.play(enabled=false, action=false)
             _trackListStateFlow.state = _trackListStateFlow.state.copy(playBackStarted = false)
             audioViewModel.stopPlayback()
             children.forEach {
