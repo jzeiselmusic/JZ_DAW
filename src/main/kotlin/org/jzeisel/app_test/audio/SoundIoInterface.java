@@ -34,6 +34,7 @@ public class SoundIoInterface {
         int lib_getCurrentBackend();
         int lib_checkEnvironmentAndBackendConnected();
         void lib_setSamplesInABeat(int samples);
+        void lib_setBeatsPerMinute(float bpm);
 
         int lib_startPlayback(int fileId);
         void lib_stopPlayback();
@@ -119,6 +120,7 @@ public class SoundIoInterface {
     public void lib_stopPlayback() { SoundIoLib.INSTANCE.lib_stopPlayback(); }
     public void lib_updateCursorOffsetSamples(int offset) { SoundIoLib.INSTANCE.lib_updateCursorOffsetSamples(offset); }
     public void lib_setSamplesInABeat(int samples) { SoundIoLib.INSTANCE.lib_setSamplesInABeat(samples); };
+    public void lib_setBeatsPerMinute(float bpm) { SoundIoLib.INSTANCE.lib_setBeatsPerMinute(bpm); };
 
 
     public int lib_loadInputDevices() { return SoundIoLib.INSTANCE.lib_loadInputDevices(); }

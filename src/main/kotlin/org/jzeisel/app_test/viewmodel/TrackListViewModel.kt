@@ -598,6 +598,10 @@ class TrackListViewModel(val root: StackPane,
         _trackListStateFlow.state = _trackListStateFlow.state.copy(shiftPressed = false)
     }
 
+    fun isShiftPressed(): Boolean {
+        return _trackListStateFlow.state.shiftPressed
+    }
+
     fun dropDownBoxOpened() {
         _trackListStateFlow.state = _trackListStateFlow.state.copy(dropDownOpen = true)
     }

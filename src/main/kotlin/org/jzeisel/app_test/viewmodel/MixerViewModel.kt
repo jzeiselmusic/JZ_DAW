@@ -7,6 +7,7 @@ import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.audio.viewmodel.ViewModelController
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
@@ -20,7 +21,8 @@ import org.jzeisel.app_test.util.viewOrderFlip
 class MixerViewModel(
     val root: StackPane,
     val viewModelController: ViewModelController,
-    val trackListStateFlow: TrackListStateFlow): NodeWidget {
+    val trackListStateFlow: TrackListStateFlow,
+    val audioViewModel: AudioViewModel): NodeWidget {
     init {
         root.maxWidth = trackListStateFlow.state.stageWidthProperty.value
         root.maxHeight = trackListStateFlow.state.stageHeightProperty.value/3.5
@@ -70,14 +72,19 @@ class MixerViewModel(
     )
     private val bpmDisplay = BpmDisplay(
         ::bpmCallback,
+        ::isShiftPressed,
         toolBarY,
         toolBarInitHeight,
         timeDisplay.getWidth(),
-        viewModelController.getTempo()
+        audioViewModel.tempo
     )
 
     fun bpmCallback(result: Double) {
-        viewModelController.setTempo(result)
+        audioViewModel.setTempo(result)
+    }
+
+    fun isShiftPressed(): Boolean {
+        return viewModelController.isShiftPressed()
     }
 
     init {

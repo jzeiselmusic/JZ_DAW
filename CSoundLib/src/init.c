@@ -48,7 +48,7 @@ int lib_startSession() {
         csoundlib_state->list_of_track_objects = list_of_track_objects;
         csoundlib_state->environment_initialized = true;
         csoundlib_state->solo_engaged = false;
-        csoundlib_state->samples_in_a_beat = 22050;
+        lib_setBeatsPerMinute(120.0);
         memset(&(csoundlib_state->metronome.audio), 0x00, MAX_METRONOME_BUF_SIZE);
         csoundlib_state->metronome.enabled = false;
         csoundlib_state->metronome.num_bytes = MAX_METRONOME_BUF_SIZE;
@@ -111,5 +111,11 @@ int _checkEnvironmentAndBackendConnected() {
 }
 
 void lib_setSamplesInABeat(int samples) {
-    csoundlib_state->samples_in_a_beat = samples;
+    csoundlib_state->metronome.samples_in_a_beat = samples;
+}
+
+void lib_setBeatsPerMinute(float bpm) {
+    csoundlib_state->metronome.tempo = bpm;
+    float beats_per_second = bpm / 60.0;
+    lib_setSamplesInABeat((int)(csoundlib_state->sample_rate / beats_per_second));
 }

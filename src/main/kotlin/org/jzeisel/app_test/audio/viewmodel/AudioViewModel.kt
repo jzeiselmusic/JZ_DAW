@@ -34,7 +34,7 @@ class AudioViewModel(
         audioStateFlow._state = audioStateFlow._state.copy(outputDevice =
             audioEngineManager.getOutputDeviceFromIndex(audioEngineManager.defaultOutputIndex))
 
-        audioEngineManager.setSamplesInABeat(audioStateFlow._state.samplesInABeat)
+        audioEngineManager.setBpm(audioStateFlow._state.beatsPerMinute)
         vuMeterThread.addAllTracksToStreaming()
     }
 
@@ -266,6 +266,6 @@ class AudioViewModel(
             beatsPerSecond = new/60.0,
             samplesInABeat = (sampleRate / (new/60.0)).toInt()
         )
-        audioEngineManager.setSamplesInABeat(audioStateFlow._state.samplesInABeat)
+        audioEngineManager.setBpm(audioStateFlow._state.beatsPerMinute)
     }
 }

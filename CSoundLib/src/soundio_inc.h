@@ -8,6 +8,7 @@
 
 #define MAX_24_BIT_SIGNED                         8388607.0
 #define MAX_24_BIT_UNSIGNED                       16777215.0
+#define BYTES_PER_SAMPLE                          4
 
 #define emptyString                               ""
 

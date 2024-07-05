@@ -333,6 +333,10 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         soundInterface.lib_setSamplesInABeat(samples)
     }
 
+    fun setBpm(bpm: Double) {
+        soundInterface.lib_setBeatsPerMinute(bpm.toFloat())
+    }
+
     fun enableMetronome(enabled: Boolean) {
         soundInterface.lib_enableMetronome(enabled)
     }

@@ -11,4 +11,6 @@ int _checkEnvironmentAndBackendConnected();
 
 void lib_setSamplesInABeat(int samples);
 
+void lib_setBeatsPerMinute(float bpm);
+
 #endif 

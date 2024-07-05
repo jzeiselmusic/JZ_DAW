@@ -221,17 +221,17 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     csoundlib_state->current_rms_ouput = calculate_rms_level(csoundlib_state->mixed_output_buffer, frame_count_max * outstream->bytes_per_frame);
 
     if (csoundlib_state->metronome.enabled && csoundlib_state->playback_started) {
-        if ((csoundlib_state->current_cursor_offset % csoundlib_state->samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / 4)) {
+        if ((csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / BYTES_PER_SAMPLE)) {
             /* case where start of output buffer at or after start of beat */
-            int offset_bytes = (csoundlib_state->current_cursor_offset % csoundlib_state->samples_in_a_beat) * 4;
-            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, max_fill_samples * 4);
+            int offset_bytes = (csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat) * BYTES_PER_SAMPLE;
+            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, max_fill_samples * BYTES_PER_SAMPLE);
         }
-        else if (((csoundlib_state->current_cursor_offset + max_fill_samples) % csoundlib_state->samples_in_a_beat) < (csoundlib_state->metronome.num_bytes/4)) {
+        else if (((csoundlib_state->current_cursor_offset + max_fill_samples) % csoundlib_state->metronome.samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / BYTES_PER_SAMPLE)) {
             /* case where start of output buffer is before start of beat but overlaps with it */
 
             /* number of bytes until the start of the metronome */
-            int offset_samples = csoundlib_state->samples_in_a_beat - (csoundlib_state->current_cursor_offset % csoundlib_state->samples_in_a_beat);
-            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer + (offset_samples*4), 0, (max_fill_samples - offset_samples) * 4);
+            int offset_samples = csoundlib_state->metronome.samples_in_a_beat - (csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat);
+            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer + (offset_samples * BYTES_PER_SAMPLE), 0, (max_fill_samples - offset_samples) * BYTES_PER_SAMPLE);
         }
     }
     /* now place data from mixed output buffer into output stream */
@@ -292,6 +292,7 @@ static int _createInputStream(int device_index, double microphone_latency, int s
     free(csoundlib_state->input_channel_buffers);
     csoundlib_state->input_channel_buffers = malloc(num_channels * sizeof(struct SoundIoRingBuffer*));
 
+    /* create a ring buffer for each input channel available */
     for (int idx = 0; idx < num_channels; idx++) {
         int capacity = DEFAULT_BUFFER_SIZE * instream->bytes_per_sample;
         struct SoundIoRingBuffer* ring_buffer = soundio_ring_buffer_create(csoundlib_state->soundio, capacity);

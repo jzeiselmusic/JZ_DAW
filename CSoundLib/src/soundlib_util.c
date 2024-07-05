@@ -38,7 +38,7 @@ void memadd(void *dest, void *src, size_t n) {
 }
 
 void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes) {
-    for (int idx = 0; idx < num_bytes; idx += 4) {
+    for (int idx = 0; idx < num_bytes; idx += BYTES_PER_SAMPLE) {
         char* dest_ptr = dest + idx;
         char* src_ptr = source + idx;
 
@@ -46,13 +46,13 @@ void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes) {
         int32_t source_sample = *(int32_t*)src_ptr;
         int32_t sum = (dest_sample + source_sample) & 0x00FFFFFF;
 
-        memcpy(dest + idx, &sum, 4);
+        memcpy(dest + idx, &sum, BYTES_PER_SAMPLE);
     }
 }
 
 double calculate_rms_level(const char* source, int num_bytes) {
     double rms = 0.0;
-    for (int idx = 0; idx < num_bytes; idx += 4) {
+    for (int idx = 0; idx < num_bytes; idx += BYTES_PER_SAMPLE) {
         double sample = four_bytes_to_sample(source + idx);
         rms += sample * sample;
     }

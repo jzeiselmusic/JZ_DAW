@@ -46,11 +46,7 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
         viewModel.enableLooper(enabled)
     }
 
-    fun getTempo(): Double {
-        return viewModel.getTempo()
-    }
-
-    fun setTempo(new: Double) {
-        viewModel.setTempo(new)
+    fun isShiftPressed(): Boolean {
+        return viewModel.isShiftPressed()
     }
 }
