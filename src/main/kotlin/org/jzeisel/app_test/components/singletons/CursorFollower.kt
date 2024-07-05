@@ -44,7 +44,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
             trackListViewModel.updateCursorOffsetFromWaveformStart(value)
             if (trackListFlow.state.playBackStarted) {
                 if (value % trackListFlow.state.pixelsInABeat < 1) {
-                    animateObjectColor(Color.DARKGRAY, Color.WHITE, cursorRectangle, 250.0)
+                    animateObjectColor(Color.DARKGRAY, Color.WHITE, cursorRectangle, 350.0)
                 }
             }
         }

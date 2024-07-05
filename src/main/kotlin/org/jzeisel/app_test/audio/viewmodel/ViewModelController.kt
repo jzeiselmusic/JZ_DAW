@@ -45,4 +45,12 @@ class ViewModelController(private val viewModel: TrackListViewModel) {
     fun enableLooper(enabled: Boolean) {
         viewModel.enableLooper(enabled)
     }
+
+    fun getTempo(): Double {
+        return viewModel.getTempo()
+    }
+
+    fun setTempo(new: Double) {
+        viewModel.setTempo(new)
+    }
 }

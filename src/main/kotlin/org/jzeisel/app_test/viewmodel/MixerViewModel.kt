@@ -1,28 +1,20 @@
 package org.jzeisel.app_test.viewmodel
 
-import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.scene.Cursor
-import javafx.scene.image.Image
-import javafx.scene.image.ImageView
-import javafx.scene.image.WritableImage
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Background
 import javafx.scene.layout.BackgroundFill
 import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import org.jzeisel.app_test.audio.viewmodel.ViewModelController
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
+import org.jzeisel.app_test.components.mixerComponents.BpmDisplay
 import org.jzeisel.app_test.components.mixerComponents.MixerButton
 import org.jzeisel.app_test.components.mixerComponents.TimeDisplay
-import org.jzeisel.app_test.main
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
-import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.animateObjectScale
-import org.jzeisel.app_test.util.loop
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class MixerViewModel(
@@ -76,6 +68,17 @@ class MixerViewModel(
         toolBarY,
         toolBarInitHeight
     )
+    private val bpmDisplay = BpmDisplay(
+        ::bpmCallback,
+        toolBarY,
+        toolBarInitHeight,
+        timeDisplay.getWidth(),
+        viewModelController.getTempo()
+    )
+
+    fun bpmCallback(result: Double) {
+        viewModelController.setTempo(result)
+    }
 
     init {
         setMousePressFunctions()
@@ -106,6 +109,7 @@ class MixerViewModel(
             button.addMeToScene(root)
         }
         timeDisplay.addMeToScene(root)
+        bpmDisplay.addMeToScene(root)
     }
 
     fun play(enabled: Boolean, action: Boolean) {
@@ -130,6 +134,7 @@ class MixerViewModel(
             it.removeMeFromScene(root)
         }
         timeDisplay.removeMeFromScene(root)
+        bpmDisplay.removeMeFromScene(root)
     }
 
     fun setMousePressFunctions() {
@@ -183,6 +188,7 @@ class MixerViewModel(
             it.updateTranslateY(toolBarRect.translateY)
         }
         timeDisplay.updateTranslateY(toolBarRect.translateY)
+        bpmDisplay.updateTranslateY(toolBarRect.translateY)
 
         dividerRect.width = root.maxWidth
         dividerRect.height = 1.8
@@ -230,6 +236,7 @@ class MixerViewModel(
                 button.updateTranslateY(toolBarRect.translateY)
             }
             timeDisplay.updateTranslateY(toolBarRect.translateY)
+            bpmDisplay.updateTranslateY(toolBarRect.translateY)
         }
     }
 

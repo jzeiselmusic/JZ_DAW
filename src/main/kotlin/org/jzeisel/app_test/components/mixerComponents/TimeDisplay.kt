@@ -4,11 +4,9 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.scene.text.Font
-import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.scene.text.TextAlignment
 import org.jzeisel.app_test.components.interfaces.widget.Widget
-import org.jzeisel.app_test.util.Logger
 import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
@@ -26,8 +24,8 @@ class TimeDisplay(
         displayRectangle.translateY = toolBarY
         displayRectangle.fill = Color.BLACK
         displayRectangle.opacity = 0.7
-        displayRectangle.arcWidth = 5.0
-        displayRectangle.arcHeight = 5.0
+        displayRectangle.arcWidth = 8.0
+        displayRectangle.arcHeight = 8.0
         displayRectangle.width = 220.0
         displayRectangle.height = toolBarHeight - 0.8
         displayRectangle.viewOrder = viewOrderFlip - 0.03
@@ -111,5 +109,9 @@ class TimeDisplay(
                 timeText.text = "$minutesString:$secondsString:$centiSecString"
             }
         }
+    }
+
+    fun getWidth(): Double {
+        return displayRectangle.width
     }
 }

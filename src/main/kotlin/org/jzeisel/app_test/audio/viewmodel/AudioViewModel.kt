@@ -259,4 +259,13 @@ class AudioViewModel(
     fun isMetronomeEnabled(): Boolean {
         return audioStateFlow._state.metronomeEnabled
     }
+
+    fun setTempo(new: Double) {
+        audioStateFlow._state = audioStateFlow._state.copy(
+            beatsPerMinute = new,
+            beatsPerSecond = new/60.0,
+            samplesInABeat = (sampleRate / (new/60.0)).toInt()
+        )
+        audioEngineManager.setSamplesInABeat(audioStateFlow._state.samplesInABeat)
+    }
 }

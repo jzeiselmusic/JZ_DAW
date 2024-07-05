@@ -774,4 +774,12 @@ class TrackListViewModel(val root: StackPane,
     fun isMetronomeEnabled(): Boolean {
         return audioViewModel.isMetronomeEnabled()
     }
+
+    fun getTempo(): Double {
+        return audioViewModel.tempo
+    }
+
+    fun setTempo(new: Double) {
+        audioViewModel.setTempo(new)
+    }
 }
