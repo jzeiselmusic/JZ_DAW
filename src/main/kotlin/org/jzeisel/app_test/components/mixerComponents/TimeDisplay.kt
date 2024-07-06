@@ -11,7 +11,6 @@ import org.jzeisel.app_test.util.runLater
 import org.jzeisel.app_test.util.viewOrderFlip
 
 class TimeDisplay(
-    stageWidth: Double,
     toolBarY: Double,
     toolBarHeight: Double): Widget {
 

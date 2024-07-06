@@ -42,7 +42,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
         set(value) {
             field = value
             trackListViewModel.updateCursorOffsetFromWaveformStart(value)
-            if (trackListFlow.state.playBackStarted) {
+            if (trackListFlow.state.playBackStarted && trackListViewModel.isMetronomeEnabled()) {
                 if (value % trackListFlow.state.pixelsInABeat < 1) {
                     animateObjectColor(Color.DARKGRAY, Color.WHITE, cursorRectangle, 350.0)
                 }

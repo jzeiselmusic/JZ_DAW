@@ -13,13 +13,15 @@ import org.jzeisel.app_test.util.viewOrderFlip
 
 class MixerButton(
     imagePath: String,
-    val orderNum: Int,
-    val stageWidth: Double, toolBarY: Double) : Widget {
+    private val orderNum: Int,
+    stageWidth: Double,
+    toolBarY: Double
+) : Widget {
 
     val button = Circle()
     var buttonEnabled = false
-    val buttonImage = Image(imagePath)
-    val buttonView = ImageView(buttonImage)
+    private val buttonImage = Image(imagePath)
+    private val buttonView = ImageView(buttonImage)
 
     init {
         button.radius = 17.0

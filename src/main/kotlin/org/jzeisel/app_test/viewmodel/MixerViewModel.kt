@@ -66,7 +66,6 @@ class MixerViewModel(
         toolBarY
     )
     private val timeDisplay = TimeDisplay(
-        trackListStateFlow.state.stageWidthProperty.value,
         toolBarY,
         toolBarInitHeight
     )
