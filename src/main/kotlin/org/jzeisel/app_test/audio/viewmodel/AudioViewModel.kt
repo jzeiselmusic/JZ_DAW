@@ -58,7 +58,7 @@ class AudioViewModel(
         val device = audioEngineManager.getInputDeviceFromIndex(audioEngineManager.defaultInputIndex)
         val defaultChannel = Channel(0, audioEngineManager.getNameOfChannelFromIndex(device.index, 0))
         val tList = audioStateFlow._state.trackList
-        val trackData = TrackData(trackId = trackId, 0.0, 0, inputDevice = device, inputChannel = defaultChannel)
+        val trackData = TrackData(trackId = trackId, 1.0, 0, inputDevice = device, inputChannel = defaultChannel)
         tList.add(trackData)
         audioStateFlow._state = audioStateFlow._state.copy(
             numTracks = nTracks,
@@ -267,5 +267,23 @@ class AudioViewModel(
             samplesInABeat = (sampleRate / (new/60.0)).toInt()
         )
         audioEngineManager.setBpm(audioStateFlow._state.beatsPerMinute)
+    }
+
+    fun setTrackVolume(trackId: Int, logVolume: Double) {
+        val audioError = audioEngineManager.setTrackVolume(trackId, logVolume)
+        if (audioError == AudioError.SoundIoErrorNone) {
+            val tList = audioStateFlow._state.trackList
+            val track = tList.first { it.trackId == trackId }
+            track.volumeDb = logVolume
+            audioStateFlow._state = audioStateFlow._state.copy( trackList = tList )
+            vuMeterThread.updateSynchronizedTrackList(audioStateFlow._state.trackList)
+        }
+        else {
+            viewModelController.throwAudioError(audioError)
+        }
+    }
+
+    fun setMasterVolume(logVolume: Double) {
+        audioEngineManager.setMasterVolume(logVolume)
     }
 }

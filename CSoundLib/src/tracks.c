@@ -7,6 +7,7 @@
 #include "soundio_inc.h"
 #include "audio_devices.h"
 #include "string.h"
+#include "soundlib_util.h"
 
 #include "state.h"
 #include "wav_driver.h"
@@ -23,6 +24,7 @@ int lib_addNewTrack(int trackId) {
     trackObject track =
         {
             .track_id = trackId,
+            .volume = 1.0,
             .files = files,
             .num_files = 0,
             .record_enabled = false,
@@ -260,4 +262,20 @@ int lib_muteDisable(int trackId) {
         }
     }
     return SoundIoErrorTrackNotFound;
+}
+
+int lib_setTrackVolume(int trackId, double logVolume) {
+    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
+        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
+            /* turn db volume into magnitude volume */
+            double mag = log_to_mag(logVolume);
+            csoundlib_state->list_of_track_objects[idx].volume = mag;
+            return SoundIoErrorNone;
+        }
+    }
+    return SoundIoErrorTrackNotFound;
+}
+
+void lib_setMasterVolume(double logVolume) {
+    csoundlib_state->master_volume = log_to_mag(logVolume);
 }

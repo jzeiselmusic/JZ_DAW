@@ -24,6 +24,7 @@ typedef struct _audioState {
     bool playback_started;
     int current_cursor_offset; // in samples
     Metronome metronome;
+    double master_volume; // minimum 0.0 --> 1.0 is parity
 
     /* initialization */
     bool input_memory_allocated;

@@ -22,6 +22,7 @@ class VolumeSlider(override val parent: Widget)
     override val children = mutableListOf<Widget>()
     private val sliderBar = Rectangle(trackListState.inputNameBoxWidth, 5.0, trackListState.generalGray)
     private val sliderCircle = Circle(6.0, trackListState.generalPurple)
+    private var volumeDecibel = 0.0
     init {
         sliderBar.translateY = parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets
         sliderCircle.translateY = parentTrack.trackOffsetY + trackListState.verticalDistancesBetweenWidgets
@@ -47,20 +48,15 @@ class VolumeSlider(override val parent: Widget)
             animateObjectScale(1.3, 1.0, sliderCircle)
         }
         sliderCircle.onMouseDragged = EventHandler {
-            sliderCircle.translateX += it.x
-            if (sliderCircle.translateX < (sliderBar.translateX - sliderBar.width/2.0)) {
-                sliderCircle.translateX = sliderBar.translateX - sliderBar.width/2.0
-            }
-            if (sliderCircle.translateX > (sliderBar.translateX + sliderBar.width/2.0)) {
-                sliderCircle.translateX = sliderBar.translateX + sliderBar.width/2.0
-            }
+            val finalX = sliderCircle.translateX + it.x
+            setTranslateX(finalX)
         }
 
         sliderBar.onMousePressed = EventHandler {
             /* it.x here represents distance from the left side of the slider */
             val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x
             sliderCircle.fill = trackListState.generalPurple.brighter()
-            sliderCircle.translateX = finalX
+            setTranslateX(finalX)
             animateObjectScale(1.0, 1.3, sliderCircle)
         }
         sliderBar.onMouseReleased = EventHandler {
@@ -69,13 +65,7 @@ class VolumeSlider(override val parent: Widget)
         }
         sliderBar.onMouseDragged = EventHandler {
             val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x
-            sliderCircle.translateX = finalX
-            if (sliderCircle.translateX < (sliderBar.translateX - sliderBar.width/2.0)) {
-                sliderCircle.translateX = sliderBar.translateX - sliderBar.width/2.0
-            }
-            if (sliderCircle.translateX > (sliderBar.translateX + sliderBar.width/2.0)) {
-                sliderCircle.translateX = sliderBar.translateX + sliderBar.width/2.0
-            }
+            setTranslateX(finalX)
         }
     }
 
@@ -141,5 +131,22 @@ class VolumeSlider(override val parent: Widget)
             sliderBar.translateY = it
             sliderCircle.translateY = it
         }
+    }
+
+    private fun setTranslateX(finalX: Double) {
+        sliderCircle.translateX = finalX
+        if (sliderCircle.translateX < (sliderBar.translateX - sliderBar.width/2.0)) {
+            sliderCircle.translateX = sliderBar.translateX - sliderBar.width/2.0
+        }
+        if (sliderCircle.translateX > (sliderBar.translateX + sliderBar.width/2.0)) {
+            sliderCircle.translateX = sliderBar.translateX + sliderBar.width/2.0
+        }
+        getDbFromCircleLocation()
+    }
+
+    private fun getDbFromCircleLocation() {
+        val distanceFromStart = sliderCircle.translateX - (sliderBar.translateX - sliderBar.width/2.0)
+        volumeDecibel = scaleNumber(distanceFromStart, -100.0, 10.0, 0.0, 90.0)
+        trackListViewModel.setTrackVolume(parentTrack, volumeDecibel)
     }
 }

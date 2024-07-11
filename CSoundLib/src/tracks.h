@@ -28,6 +28,7 @@ typedef struct _audioFile {
 typedef struct _trackObj {
     int track_id; // unique identifier
     audioFile* files; // pointer to list of files representing audio data to be read
+    double volume; // value greater than 0.0
     int num_files;
     bool input_enabled;
     bool record_enabled;
@@ -73,5 +74,9 @@ int lib_soloDisable(int trackId);
 int lib_muteEnable(int trackId);
 
 int lib_muteDisable(int trackId);
+
+int lib_setTrackVolume(int trackId, double logVolume);
+
+void lib_setMasterVolume(double logVolume);
 
 #endif

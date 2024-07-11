@@ -340,4 +340,13 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     fun enableMetronome(enabled: Boolean) {
         soundInterface.lib_enableMetronome(enabled)
     }
+
+    fun setTrackVolume(trackId: Int, logVolume: Double): AudioError {
+        val error = soundInterface.lib_setTrackVolume(trackId, logVolume)
+        return AudioError.values()[error]
+    }
+
+    fun setMasterVolume(logVolume: Double) {
+        soundInterface.lib_setMasterVolume(logVolume)
+    }
 }

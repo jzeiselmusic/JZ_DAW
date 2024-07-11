@@ -19,4 +19,8 @@ double calculate_rms_level(const char* source, int num_bytes);
 
 double four_bytes_to_sample(const char* bytes);
 
+double log_to_mag(double log);
+
+double mag_to_log(double mag);
+
 #endif

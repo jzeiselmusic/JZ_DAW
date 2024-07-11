@@ -88,6 +88,8 @@ public class SoundIoInterface {
         int lib_soloDisable(int trackId);
         int lib_muteEnable(int trackId);
         int lib_muteDisable(int trackId);
+        int lib_setTrackVolume(int trackId, double logVolume);
+        void lib_setMasterVolume(double logVolume);
 
         /* functions for getting overall state */
         double lib_getCurrentRmsOutput();
@@ -189,6 +191,8 @@ public class SoundIoInterface {
     public int lib_soloDisable(int trackId)  { return SoundIoLib.INSTANCE.lib_soloDisable(trackId); }
     public int lib_muteEnable(int trackId)  { return SoundIoLib.INSTANCE.lib_muteEnable(trackId); }
     public int lib_muteDisable(int trackId)  { return SoundIoLib.INSTANCE.lib_muteDisable(trackId); }
+    public int lib_setTrackVolume(int trackId, double logVolume) { return SoundIoLib.INSTANCE.lib_setTrackVolume(trackId, logVolume); }
+    public void lib_setMasterVolume(double logVolume) { SoundIoLib.INSTANCE.lib_setMasterVolume(logVolume); }
 
     public double lib_getCurrentRmsOutput() { return SoundIoLib.INSTANCE.lib_getCurrentRmsOutput(); }
 

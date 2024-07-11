@@ -14,7 +14,7 @@ data class Channel(
 
 data class TrackData(
     var trackId: Int,
-    var volume: Double,
+    var volumeDb: Double,
     var panning: Int,
     var inputDevice: Device,
     var inputChannel: Channel,

@@ -173,8 +173,10 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
                 if (csoundlib_state->list_of_track_objects[trackIdx].input_channel_index == channel) {
                     /* this track has chosen this channel for input */
 
+                    double track_volume = csoundlib_state->list_of_track_objects[trackIdx].volume;
+
                     /* set rms value based on input RMS of this channel */
-                    csoundlib_state->list_of_track_objects[trackIdx].current_rms_volume_input_stream = rms_val;
+                    csoundlib_state->list_of_track_objects[trackIdx].current_rms_volume_input_stream = rms_val * track_volume;
 
                     /* write the input stream to the track's input buffer */
                     if (csoundlib_state->list_of_track_objects[trackIdx].input_enabled) {

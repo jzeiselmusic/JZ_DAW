@@ -67,3 +67,11 @@ double four_bytes_to_sample(const char* bytes) {
                     | bytes[0]);
     return sample_value / MAX_24_BIT_SIGNED;
 }
+
+double log_to_mag(double log) {
+    return pow(10, (log / 20.0));
+}
+
+double mag_to_log(double mag) {
+    return 20.0 * log10(mag);
+}

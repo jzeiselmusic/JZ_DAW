@@ -28,6 +28,7 @@ import org.jzeisel.app_test.stateflow.TrackListStateFlow
 import org.jzeisel.app_test.util.*
 import java.util.Stack
 import javax.sound.sampled.Mixer
+import kotlin.math.log
 import kotlin.math.log10
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
@@ -779,11 +780,12 @@ class TrackListViewModel(val root: StackPane,
         return audioViewModel.isMetronomeEnabled()
     }
 
-    fun getTempo(): Double {
-        return audioViewModel.tempo
-    }
-
-    fun setTempo(new: Double) {
-        audioViewModel.setTempo(new)
+    fun setTrackVolume(track: Track, logVolume: Double) {
+        if (track is NormalTrack) {
+            audioViewModel.setTrackVolume(track.trackId, logVolume)
+        }
+        else if (track is MasterTrack) {
+            audioViewModel.setMasterVolume(logVolume)
+        }
     }
 }

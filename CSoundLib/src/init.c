@@ -48,6 +48,7 @@ int lib_startSession() {
         csoundlib_state->list_of_track_objects = list_of_track_objects;
         csoundlib_state->environment_initialized = true;
         csoundlib_state->solo_engaged = false;
+        csoundlib_state->master_volume = 1.0;
         lib_setBeatsPerMinute(120.0);
         memset(&(csoundlib_state->metronome.audio), 0x00, MAX_METRONOME_BUF_SIZE);
         csoundlib_state->metronome.enabled = false;
