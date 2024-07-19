@@ -81,8 +81,8 @@ public class SoundIoInterface {
         int lib_armTrackForRecording(int trackId);
         int lib_disarmTrackForRecording(int trackId);
         int lib_inputEnable(int trackId, boolean enable);
-        float lib_getRmsVolumeInputStream(int trackId);
-        float lib_getRmsVolumeTrackPlayback(int trackId);
+        float lib_getRmsVolumeTrackInput(int trackId);
+        float lib_getRmsVolumeTrackOutput(int trackId);
         int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
         int lib_soloEnable(int trackId);
         int lib_soloDisable(int trackId);
@@ -178,11 +178,11 @@ public class SoundIoInterface {
     public int lib_inputEnable(int trackId, boolean enable) {
         return SoundIoLib.INSTANCE.lib_inputEnable(trackId, enable);
     }
-    public float lib_getRmsVolumeInputStream(int trackId) {
-        return SoundIoLib.INSTANCE.lib_getRmsVolumeInputStream(trackId);
+    public float lib_getRmsVolumeTrackInput(int trackId) {
+        return SoundIoLib.INSTANCE.lib_getRmsVolumeTrackInput(trackId);
     }
-    public float lib_getRmsVolumeTrackPlayback(int trackId) {
-        return SoundIoLib.INSTANCE.lib_getRmsVolumeTrackPlayback(trackId);
+    public float lib_getRmsVolumeTrackOutput(int trackId) {
+        return SoundIoLib.INSTANCE.lib_getRmsVolumeTrackOutput(trackId);
     }
     public int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
         return SoundIoLib.INSTANCE.lib_updateTrackOffset(trackId, fileId, newOffset);

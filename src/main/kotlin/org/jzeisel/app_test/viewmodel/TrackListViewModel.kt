@@ -155,7 +155,7 @@ class TrackListViewModel(val root: StackPane,
             children.forEach {
                 val track = it as NormalTrack
                 if (track.isRecording) {
-                    val dbLevel = 20 * log10(audioViewModel.getRmsVolumeInputStream(track.trackId))
+                    val dbLevel = 20 * log10(audioViewModel.getRmsVolumeTrackInput(track.trackId))
                     it.processBuffer(dbLevel, pixelsToMove)
                 }
             }

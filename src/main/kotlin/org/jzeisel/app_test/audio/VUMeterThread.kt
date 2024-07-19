@@ -31,14 +31,15 @@ class VUMeterThread(
                         synchronizedTrackList.forEach { track ->
                             if (track.inputEnabled || track.recordingEnabled || audioStateFlow._state.isPlayingBack) {
                                 val listOfInputs = mutableListOf<Double>()
-                                val trackPlayback = audioEngineManager.getRmsVolumeTrackPlayback(track.trackId)
-                                listOfInputs.add(trackPlayback)
-                                if (track.inputEnabled || track.recordingEnabled) {
-                                    listOfInputs.add(audioEngineManager.getRmsVolumeInputStream(track.trackId))
-                                }
-                                val total = combineRmsVolumes(*listOfInputs.toDoubleArray())
+                                /* when input enabled, use track input */
+                                /* when not input enabled, and track playing back use track output */
+                                val trackInput = audioEngineManager.getRmsVolumeTrackInput(track.trackId)
+                                val trackOutput = audioEngineManager.getRmsVolumeTrackOutput(track.trackId)
+                                var realRms =
+                                    if (track.inputEnabled || track.recordingEnabled) trackInput
+                                    else if (audioStateFlow._state.isPlayingBack) trackOutput else 0.0
                                 val filteredValue = envelopeFollower(
-                                    total, audioStateFlow._state.envelopeAttack,
+                                    realRms, audioStateFlow._state.envelopeAttack,
                                     audioStateFlow._state.envelopeRelease, track.lastVUMeterValue)
                                 track.lastVUMeterValue = filteredValue
                                 viewModelController.sendTrackRMSVolume(20 * log10(filteredValue), track.trackId)

@@ -421,6 +421,12 @@ static void _copyInputBuffersToOutputBuffers() {
                 csoundlib_state->list_of_track_objects[trackIdx].volume,
                 csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes / BYTES_PER_SAMPLE
             );
+
+            csoundlib_state->list_of_track_objects[trackIdx].current_rms_levels.output_rms_level = 
+                            calculate_rms_level(
+                                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer,
+                                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes
+                            ) * csoundlib_state->list_of_track_objects[trackIdx].volume;
         }
     }
 }

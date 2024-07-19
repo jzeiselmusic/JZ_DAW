@@ -290,13 +290,13 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         return AudioError.values()[error]
     }
 
-    fun getRmsVolumeInputStream(trackId: Int) : Double {
+    fun getRmsVolumeTrackInput(trackId: Int) : Double {
         /* filtered with envelope follower for visualization */
-        return soundInterface.lib_getRmsVolumeInputStream(trackId).toDouble()
+        return soundInterface.lib_getRmsVolumeTrackInput(trackId).toDouble()
     }
 
-    fun getRmsVolumeTrackPlayback(trackId: Int) : Double {
-        return soundInterface.lib_getRmsVolumeTrackPlayback(trackId).toDouble()
+    fun getRmsVolumeTrackOutput(trackId: Int) : Double {
+        return soundInterface.lib_getRmsVolumeTrackOutput(trackId).toDouble()
     }
 
     fun updateTrackOffset(trackId: Int, fileId: Int, newOffset: Int): AudioError {

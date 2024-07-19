@@ -63,7 +63,7 @@ void add_and_scale_audio(const uint8_t *source, uint8_t *destination, float volu
 
         // Add samples and apply volume scaling
         int32_t result = (int32_t)((src_sample + dst_sample) * volume);
-
+        
         // Clip the result to 24-bit range
         result = (result > 8388607) ? 8388607 : (result < -8388608) ? -8388608 : result;
 

@@ -74,9 +74,9 @@ int lib_disarmTrackForRecording(int trackId);
 
 int lib_inputEnable(int trackId, bool enable);
 
-float lib_getRmsVolumeInputStream(int trackId);
+float lib_getRmsVolumeTrackInput(int trackId);
 
-float lib_getRmsVolumeTrackPlayback(int trackId);
+float lib_getRmsVolumeTrackOutput(int trackId);
 
 int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
 

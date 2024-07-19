@@ -219,12 +219,12 @@ class AudioViewModel(
         return ret
     }
 
-    fun getRmsVolumeInputStream(trackId: Int) : Double {
-        return audioEngineManager.getRmsVolumeInputStream(trackId)
+    fun getRmsVolumeTrackInput(trackId: Int) : Double {
+        return audioEngineManager.getRmsVolumeTrackInput(trackId)
     }
 
-    fun getRmsVolumeTrackPlayback(trackId: Int) : Double {
-        return audioEngineManager.getRmsVolumeTrackPlayback(trackId)
+    fun getRmsVolumeTrackOutput(trackId: Int) : Double {
+        return audioEngineManager.getRmsVolumeTrackOutput(trackId)
     }
 
     fun updateTrackOffset(trackId: Int, fileId: Int, newOffset: Int) {
