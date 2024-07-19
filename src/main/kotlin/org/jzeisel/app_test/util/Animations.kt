@@ -11,9 +11,7 @@ import javafx.scene.shape.Shape
 import javafx.util.Duration
 import kotlinx.coroutines.delay
 import java.lang.Math.pow
-import kotlin.math.pow
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
+import kotlin.math.*
 import kotlin.time.toDuration
 
 
@@ -66,6 +64,16 @@ fun scaleNumber(input: Double, minOuput: Double, maxOuput: Double, minInput: Dou
     val scaledInput = input.coerceIn(minInput..maxInput)
     val scaledValue = minOuput + (scaledInput - minInput) * (maxOuput - minOuput) / (maxInput - minInput)
     return scaledValue
+}
+
+fun scaleNumberLogarithmic(input: Double, minOutput: Double, maxOutput: Double, minInput: Double, maxInput: Double, base: Double = 10.0): Double {
+    val scaledInput = input.coerceIn(minInput..maxInput)
+
+    val normalizedInput = (scaledInput - minInput) / (maxInput - minInput)
+    val logMin = minOutput
+    val logMax = maxOutput
+    val logScaled = logMin + normalizedInput * (logMax - logMin)
+    return logScaled
 }
 
 fun combineRmsVolumes(vararg volumes: Double): Double {

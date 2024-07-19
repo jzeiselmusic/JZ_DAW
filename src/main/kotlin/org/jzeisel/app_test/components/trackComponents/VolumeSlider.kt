@@ -5,6 +5,10 @@ import javafx.scene.layout.StackPane
 import javafx.scene.shape.Circle
 import javafx.scene.shape.Rectangle
 import javafx.scene.shape.StrokeLineJoin
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.NormalTrack
@@ -66,6 +70,11 @@ class VolumeSlider(override val parent: Widget)
         sliderBar.onMouseDragged = EventHandler {
             val finalX = sliderBar.translateX - sliderBar.width/2.0 + it.x
             setTranslateX(finalX)
+        }
+
+        CoroutineScope(Dispatchers.Default).launch {
+            delay(500)
+            getDbFromCircleLocation()
         }
     }
 
@@ -146,7 +155,7 @@ class VolumeSlider(override val parent: Widget)
 
     private fun getDbFromCircleLocation() {
         val distanceFromStart = sliderCircle.translateX - (sliderBar.translateX - sliderBar.width/2.0)
-        volumeDecibel = scaleNumber(distanceFromStart, -100.0, 10.0, 0.0, 90.0)
+        volumeDecibel = scaleNumberLogarithmic(distanceFromStart, -60.0, 20.0, 0.0, 90.0)
         trackListViewModel.setTrackVolume(parentTrack, volumeDecibel)
     }
 }

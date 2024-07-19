@@ -64,11 +64,11 @@ public class SoundIoInterface {
 
 
         /* functions for starting and maintaining streams */
-        int lib_createInputStream(int device_index, double microphone_latency, int sample_rate);
-        int lib_createAndStartInputStream(int deviceIndex, double microphone_latency, int sample_rate);
+        int lib_createInputStream(int device_index, float microphone_latency, int sample_rate);
+        int lib_createAndStartInputStream(int deviceIndex, float microphone_latency, int sample_rate);
         int lib_stopInputStream();
-        int lib_createOutputStream(int device_index, double microphone_latency, int sample_rate);
-        int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate);
+        int lib_createOutputStream(int device_index, float microphone_latency, int sample_rate);
+        int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency, int sample_rate);
         int lib_stopOutputStream();
 
         /* handling tracks */
@@ -81,18 +81,18 @@ public class SoundIoInterface {
         int lib_armTrackForRecording(int trackId);
         int lib_disarmTrackForRecording(int trackId);
         int lib_inputEnable(int trackId, boolean enable);
-        double lib_getRmsVolumeInputStream(int trackId);
-        double lib_getRmsVolumeTrackPlayback(int trackId);
+        float lib_getRmsVolumeInputStream(int trackId);
+        float lib_getRmsVolumeTrackPlayback(int trackId);
         int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
         int lib_soloEnable(int trackId);
         int lib_soloDisable(int trackId);
         int lib_muteEnable(int trackId);
         int lib_muteDisable(int trackId);
-        int lib_setTrackVolume(int trackId, double logVolume);
-        void lib_setMasterVolume(double logVolume);
+        int lib_setTrackVolume(int trackId, float logVolume);
+        void lib_setMasterVolume(float logVolume);
 
         /* functions for getting overall state */
-        double lib_getCurrentRmsOutput();
+        float lib_getCurrentRmsOutput();
 
         /* functions for wav files bouncing etc */
         int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset);
@@ -149,11 +149,11 @@ public class SoundIoInterface {
     }
 
 
-    public int lib_createAndStartInputStream(int deviceIndex, double microphone_latency, int sample_rate) {
+    public int lib_createAndStartInputStream(int deviceIndex, float microphone_latency, int sample_rate) {
         return SoundIoLib.INSTANCE.lib_createAndStartInputStream(deviceIndex, microphone_latency, sample_rate);
     }
     public int lib_stopInputStream() { return SoundIoLib.INSTANCE.lib_stopInputStream(); }
-    public int lib_createAndStartOutputStream(int deviceIndex, double microphone_latency, int sample_rate) {
+    public int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency, int sample_rate) {
         return SoundIoLib.INSTANCE.lib_createAndStartOutputStream(deviceIndex, microphone_latency, sample_rate);
     }
     public int lib_stopOutputStream() { return SoundIoLib.INSTANCE.lib_stopOutputStream(); }
@@ -178,10 +178,10 @@ public class SoundIoInterface {
     public int lib_inputEnable(int trackId, boolean enable) {
         return SoundIoLib.INSTANCE.lib_inputEnable(trackId, enable);
     }
-    public double lib_getRmsVolumeInputStream(int trackId) {
+    public float lib_getRmsVolumeInputStream(int trackId) {
         return SoundIoLib.INSTANCE.lib_getRmsVolumeInputStream(trackId);
     }
-    public double lib_getRmsVolumeTrackPlayback(int trackId) {
+    public float lib_getRmsVolumeTrackPlayback(int trackId) {
         return SoundIoLib.INSTANCE.lib_getRmsVolumeTrackPlayback(trackId);
     }
     public int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
@@ -191,10 +191,10 @@ public class SoundIoInterface {
     public int lib_soloDisable(int trackId)  { return SoundIoLib.INSTANCE.lib_soloDisable(trackId); }
     public int lib_muteEnable(int trackId)  { return SoundIoLib.INSTANCE.lib_muteEnable(trackId); }
     public int lib_muteDisable(int trackId)  { return SoundIoLib.INSTANCE.lib_muteDisable(trackId); }
-    public int lib_setTrackVolume(int trackId, double logVolume) { return SoundIoLib.INSTANCE.lib_setTrackVolume(trackId, logVolume); }
-    public void lib_setMasterVolume(double logVolume) { SoundIoLib.INSTANCE.lib_setMasterVolume(logVolume); }
+    public int lib_setTrackVolume(int trackId, float logVolume) { return SoundIoLib.INSTANCE.lib_setTrackVolume(trackId, logVolume); }
+    public void lib_setMasterVolume(float logVolume) { SoundIoLib.INSTANCE.lib_setMasterVolume(logVolume); }
 
-    public double lib_getCurrentRmsOutput() { return SoundIoLib.INSTANCE.lib_getCurrentRmsOutput(); }
+    public float lib_getCurrentRmsOutput() { return SoundIoLib.INSTANCE.lib_getCurrentRmsOutput(); }
 
     public int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
         return SoundIoLib.INSTANCE.lib_bounceMasterToWav(start_sample_offset, end_sample_offset);

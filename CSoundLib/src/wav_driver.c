@@ -180,13 +180,9 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
                     }
                     bytes_copied += 4;
                 }
-                add_audio_buffers_24bitNE(mixed_buffer, temp_buffer, bytes_copied);
-                track->current_rms_volume_track_playback = calculate_rms_level(temp_buffer, bytes_copied);
+                add_and_scale_audio(temp_buffer, mixed_buffer, 1.0, bytes_copied / BYTES_PER_SAMPLE);
                 flock(fd, LOCK_UN);
                 return bytes_copied;
-            }
-            else {
-                track->current_rms_volume_track_playback = 0.0;
             }
         }
     }
@@ -204,7 +200,7 @@ int read_wav_file_for_bounce(audioFile* file, char* mixed_buffer, int sample_off
             flock(fd, LOCK_EX);
             fseek(fp, sizeof(wavHeader) + num_samples_into_file * 3, SEEK_SET);
             int ret = fread(temp_buffer, sizeof(char), 3, fp);
-            add_audio_buffers_24bitNE(mixed_buffer, temp_buffer, 4);
+            add_and_scale_audio(temp_buffer, mixed_buffer, 1.0, 1);
             flock(fd, LOCK_UN);
             return ret;
         }
@@ -334,6 +330,6 @@ int read_metronome_into_buffer(char* mixed_buffer, int offset_bytes, int max_fil
 
     /* currently we know the metronome buffer is always 24 bit words in 32 bit samples */
     int read_bytes = min_int(csoundlib_state->metronome.num_bytes - offset_bytes, max_fill_bytes);
-    add_audio_buffers_24bitNE(mixed_buffer, csoundlib_state->metronome.audio + offset_bytes, read_bytes);
+    add_and_scale_audio(csoundlib_state->metronome.audio + offset_bytes, mixed_buffer, 1.0, read_bytes / BYTES_PER_SAMPLE);
     return read_bytes;
 }

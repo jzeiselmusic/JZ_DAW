@@ -45,7 +45,6 @@ void lib_stopPlayback() {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         trackObject track = csoundlib_state->list_of_track_objects[idx];
         audioFile* files = track.files;
-        csoundlib_state->list_of_track_objects[idx].current_rms_volume_track_playback = 0.0;
         if (track.is_recording) {
             /* stop and close file being written */
             stop_recording_wav_file(&(track.files[track.num_files - 1]));
@@ -56,8 +55,8 @@ void lib_stopPlayback() {
                 close_wav_for_playback(&(files[jdx]));
             }
         }
-        csoundlib_state->list_of_track_objects[idx].current_rms_volume_input_stream = 0.0;
-        csoundlib_state->list_of_track_objects[idx].current_rms_volume_track_playback = 0.0;
+        csoundlib_state->list_of_track_objects[idx].current_rms_levels.input_rms_level = 0.0;
+        csoundlib_state->list_of_track_objects[idx].current_rms_levels.output_rms_level = 0.0;
         csoundlib_state->list_of_track_objects[idx].is_recording = false;
         csoundlib_state->list_of_track_objects[idx].is_playing_back = false;
     }

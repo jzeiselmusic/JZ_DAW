@@ -7,20 +7,22 @@
 
 int min_int(int a, int b);
 
-int doubleToDecibel(double input);
+int floatToDecibel(float input);
 
-float envelopeFollower(double input, double attack, double release, double prev_envelope);
+float envelopeFollower(float input, float attack, float release, float prev_envelope);
 
 void memadd(void *dest, void *src, size_t n);
 
-void add_audio_buffers_24bitNE(char* dest, const char* source, int num_bytes);
+void add_and_scale_audio(const uint8_t *source, uint8_t *destination, float volume, int num_samples);
 
-double calculate_rms_level(const char* source, int num_bytes);
+float calculate_rms_level(const char* source, int num_bytes);
 
-double four_bytes_to_sample(const char* bytes);
+float four_bytes_to_sample(const char* bytes);
 
-double log_to_mag(double log);
+void sample_to_four_bytes(unsigned char* bytes, float sample);
 
-double mag_to_log(double mag);
+float log_to_mag(float log);
+
+float mag_to_log(float mag);
 
 #endif

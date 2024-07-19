@@ -34,8 +34,7 @@ int lib_addNewTrack(int trackId) {
             .is_playing_back = false,
             .input_device_index = lib_getDefaultInputDeviceIndex(),
             .input_channel_index = 0,
-            .current_rms_volume_input_stream = 0.0,
-            .current_rms_volume_track_playback = 0.0,
+            .current_rms_levels = {0.0, 0.0},
             .input_buffer.buffer = {0},
             .input_buffer.write_bytes = 0
         };
@@ -183,19 +182,19 @@ int lib_inputEnable(int trackId, bool enable) {
     return SoundIoErrorTrackNotFound;
 }
 
-double lib_getRmsVolumeInputStream(int trackId) {
+float lib_getRmsVolumeInputStream(int trackId) {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            return csoundlib_state->list_of_track_objects[idx].current_rms_volume_input_stream;
+            return csoundlib_state->list_of_track_objects[idx].current_rms_levels.input_rms_level;
         }
     }
     return 0.0;
 }
 
-double lib_getRmsVolumeTrackPlayback(int trackId) {
+float lib_getRmsVolumeTrackPlayback(int trackId) {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            return csoundlib_state->list_of_track_objects[idx].current_rms_volume_track_playback;
+            return csoundlib_state->list_of_track_objects[idx].current_rms_levels.output_rms_level;
         }
     }
     return 0.0;
@@ -264,11 +263,11 @@ int lib_muteDisable(int trackId) {
     return SoundIoErrorTrackNotFound;
 }
 
-int lib_setTrackVolume(int trackId, double logVolume) {
+int lib_setTrackVolume(int trackId, float logVolume) {
     for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
         if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
             /* turn db volume into magnitude volume */
-            double mag = log_to_mag(logVolume);
+            float mag = log_to_mag(logVolume);
             csoundlib_state->list_of_track_objects[idx].volume = mag;
             return SoundIoErrorNone;
         }
@@ -276,6 +275,6 @@ int lib_setTrackVolume(int trackId, double logVolume) {
     return SoundIoErrorTrackNotFound;
 }
 
-void lib_setMasterVolume(double logVolume) {
+void lib_setMasterVolume(float logVolume) {
     csoundlib_state->master_volume = log_to_mag(logVolume);
 }

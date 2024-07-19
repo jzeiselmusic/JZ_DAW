@@ -25,10 +25,24 @@ typedef struct _audioFile {
     int file_name_len;
 } audioFile;
 
+typedef struct _rmsVals {
+    /* 
+    input level is the volume level of the incoming audio stream.
+    it should be grabbed by VU meter level NOT during playback (if input enabled). 
+    it should also be grabbed to tell DAW level of waveform. 
+     */
+    float input_rms_level;
+    /* 
+    output level is volume level of the stream being sent to output mix.
+    it should be grabbed by VU meter level only during playback.
+    */
+    float output_rms_level;
+} rmsVals;
+
 typedef struct _trackObj {
     int track_id; // unique identifier
     audioFile* files; // pointer to list of files representing audio data to be read
-    double volume; // value greater than 0.0
+    float volume; // value greater than 0.0
     int num_files;
     bool input_enabled;
     bool record_enabled;
@@ -38,8 +52,7 @@ typedef struct _trackObj {
     bool is_playing_back;
     int input_device_index; // input device currently attached to this track
     int input_channel_index;
-    double current_rms_volume_input_stream;
-    double current_rms_volume_track_playback;
+    rmsVals current_rms_levels;
     inputBuffer input_buffer;
 } trackObject;
 
@@ -61,9 +74,9 @@ int lib_disarmTrackForRecording(int trackId);
 
 int lib_inputEnable(int trackId, bool enable);
 
-double lib_getRmsVolumeInputStream(int trackId);
+float lib_getRmsVolumeInputStream(int trackId);
 
-double lib_getRmsVolumeTrackPlayback(int trackId);
+float lib_getRmsVolumeTrackPlayback(int trackId);
 
 int lib_updateTrackOffset(int trackId, int fileId, int newOffset);
 
@@ -75,8 +88,8 @@ int lib_muteEnable(int trackId);
 
 int lib_muteDisable(int trackId);
 
-int lib_setTrackVolume(int trackId, double logVolume);
+int lib_setTrackVolume(int trackId, float logVolume);
 
-void lib_setMasterVolume(double logVolume);
+void lib_setMasterVolume(float logVolume);
 
 #endif

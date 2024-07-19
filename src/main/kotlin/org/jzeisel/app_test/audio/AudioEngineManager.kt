@@ -43,7 +43,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
 
         returnError = soundInterface.lib_createAndStartInputStream(
-            defaultInputIndex, microphoneLatency, viewModel.sampleRate)
+            defaultInputIndex, microphoneLatency.toFloat(), viewModel.sampleRate)
 
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             Logger.debug(javaClass.simpleName, "error starting input stream", 5)
@@ -60,7 +60,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
 
         returnError = soundInterface.lib_createAndStartOutputStream(
-            defaultOutputIndex, microphoneLatency, viewModel.sampleRate)
+            defaultOutputIndex, microphoneLatency.toFloat(), viewModel.sampleRate)
 
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             Logger.debug(javaClass.simpleName, "error starting output stream", 5)
@@ -185,7 +185,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         if (initialized && inputDevicesLoaded) {
             Logger.debug(javaClass.simpleName, "creating input stream", 5)
             val err: Int = soundInterface.lib_createAndStartInputStream(
-                deviceIndex, microphoneLatency, viewModel.sampleRate)
+                deviceIndex, microphoneLatency.toFloat(), viewModel.sampleRate)
             if (err != 0) {
                 return AudioError.InputStreamError
             }
@@ -292,11 +292,11 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun getRmsVolumeInputStream(trackId: Int) : Double {
         /* filtered with envelope follower for visualization */
-        return soundInterface.lib_getRmsVolumeInputStream(trackId)
+        return soundInterface.lib_getRmsVolumeInputStream(trackId).toDouble()
     }
 
     fun getRmsVolumeTrackPlayback(trackId: Int) : Double {
-        return soundInterface.lib_getRmsVolumeTrackPlayback(trackId)
+        return soundInterface.lib_getRmsVolumeTrackPlayback(trackId).toDouble()
     }
 
     fun updateTrackOffset(trackId: Int, fileId: Int, newOffset: Int): AudioError {
@@ -321,7 +321,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     }
 
     fun getOutputRms() : Double {
-        return soundInterface.lib_getCurrentRmsOutput()
+        return soundInterface.lib_getCurrentRmsOutput().toDouble()
     }
 
     fun bounceMasterToWav(startSample: Int, endSample: Int) : AudioError {
@@ -342,11 +342,11 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     }
 
     fun setTrackVolume(trackId: Int, logVolume: Double): AudioError {
-        val error = soundInterface.lib_setTrackVolume(trackId, logVolume)
+        val error = soundInterface.lib_setTrackVolume(trackId, logVolume.toFloat())
         return AudioError.values()[error]
     }
 
     fun setMasterVolume(logVolume: Double) {
-        soundInterface.lib_setMasterVolume(logVolume)
+        soundInterface.lib_setMasterVolume(logVolume.toFloat())
     }
 }

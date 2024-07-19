@@ -24,7 +24,7 @@ typedef struct _audioState {
     bool playback_started;
     int current_cursor_offset; // in samples
     Metronome metronome;
-    double master_volume; // minimum 0.0 --> 1.0 is parity
+    float master_volume; // minimum 0.0 --> 1.0 is parity
 
     /* initialization */
     bool input_memory_allocated;
@@ -48,7 +48,7 @@ typedef struct _audioState {
 
     /* mixed inputs */
     char* mixed_output_buffer; // every channel of data that is enabled gets mixed into output buffer
-    double current_rms_ouput;
+    float current_rms_ouput;
 
     /* tracks */
     trackObject* list_of_track_objects;
@@ -61,6 +61,6 @@ typedef struct _audioState {
 
 extern audio_state* csoundlib_state;
 
-double lib_getCurrentRmsOutput(void);
+float lib_getCurrentRmsOutput(void);
 
 #endif
