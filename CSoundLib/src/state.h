@@ -14,6 +14,7 @@ typedef struct _metronome {
     size_t num_bytes;
     float tempo;
     int samples_in_a_beat;
+    float volume;
 } Metronome;
 
 typedef struct _audioState {

@@ -76,6 +76,27 @@ void add_and_scale_audio(const uint8_t *source, uint8_t *destination, float volu
     }
 }
 
+void scale_audio(uint8_t *source, float volume, int num_samples) {
+    for (int i = 0; i < num_samples; i++) {
+        int32_t src_sample = 0;
+        for (int j = 0; j < 3; j++) {
+            src_sample |= ((int32_t)source[i * 4 + j]) << (j * 8);
+        }
+
+        src_sample = (src_sample << 8) >> 8;
+
+        int32_t result = (int32_t)(src_sample * volume);
+
+        result = (result > 8388607) ? 8388607 : (result < -8388608) ? -8388608 : result;
+
+        for (int j = 0; j < 3; j++) {
+            source[i * 4 + j] = (uint8_t)(result >> (j * 8));
+        }
+
+        source[i * 4 + 3] = 0;
+    }
+}
+
 float calculate_rms_level(const char* source, int num_bytes) {
     float rms = 0.0;
     for (int idx = 0; idx < num_bytes; idx += BYTES_PER_SAMPLE) {

@@ -22,6 +22,7 @@ static void _processInputStreams(int* max_fill_samples, struct SoundIoRingBuffer
 static void _readWavFileForPlayback(int max_fill_bytes);
 static void _copyInputBuffersToOutputBuffers();
 static void _copyMetronomeToOutputBuffer(int* max_fill_samples);
+static void _scaleOutputByVolume();
 
 __attribute__ ((cold))
 __attribute__ ((noreturn))
@@ -171,6 +172,9 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     /* now copy input buffer to output scaled by volume */
     /* note: THIS IS WHERE VOLUME SCALING HAPPENS */
     _copyInputBuffersToOutputBuffers();
+
+    /* update mixed output buffer by volume */
+    _scaleOutputByVolume(&max_fill_samples);
 
     /* set master output rms level */
     csoundlib_state->current_rms_ouput = calculate_rms_level(csoundlib_state->mixed_output_buffer, frame_count_max * outstream->bytes_per_frame);
@@ -446,4 +450,8 @@ static void _copyMetronomeToOutputBuffer(int* max_fill_samples) {
             read_metronome_into_buffer(csoundlib_state->mixed_output_buffer + (offset_samples * BYTES_PER_SAMPLE), 0, (*max_fill_samples - offset_samples) * BYTES_PER_SAMPLE);
         }
     }
+}
+
+static void _scaleOutputByVolume(int* max_fill_samples) {
+    scale_audio(csoundlib_state->mixed_output_buffer, csoundlib_state->master_volume, *max_fill_samples);
 }

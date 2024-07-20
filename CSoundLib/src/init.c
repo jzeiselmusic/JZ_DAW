@@ -53,6 +53,7 @@ int lib_startSession() {
         memset(&(csoundlib_state->metronome.audio), 0x00, MAX_METRONOME_BUF_SIZE);
         csoundlib_state->metronome.enabled = false;
         csoundlib_state->metronome.num_bytes = MAX_METRONOME_BUF_SIZE;
+        csoundlib_state->metronome.volume = 1.0;
         int err = lib_readWavFileForMetronome();
         if (err != SoundIoErrorNone) {
             return err;
