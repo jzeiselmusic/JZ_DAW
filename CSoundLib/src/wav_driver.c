@@ -1,17 +1,13 @@
 #include "wav_driver.h"
-
 #include "tracks.h"
 #include "audio_errors.h"
 #include "state.h"
-
 #include <string.h>
 #include <pthread.h>
 #include <stdlib.h>
-
 #include "callbacks.h"
 #include "soundlib_util.h"
 #include "buffers_streams.h"
-
 #include <fcntl.h>
 
 typedef struct _writeArgs {
@@ -180,7 +176,7 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
                     }
                     bytes_copied += 4;
                 }
-                add_and_scale_audio(temp_buffer, mixed_buffer, 1.0, bytes_copied / BYTES_PER_SAMPLE);
+                add_and_scale_audio(temp_buffer, mixed_buffer, 1.0, bytes_copied / get_bytes_in_buffer(csoundlib_state->input_dtype));
                 flock(fd, LOCK_UN);
                 return bytes_copied;
             }
@@ -300,28 +296,26 @@ int lib_readWavFileForMetronome() {
         return SoundIoErrorReadingWavForMetronome;
     }
 
-    if (fileHeader.bit_depth != 24) {
+    if (fileHeader.bit_depth != get_bit_depth(csoundlib_state->input_dtype)) {
         return SoundIoErrorReadingWavForMetronome;
     }
 
-    if (fileHeader.sample_rate != 44100) {
+    if (fileHeader.sample_rate != csoundlib_state->sample_rate) {
         return SoundIoErrorReadingWavForMetronome;
     }
 
-    char temp_buffer[MAX_METRONOME_BUF_SIZE] = {0x00};
+    char temp_buffer[CSL_MAX_METRONOME_BUF_SIZE] = {0x00};
 
     int jdx = 0;
-    char sample[4] = {0x00};
-    // fseek(fp, sizeof(wavHeader), SEEK_SET);
+    char sample[4];
     while (fread(sample, 3, sizeof(char), fp) > 0) {
         memcpy(csoundlib_state->metronome.audio + jdx, sample, 4);
         jdx += 4;
         memset(sample, 0x00, 4);
     }
-
-    fclose(fp);
     csoundlib_state->metronome.num_bytes = jdx;
 
+    fclose(fp);
     return SoundIoErrorNone;
 } 
 
@@ -330,6 +324,6 @@ int read_metronome_into_buffer(char* mixed_buffer, int offset_bytes, int max_fil
 
     /* currently we know the metronome buffer is always 24 bit words in 32 bit samples */
     int read_bytes = min_int(csoundlib_state->metronome.num_bytes - offset_bytes, max_fill_bytes);
-    add_and_scale_audio(csoundlib_state->metronome.audio + offset_bytes, mixed_buffer, 1.0, read_bytes / BYTES_PER_SAMPLE);
+    add_and_scale_audio(csoundlib_state->metronome.audio + offset_bytes, mixed_buffer, 1.0, read_bytes / get_bytes_in_buffer(csoundlib_state->input_dtype));
     return read_bytes;
 }

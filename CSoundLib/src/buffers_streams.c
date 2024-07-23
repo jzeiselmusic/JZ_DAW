@@ -1,5 +1,5 @@
 
-#include "soundio_inc.h"
+#include "csl_types.h"
 #include "buffers_streams.h"
 #include <stdbool.h>
 #include "audio_devices.h"
@@ -222,7 +222,7 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
     if (!instream) return SoundIoErrorNoMem;
 
     /* signed 24 bit native endian (macos is little endian) */
-    instream->format = SoundIoFormatS24NE; 
+    instream->format = SoundIoFormatS24LE; 
     instream->sample_rate = sample_rate;
 
     /* use whatever the default channel layout is (take all the channels available) */
@@ -290,7 +290,7 @@ static int _createOutputStream(int device_index, float microphone_latency, int s
     struct SoundIoOutStream* outstream = soundio_outstream_create(output_device);
     if (!outstream) return SoundIoErrorNoMem;
 
-    outstream->format = SoundIoFormatS24NE;
+    outstream->format = SoundIoFormatS24LE;
     outstream->sample_rate = sample_rate;
     outstream->layout = output_device->current_layout;
     outstream->software_latency = microphone_latency;
@@ -387,7 +387,7 @@ static void _processInputStreams(int* max_fill_samples, struct SoundIoRingBuffer
                             read_ptr, 
                             csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer,
                             1.0,
-                            fill_bytes / BYTES_PER_SAMPLE
+                            fill_bytes / get_bytes_in_buffer(csoundlib_state->input_dtype)
                         );
                         csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = fill_bytes;
                     }
@@ -423,7 +423,7 @@ static void _copyInputBuffersToOutputBuffers() {
                 csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer,
                 csoundlib_state->mixed_output_buffer,
                 csoundlib_state->list_of_track_objects[trackIdx].volume,
-                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes / BYTES_PER_SAMPLE
+                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes / get_bytes_in_buffer(csoundlib_state->input_dtype)
             );
 
             csoundlib_state->list_of_track_objects[trackIdx].current_rms_levels.output_rms_level = 
@@ -436,18 +436,19 @@ static void _copyInputBuffersToOutputBuffers() {
 }
 
 static void _copyMetronomeToOutputBuffer(int* max_fill_samples) {
+    uint8_t bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
     if (csoundlib_state->metronome.enabled && csoundlib_state->playback_started) {
-        if ((csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / BYTES_PER_SAMPLE)) {
+        if ((csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / bytes_in_buffer)) {
             /* case where start of output buffer at or after start of beat */
-            int offset_bytes = (csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat) * BYTES_PER_SAMPLE;
-            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, *max_fill_samples * BYTES_PER_SAMPLE);
+            int offset_bytes = (csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat) * bytes_in_buffer;
+            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer, offset_bytes, *max_fill_samples * bytes_in_buffer);
         }
-        else if (((csoundlib_state->current_cursor_offset + *max_fill_samples) % csoundlib_state->metronome.samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / BYTES_PER_SAMPLE)) {
+        else if (((csoundlib_state->current_cursor_offset + *max_fill_samples) % csoundlib_state->metronome.samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / bytes_in_buffer)) {
             /* case where start of output buffer is before start of beat but overlaps with it */
 
             /* number of bytes until the start of the metronome */
             int offset_samples = csoundlib_state->metronome.samples_in_a_beat - (csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat);
-            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer + (offset_samples * BYTES_PER_SAMPLE), 0, (*max_fill_samples - offset_samples) * BYTES_PER_SAMPLE);
+            read_metronome_into_buffer(csoundlib_state->mixed_output_buffer + (offset_samples * bytes_in_buffer), 0, (*max_fill_samples - offset_samples) * bytes_in_buffer);
         }
     }
 }

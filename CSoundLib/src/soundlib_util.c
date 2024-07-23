@@ -3,8 +3,9 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include "soundio_inc.h"
+#include "csl_types.h"
 #include "callbacks.h"
+#include "state.h"
 
 /*
 
@@ -18,8 +19,12 @@ int min_int(int a, int b) {
     return (a < b) ? a : b;
 }
 
-int floatToDecibel(float input) {
-    return 20*log10(input);
+float log_to_mag(float log) {
+    return pow(10, (log / 20.0));
+}
+
+float mag_to_log(float mag) {
+    return 20.0 * log10(mag);
 }
 
 float envelopeFollower(float input, float attack, float release, float prev_envelope) {
@@ -35,71 +40,111 @@ float envelopeFollower(float input, float attack, float release, float prev_enve
     return envelope;
 }
 
-void memadd(void *dest, void *src, size_t n) {
-    /* same as memcpy except add to data location instead of overwrite */
-    char *csrc = (char *)src;
-    char *cdest = (char *)dest;
-
-    // Copy contents of src[] to dest[]
-    for (int i = 0; i < n; i++) {
-        cdest[i] += csrc[i];
-    }
-}
-
 void add_and_scale_audio(const uint8_t *source, uint8_t *destination, float volume, int num_samples) {
+    CSL_DTYPE dtype = csoundlib_state->input_dtype;
+    uint8_t bytes_in_buffer = get_bytes_in_buffer(dtype);
+    uint8_t bytes_in_sample = get_bytes_in_sample(dtype);
     for (int i = 0; i < num_samples; i++) {
         int32_t src_sample = 0;
         int32_t dst_sample = 0;
 
-        // Read 24-bit little endian samples
-        for (int j = 0; j < 3; j++) {
-            src_sample |= ((int32_t)source[i * 4 + j]) << (j * 8);
-            dst_sample |= ((int32_t)destination[i * 4 + j]) << (j * 8);
+        // Read little endian samples
+        for (int j = 0; j < bytes_in_sample; j++) {
+            src_sample |= ((int32_t)source[i * bytes_in_buffer + j]) << (j * 8);
+            dst_sample |= ((int32_t)destination[i * bytes_in_buffer + j]) << (j * 8);
         }
 
         // Sign-extend to 32 bits
-        src_sample = (src_sample << 8) >> 8;
-        dst_sample = (dst_sample << 8) >> 8;
+        if (dtype == CSL_U24 || dtype == CSL_S24) {
+            src_sample = (src_sample << 8) >> 8;
+            dst_sample = (dst_sample << 8) >> 8;
+        }
+        if (dtype == CSL_U16 || dtype == CSL_S16) {
+            src_sample = (src_sample << 16) >> 16;
+            dst_sample = (dst_sample << 16) >> 16;
+        }
+        if (dtype == CSL_U8 || dtype == CSL_S8) {
+            src_sample = (src_sample << 24) >> 24;
+            dst_sample = (dst_sample << 24) >> 24;
+        }
 
         // Add samples and apply volume scaling
         int32_t result = (int32_t)((src_sample + dst_sample) * volume);
         
-        // Clip the result to 24-bit range
-        result = (result > 8388607) ? 8388607 : (result < -8388608) ? -8388608 : result;
+        // Clip the result to max/min bit range
+        if (is_signed_type(csoundlib_state->input_dtype)) {
+            int max_val = get_max_value(dtype);
+            int min_val = get_min_value(dtype);
+            result = (result > max_val) ? max_val : (result < min_val) ? min_val : result;
+        }
+        else {
+            int max_val = get_max_value(dtype);
+            result = (result > max_val) ? max_val : result;
+        }
 
         // Write the result back to the destination buffer
-        for (int j = 0; j < 3; j++) {
-            destination[i * 4 + j] = (uint8_t)(result >> (j * 8));
+        for (int j = 0; j < bytes_in_sample; j++) {
+            destination[i * bytes_in_buffer + j] = (uint8_t)(result >> (j * 8));
         }
         // The fourth byte remains unused (zero)
-        destination[i * 4 + 3] = 0;
+        if (dtype == CSL_U24 || dtype == CSL_S24) {
+            destination[i * bytes_in_buffer + 3] = 0;
+        }
     }
 }
 
 void scale_audio(uint8_t *source, float volume, int num_samples) {
+    CSL_DTYPE dtype = csoundlib_state->input_dtype;
+    uint8_t bytes_in_buffer = get_bytes_in_buffer(dtype);
+    uint8_t bytes_in_sample = get_bytes_in_sample(dtype);
     for (int i = 0; i < num_samples; i++) {
         int32_t src_sample = 0;
-        for (int j = 0; j < 3; j++) {
-            src_sample |= ((int32_t)source[i * 4 + j]) << (j * 8);
+
+        // Read little endian samples
+        for (int j = 0; j < bytes_in_sample; j++) {
+            src_sample |= ((int32_t)source[i * bytes_in_buffer + j]) << (j * 8);
         }
 
-        src_sample = (src_sample << 8) >> 8;
+        // Sign-extend to 32 bits
+        if (dtype == CSL_U24 || dtype == CSL_S24) {
+            src_sample = (src_sample << 8) >> 8;
+        }
+        if (dtype == CSL_U16 || dtype == CSL_S16) {
+            src_sample = (src_sample << 16) >> 16;
+        }
+        if (dtype == CSL_U8 || dtype == CSL_S8) {
+            src_sample = (src_sample << 24) >> 24;
+        }
 
+        // Add samples and apply volume scaling
         int32_t result = (int32_t)(src_sample * volume);
-
-        result = (result > 8388607) ? 8388607 : (result < -8388608) ? -8388608 : result;
-
-        for (int j = 0; j < 3; j++) {
-            source[i * 4 + j] = (uint8_t)(result >> (j * 8));
+        
+        // Clip the result to max/min bit range
+        if (is_signed_type(csoundlib_state->input_dtype)) {
+            int max_val = get_max_value(dtype);
+            int min_val = get_min_value(dtype);
+            result = (result > max_val) ? max_val : (result < min_val) ? min_val : result;
+        }
+        else {
+            int max_val = get_max_value(dtype);
+            result = (result > max_val) ? max_val : result;
         }
 
-        source[i * 4 + 3] = 0;
+        // Write the result back to the destination buffer
+        for (int j = 0; j < bytes_in_sample; j++) {
+            source[i * bytes_in_buffer + j] = (uint8_t)(result >> (j * 8));
+        }
+        // The fourth byte remains unused (zero)
+        if (dtype == CSL_U24 || dtype == CSL_S24) {
+            source[i * bytes_in_buffer + 3] = 0;
+        }
     }
 }
 
 float calculate_rms_level(const char* source, int num_bytes) {
     float rms = 0.0;
-    for (int idx = 0; idx < num_bytes; idx += BYTES_PER_SAMPLE) {
+    int bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
+    for (int idx = 0; idx < num_bytes; idx += bytes_in_buffer) {
         float sample = four_bytes_to_sample(source + idx);
         rms += sample * sample;
     }
@@ -115,21 +160,10 @@ float four_bytes_to_sample(const char* bytes) {
                 (bytes[0])
             );
     float sample_val_float = (float)sample_value;
-    return sample_val_float / MAX_24_BIT_SIGNED;
-}
-
-void sample_to_four_bytes(unsigned char* bytes, float sample) { 
-    int32_t sample_value = (int32_t)((sample * MAX_24_BIT_SIGNED));
-    bytes[0] = (sample_value) & 0xFF;
-    bytes[1] = (sample_value >> 8) & 0xFF;
-    bytes[2] = (sample_value >> 16) & 0xFF;
-    bytes[3] = 0x00;
-}
-
-float log_to_mag(float log) {
-    return pow(10, (log / 20.0));
-}
-
-float mag_to_log(float mag) {
-    return 20.0 * log10(mag);
+    if (sample_val_float > 0 || !is_signed_type(csoundlib_state->input_dtype)) {
+        return sample_val_float / get_max_value(csoundlib_state->input_dtype);
+    }
+    else {
+        return sample_val_float / get_min_value(csoundlib_state->input_dtype);
+    }
 }

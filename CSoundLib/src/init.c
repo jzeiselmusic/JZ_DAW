@@ -1,6 +1,6 @@
 #include "init.h"
 #include "audio_errors.h"
-#include "soundio_inc.h"
+#include "csl_types.h"
 #include "buffers_streams.h"
 #include "tracks.h"
 #include "audio_devices.h"
@@ -37,7 +37,7 @@ static void _deallocateAllMemory() {
 int lib_startSession() {
     csoundlib_state = malloc( 1 * sizeof(audio_state) );
     csoundlib_state->sample_rate = 44100;
-
+    csoundlib_state->input_dtype = CSL_S24;
     struct SoundIo* soundio = soundio_create();
     char* mixed_output_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
     trackObject* list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));
@@ -50,9 +50,9 @@ int lib_startSession() {
         csoundlib_state->solo_engaged = false;
         csoundlib_state->master_volume = 1.0;
         lib_setBeatsPerMinute(120.0);
-        memset(&(csoundlib_state->metronome.audio), 0x00, MAX_METRONOME_BUF_SIZE);
+        memset(&(csoundlib_state->metronome.audio), 0x00, CSL_MAX_METRONOME_BUF_SIZE);
         csoundlib_state->metronome.enabled = false;
-        csoundlib_state->metronome.num_bytes = MAX_METRONOME_BUF_SIZE;
+        csoundlib_state->metronome.num_bytes = CSL_MAX_METRONOME_BUF_SIZE;
         csoundlib_state->metronome.volume = 1.0;
         int err = lib_readWavFileForMetronome();
         if (err != SoundIoErrorNone) {

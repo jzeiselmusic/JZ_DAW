@@ -2,15 +2,13 @@
 #define AUDIO_STATE_H
 
 #include <stdbool.h>
-#include "soundio_inc.h"
+#include "csl_types.h"
 #include "tracks.h"
 #include "audio_playback.h"
 
-#define MAX_METRONOME_BUF_SIZE   44100 * 3 * BYTES_PER_SAMPLE // 4 seconds at 44.1k 24 bit
-
 typedef struct _metronome {
     bool enabled;
-    char audio[MAX_METRONOME_BUF_SIZE];
+    char audio[CSL_MAX_METRONOME_BUF_SIZE];
     size_t num_bytes;
     float tempo;
     int samples_in_a_beat;
@@ -20,12 +18,13 @@ typedef struct _metronome {
 typedef struct _audioState {
     struct SoundIo* soundio;
     int sample_rate; 
+    CSL_DTYPE input_dtype;
 
     /* playback */
     bool playback_started;
     int current_cursor_offset; // in samples
     Metronome metronome;
-    float master_volume; // minimum 0.0 --> 1.0 is parity
+    float master_volume; // 0.0 -> 1.0 (parity)
 
     /* initialization */
     bool input_memory_allocated;

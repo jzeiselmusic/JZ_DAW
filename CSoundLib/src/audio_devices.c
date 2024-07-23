@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "soundio_inc.h"
+#include "csl_types.h"
 #include "soundlib_util.h"
 #include "buffers_streams.h"
 #include "callbacks.h"
