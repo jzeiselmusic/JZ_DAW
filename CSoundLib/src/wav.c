@@ -1,13 +1,13 @@
-#include "wav_driver.h"
+#include "wav.h"
 #include "tracks.h"
-#include "audio_errors.h"
+#include "errors.h"
 #include "state.h"
 #include <string.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include "callbacks.h"
-#include "soundlib_util.h"
-#include "buffers_streams.h"
+#include "csl_util.h"
+#include "streams.h"
 #include <fcntl.h>
 
 typedef struct _writeArgs {
@@ -61,7 +61,12 @@ int create_recording_wav_file(trackObject* track, int sample_rate, int fileId) {
         return SoundIoErrorOpeningFile;
     }
     int fd = fileno(fp);
-    wavHeader header = _createWavHeader(44100 * 60 * 10, 44100, 24, 1);
+    wavHeader header = _createWavHeader(
+                            csoundlib_state->sample_rate * 60 * 10, 
+                            csoundlib_state->sample_rate, 
+                            get_bit_depth(csoundlib_state->input_dtype), 
+                            1
+                        );
     flock(fd, LOCK_EX);
     fwrite(&header, sizeof(wavHeader), 1, fp);
     flock(fd, LOCK_UN);
@@ -83,10 +88,17 @@ int create_recording_wav_file(trackObject* track, int sample_rate, int fileId) {
 }
 
 void stop_recording_wav_file(audioFile* file) {
+    /* user shall not be able to change sample rate and bit depth while recording wav file */
+
     file->is_file_open = false; // set to false to stop data thread writes
     int fd = fileno(file->fp);
     /* update .wav file for how many samples have been written */
-    wavHeader header = _createWavHeader(file->samples_written, 44100, 24, 1);
+    wavHeader header = _createWavHeader(
+                            file->samples_written, 
+                            csoundlib_state->sample_rate, 
+                            get_bit_depth(csoundlib_state->input_dtype), 
+                            1
+                        );
 
     flock(fd, LOCK_EX);
 
@@ -109,8 +121,10 @@ void* write_to_wav_file(void* args) {
     int fd = fileno(fp);
     flock(fd, LOCK_EX);
     /* write bytes to file */
-    for (int idx = 0; idx < num_bytes; idx += 4) {
-        fwrite(new_buffer + idx, sizeof(char), 3, fp);
+    uint8_t bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
+    uint8_t bytes_in_sample = get_bytes_in_sample(csoundlib_state->input_dtype);
+    for (int idx = 0; idx < num_bytes; idx += bytes_in_buffer) {
+        fwrite(new_buffer + idx, sizeof(char), bytes_in_sample, fp);
         track->files[track->num_files - 1].samples_written += 1;
     }
     flock(fd, LOCK_UN);
@@ -155,6 +169,8 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
     /* this should get changed to be the current location before cursor gets moved */
     /* current implementation is that the UI moves the cursor which moves this value */
     int current_offset = csoundlib_state->current_cursor_offset;
+    uint8_t bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
+    uint8_t bytes_in_sample = get_bytes_in_sample(csoundlib_state->input_dtype);
     for (int fileidx = 0; fileidx < track->num_files; fileidx++) {
         audioFile* file = &(track->files[fileidx]);
         if (file->is_file_open) {
@@ -167,16 +183,16 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
                 int fd = fileno(fp);
                 char temp_buffer[MAX_BUFFER_SIZE_BYTES] = {0x00};
                 flock(fd, LOCK_EX);
-                fseek(fp, sizeof(wavHeader) + num_samples_into_file * 3, SEEK_SET);
+                fseek(fp, sizeof(wavHeader) + num_samples_into_file * bytes_in_sample, SEEK_SET);
                 int bytes_copied = 0;
                 while (bytes_copied < max_bytes) {
-                    int ret = fread(temp_buffer + bytes_copied, sizeof(char), 3, fp);
-                    if (ret < 3) {
+                    int ret = fread(temp_buffer + bytes_copied, sizeof(char), bytes_in_sample, fp);
+                    if (ret < bytes_in_sample) {
                         break;
                     }
-                    bytes_copied += 4;
+                    bytes_copied += bytes_in_buffer;
                 }
-                add_and_scale_audio(temp_buffer, mixed_buffer, 1.0, bytes_copied / get_bytes_in_buffer(csoundlib_state->input_dtype));
+                add_and_scale_audio(temp_buffer, mixed_buffer, 1.0, bytes_copied / bytes_in_buffer);
                 flock(fd, LOCK_UN);
                 return bytes_copied;
             }
@@ -186,6 +202,8 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
 }
 
 int read_wav_file_for_bounce(audioFile* file, char* mixed_buffer, int sample_offset) {
+    uint8_t bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
+    uint8_t bytes_in_sample = get_bytes_in_sample(csoundlib_state->input_dtype);
     if (file->is_file_open) {
         if (sample_offset >= file->file_sample_offset && 
             sample_offset < (file->file_sample_offset + file->samples_written)) {
@@ -194,8 +212,8 @@ int read_wav_file_for_bounce(audioFile* file, char* mixed_buffer, int sample_off
             int fd = fileno(fp);
             char temp_buffer[4] = {0x00};
             flock(fd, LOCK_EX);
-            fseek(fp, sizeof(wavHeader) + num_samples_into_file * 3, SEEK_SET);
-            int ret = fread(temp_buffer, sizeof(char), 3, fp);
+            fseek(fp, sizeof(wavHeader) + num_samples_into_file * bytes_in_sample, SEEK_SET);
+            int ret = fread(temp_buffer, sizeof(char), bytes_in_sample, fp);
             add_and_scale_audio(temp_buffer, mixed_buffer, 1.0, 1);
             flock(fd, LOCK_UN);
             return ret;
@@ -213,13 +231,20 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     /* write wavheader */
     int fd = fileno(fp);
     flock(fd, LOCK_EX);
-    wavHeader header = _createWavHeader(end_sample_offset - start_sample_offset, 44100, 24, 1);
+    wavHeader header = _createWavHeader(
+                            end_sample_offset - start_sample_offset, 
+                            csoundlib_state->sample_rate,
+                            get_bit_depth(csoundlib_state->input_dtype), 
+                            1);
     fwrite(&header, sizeof(wavHeader), 1, fp);
 
     /* open all files for reading */
     for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
         for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
-            open_wav_for_playback(&(csoundlib_state->list_of_track_objects[trackIdx]), &(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]));
+            open_wav_for_playback(
+                &(csoundlib_state->list_of_track_objects[trackIdx]), 
+                &(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx])
+            );
         }
     }
     for (int sample_offset = start_sample_offset; sample_offset < end_sample_offset; sample_offset++) {
@@ -227,10 +252,14 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
         char mixed_buffer[4] = {0x00};
         for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
             for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
-                read_wav_file_for_bounce(&(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]), mixed_buffer, sample_offset);
+                read_wav_file_for_bounce(
+                    &(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]), 
+                    mixed_buffer, 
+                    sample_offset
+                );
             }
         }
-        fwrite(mixed_buffer, sizeof(char), 3, fp);
+        fwrite(mixed_buffer, sizeof(char), get_bytes_in_sample(csoundlib_state->input_dtype), fp);
     }
     fclose(fp);
     flock(fd, LOCK_UN);
@@ -308,9 +337,11 @@ int lib_readWavFileForMetronome() {
 
     int jdx = 0;
     char sample[4];
-    while (fread(sample, 3, sizeof(char), fp) > 0) {
-        memcpy(csoundlib_state->metronome.audio + jdx, sample, 4);
-        jdx += 4;
+    uint8_t bytes_in_sample = get_bytes_in_sample(csoundlib_state->input_dtype);
+    uint8_t bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
+    while (fread(sample, bytes_in_sample, sizeof(char), fp) > 0) {
+        memcpy(csoundlib_state->metronome.audio + jdx, sample, bytes_in_buffer);
+        jdx += bytes_in_buffer;
         memset(sample, 0x00, 4);
     }
     csoundlib_state->metronome.num_bytes = jdx;
@@ -324,6 +355,11 @@ int read_metronome_into_buffer(char* mixed_buffer, int offset_bytes, int max_fil
 
     /* currently we know the metronome buffer is always 24 bit words in 32 bit samples */
     int read_bytes = min_int(csoundlib_state->metronome.num_bytes - offset_bytes, max_fill_bytes);
-    add_and_scale_audio(csoundlib_state->metronome.audio + offset_bytes, mixed_buffer, 1.0, read_bytes / get_bytes_in_buffer(csoundlib_state->input_dtype));
+    add_and_scale_audio(
+        csoundlib_state->metronome.audio + offset_bytes,
+        mixed_buffer, 
+        1.0, 
+        read_bytes / get_bytes_in_buffer(csoundlib_state->input_dtype)
+    );
     return read_bytes;
 }

@@ -1,8 +1,8 @@
-#include "audio_playback.h"
+#include "playback.h"
 #include "state.h"
 #include "callbacks.h"
-#include "audio_errors.h"
-#include "wav_driver.h"
+#include "errors.h"
+#include "wav.h"
 
 #include <stdbool.h>
 #include <string.h>

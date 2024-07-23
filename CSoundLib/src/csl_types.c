@@ -8,7 +8,7 @@ int get_bytes_in_sample(CSL_DTYPE in) {
         case CSL_U16: return CSL_BYTES_IN_SAMPLE_16; break;
         case CSL_S16: return CSL_BYTES_IN_SAMPLE_16; break;
         case CSL_U24: return CSL_BYTES_IN_SAMPLE_24; break;
-        case CSL_S24: return CSL_BYTES_IN_BUFFER_24; break;
+        case CSL_S24: return CSL_BYTES_IN_SAMPLE_24; break;
         case CSL_U32: return CSL_BYTES_IN_SAMPLE_32; break;
         case CSL_S32: return CSL_BYTES_IN_SAMPLE_32; break;
         default: return 0;

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "csl_types.h"
 #include "tracks.h"
-#include "audio_playback.h"
+#include "playback.h"
 
 typedef struct _metronome {
     bool enabled;

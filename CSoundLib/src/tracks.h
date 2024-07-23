@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include "buffers_streams.h"
+#include "streams.h"
 
 #define MAX_TRACKS              500
 #define MAX_FILES               500

@@ -1,8 +1,11 @@
 package org.jzeisel.app_test.audio
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.jzeisel.app_test.audio.viewmodel.AudioViewModel
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.util.Logger
+import org.jzeisel.app_test.util.runLater
 import kotlin.math.log10
 
 class AudioEngineManager(private val viewModel: AudioViewModel) {
@@ -347,6 +350,16 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
     }
 
     fun setMasterVolume(logVolume: Double) {
-        soundInterface.lib_setMasterVolume(logVolume.toFloat())
+        if (initialized) {
+            Logger.debug(javaClass.simpleName, "setting master volume", 5)
+            soundInterface.lib_setMasterVolume(logVolume.toFloat())
+        }
+        else {
+            Logger.debug(javaClass.simpleName, "master volume not set, waiting 1 second", 5)
+            runLater(1000.0) {
+                Logger.debug(javaClass.simpleName, "setting master volume", 5)
+                soundInterface.lib_setMasterVolume(logVolume.toFloat())
+            }
+        }
     }
 }

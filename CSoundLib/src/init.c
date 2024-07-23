@@ -1,14 +1,14 @@
 #include "init.h"
-#include "audio_errors.h"
+#include "errors.h"
 #include "csl_types.h"
-#include "buffers_streams.h"
+#include "streams.h"
 #include "tracks.h"
-#include "audio_devices.h"
+#include "devices.h"
 #include "callbacks.h"
 #include <stdlib.h>
 #include "state.h"
 #include <string.h>
-#include "wav_driver.h"
+#include "wav.h"
 
 static int _connectToBackend();
 static void _deallocateAllMemory();
@@ -54,10 +54,7 @@ int lib_startSession() {
         csoundlib_state->metronome.enabled = false;
         csoundlib_state->metronome.num_bytes = CSL_MAX_METRONOME_BUF_SIZE;
         csoundlib_state->metronome.volume = 1.0;
-        int err = lib_readWavFileForMetronome();
-        if (err != SoundIoErrorNone) {
-            return err;
-        }
+        lib_readWavFileForMetronome();
         return _connectToBackend();
     }
     else {

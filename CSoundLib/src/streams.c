@@ -1,16 +1,16 @@
 
 #include "csl_types.h"
-#include "buffers_streams.h"
+#include "streams.h"
 #include <stdbool.h>
-#include "audio_devices.h"
+#include "devices.h"
 #include "stdint.h"
-#include "soundlib_util.h"
+#include "csl_util.h"
 #include "tracks.h"
-#include "audio_playback.h"
+#include "playback.h"
 #include "callbacks.h"
 #include "init.h"
 #include "state.h"
-#include "wav_driver.h"
+#include "wav.h"
 
 #include <fcntl.h>
 
@@ -220,9 +220,12 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
     struct SoundIoDevice* input_device = csoundlib_state->input_devices[device_index];
     struct SoundIoInStream* instream = soundio_instream_create(input_device);
     if (!instream) return SoundIoErrorNoMem;
-
-    /* signed 24 bit native endian (macos is little endian) */
-    instream->format = SoundIoFormatS24LE; 
+    switch(csoundlib_state->input_dtype) {
+        case CSL_S24: instream->format = SoundIoFormatS24LE; break;
+        case CSL_S16: instream->format = SoundIoFormatS16LE; break;
+        case CSL_S32: instream->format = SoundIoFormatS32LE; break;
+        case CSL_S8: instream->format = SoundIoFormatS8; break;
+    }
     instream->sample_rate = sample_rate;
 
     /* use whatever the default channel layout is (take all the channels available) */
@@ -289,8 +292,12 @@ static int _createOutputStream(int device_index, float microphone_latency, int s
     struct SoundIoDevice* output_device = csoundlib_state->output_devices[device_index];
     struct SoundIoOutStream* outstream = soundio_outstream_create(output_device);
     if (!outstream) return SoundIoErrorNoMem;
-
-    outstream->format = SoundIoFormatS24LE;
+    switch(csoundlib_state->input_dtype) {
+        case CSL_S24: outstream->format = SoundIoFormatS24LE; break;
+        case CSL_S16: outstream->format = SoundIoFormatS16LE; break;
+        case CSL_S32: outstream->format = SoundIoFormatS32LE; break;
+        case CSL_S8: outstream->format = SoundIoFormatS8; break;
+    }
     outstream->sample_rate = sample_rate;
     outstream->layout = output_device->current_layout;
     outstream->software_latency = microphone_latency;

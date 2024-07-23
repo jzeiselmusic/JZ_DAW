@@ -4,6 +4,19 @@
 #include <soundio/soundio.h>
 #include <stdint.h>
 
+typedef enum {
+    CSL_U8,   
+    CSL_S8,                     
+    CSL_U16,
+    CSL_U32,
+    CSL_S16,
+    CSL_S32,
+    CSL_U24,
+    CSL_S24,
+    CSL_FL32,
+    CSL_FL64,
+} CSL_DTYPE;
+
 #define emptyString                   ""
 #define ATTACK                        0.001
 #define RELEASE                       0.15
@@ -32,19 +45,6 @@
 #define CSL_BYTES_IN_BUFFER_32        4
 
 #define CSL_MAX_METRONOME_BUF_SIZE    4 * 48000 * CSL_BYTES_IN_BUFFER_32
-
-typedef enum {
-    CSL_U8,                        
-    CSL_U16,
-    CSL_U32,
-    CSL_S8,
-    CSL_S16,
-    CSL_S32,
-    CSL_U24,
-    CSL_S24,
-    CSL_FL32,
-    CSL_FL64,
-} CSL_DTYPE;
 
 int get_bytes_in_sample(CSL_DTYPE in);
 

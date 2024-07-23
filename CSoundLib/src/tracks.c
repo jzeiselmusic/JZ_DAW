@@ -3,13 +3,13 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "audio_errors.h"
+#include "errors.h"
 #include "csl_types.h"
-#include "audio_devices.h"
+#include "devices.h"
 #include "string.h"
-#include "soundlib_util.h"
+#include "csl_util.h"
 #include "state.h"
-#include "wav_driver.h"
+#include "wav.h"
 #include "callbacks.h"
 #include <fcntl.h>
 

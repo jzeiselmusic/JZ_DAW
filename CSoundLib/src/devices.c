@@ -1,17 +1,15 @@
 
-#include "audio_devices.h"
+#include "devices.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
-
 #include "csl_types.h"
-#include "soundlib_util.h"
-#include "buffers_streams.h"
+#include "csl_util.h"
+#include "streams.h"
 #include "callbacks.h"
 #include "init.h"
-
 #include "state.h"
 
 int lib_loadInputDevices() {
