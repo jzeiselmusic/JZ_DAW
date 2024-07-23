@@ -32,7 +32,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
 
     fun initialize() : AudioError {
         registerAllCallbackFuncs()
-        var returnError = soundInterface.lib_startSession()
+        var returnError = soundInterface.lib_startSession(viewModel.sampleRate, viewModel.bitDepth)
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             Logger.debug(javaClass.simpleName, "error starting session", 5)
             initialized = false

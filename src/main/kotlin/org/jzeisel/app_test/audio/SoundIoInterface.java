@@ -27,7 +27,7 @@ public class SoundIoInterface {
         void registerCharCallback(charCallback callbackFunc);
         void registerOutputProcessedCallback(outputProcessedCallback callbackFunc);
 
-        int lib_startSession();
+        int lib_startSession(int sample_rate, int bit_depth);
         int lib_initializeEnvironment();
         int lib_destroySession();
         int lib_deinitializeEnvironment();
@@ -115,7 +115,9 @@ public class SoundIoInterface {
     public void registerCharCallback() { SoundIoLib.INSTANCE.registerCharCallback(charCallback); }
     public void registerOutputProcessedCallback() { SoundIoLib.INSTANCE.registerOutputProcessedCallback(outputCallback); }
 
-    public int lib_startSession() { return SoundIoLib.INSTANCE.lib_startSession(); }
+    public int lib_startSession(int sample_rate, int bit_depth) {
+        return SoundIoLib.INSTANCE.lib_startSession(sample_rate, bit_depth);
+    }
     public int lib_destroySession() { return SoundIoLib.INSTANCE.lib_destroySession(); }
     public int lib_getCurrentBackend() { return SoundIoLib.INSTANCE.lib_getCurrentBackend(); }
     public int lib_startPlayback(int fileId) { return SoundIoLib.INSTANCE.lib_startPlayback(fileId); }

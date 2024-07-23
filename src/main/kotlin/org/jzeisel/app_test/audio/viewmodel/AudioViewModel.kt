@@ -17,7 +17,8 @@ class AudioViewModel(
     val defaultInputIndex: Int get() { return audioEngineManager.defaultInputIndex }
 
     val tempo: Double get() { return audioStateFlow._state.beatsPerMinute }
-    val sampleRate: Int get() { return audioStateFlow._state.sampleRate }
+    val sampleRate: Int get() { return audioStateFlow._state.sampleRate.value }
+    val bitDepth: Int get() { return audioStateFlow._state.bitDepth.value }
     val numBeats: UInt get() { return audioStateFlow._state.tSignatureTop }
     val cursorOffsetSamples: Int get() { return audioStateFlow._state.cursorOffsetSamples }
 

@@ -22,6 +22,16 @@ data class TrackData(
     var recordingEnabled: Boolean = false,
     var lastVUMeterValue: Double = 0.0
 )
+enum class BitDepth(val value: Int) {
+    EIGHT(8),
+    SIXTEEN(16),
+    TWENTY_FOUR(24),
+    THIRTY_TWO(32)
+}
+enum class SampleRate(val value: Int) {
+    FOUR_FOUR_ONE(44100),
+    FOUR_EIGHT_K(48000)
+}
 data class AudioStream(
     var device: Device
 )

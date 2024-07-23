@@ -34,10 +34,16 @@ static void _deallocateAllMemory() {
     free(csoundlib_state);
 }
 
-int lib_startSession() {
-    csoundlib_state = malloc( 1 * sizeof(audio_state) );
-    csoundlib_state->sample_rate = 44100;
-    csoundlib_state->input_dtype = CSL_S24;
+int lib_startSession(int sample_rate, int bit_depth) {
+    csoundlib_state = malloc( sizeof(audio_state) );
+    csoundlib_state->sample_rate = sample_rate;
+    /* switch(bit_depth) {
+        case 8: csoundlib_state->input_dtype = CSL_S8; break;
+        case 16: csoundlib_state->input_dtype = CSL_S16; break;
+        case 24: csoundlib_state->input_dtype = CSL_S24; break;
+        case 32: csoundlib_state->input_dtype = CSL_S32; break;
+    } */
+    csoundlib_state->input_dtype = CSL_S32;
     struct SoundIo* soundio = soundio_create();
     char* mixed_output_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
     trackObject* list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));
