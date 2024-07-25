@@ -28,7 +28,6 @@ abstract class Track(val root: StackPane, parent: Widget) : WindowElement {
     val labelDivider = Rectangle(1.5, initialTrackHeight, trackListState.strokeColor)
     val trackLabel = Rectangle()
     val trackLabelNumber = Text("")
-    var isSelected = false
     abstract var trackOffsetY: Double
     abstract val addButton: AddButton
     abstract val vuMeter: VUMeter
@@ -85,9 +84,4 @@ abstract class Track(val root: StackPane, parent: Widget) : WindowElement {
     abstract fun soloDisable()
     abstract fun muteEnable()
     abstract fun muteDisable()
-
-    fun setSelected() {
-        isSelected = true
-        trackRectangle.fill = Color.MEDIUMPURPLE.brighter().brighter().brighter()
-    }
 }

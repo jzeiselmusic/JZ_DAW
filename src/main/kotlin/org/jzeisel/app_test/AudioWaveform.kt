@@ -31,7 +31,7 @@ class AudioWaveform : Application() {
     private lateinit var viewModelController: ViewModelController
     /*
 
-    the z values of the nodes should be laid out in the following way
+    the z values of the nodes will be laid out in the following way
 
            waveform box and cursor - 10-20
            track boxes and nodes - 30-40

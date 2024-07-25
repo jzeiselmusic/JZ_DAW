@@ -12,6 +12,7 @@ import org.jzeisel.app_test.audio.viewmodel.ViewModelController
 import org.jzeisel.app_test.components.interfaces.widget.NodeWidget
 import org.jzeisel.app_test.components.interfaces.widget.Widget
 import org.jzeisel.app_test.components.mixerComponents.BpmDisplay
+import org.jzeisel.app_test.components.mixerComponents.MasterMixerFader
 import org.jzeisel.app_test.components.mixerComponents.MixerButton
 import org.jzeisel.app_test.components.mixerComponents.TimeDisplay
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
@@ -20,12 +21,12 @@ import org.jzeisel.app_test.util.viewOrderFlip
 
 class MixerViewModel(
     val root: StackPane,
-    val viewModelController: ViewModelController,
-    val trackListStateFlow: TrackListStateFlow,
-    val audioViewModel: AudioViewModel): NodeWidget {
+    private val viewModelController: ViewModelController,
+    private val trackListStateFlow: TrackListStateFlow,
+    private val audioViewModel: AudioViewModel): NodeWidget {
     init {
         root.maxWidth = trackListStateFlow.state.stageWidthProperty.value
-        root.maxHeight = trackListStateFlow.state.stageHeightProperty.value/3.5
+        root.maxHeight = trackListStateFlow.state.stageHeightProperty.value/2.0
         root.background = Background(BackgroundFill(Color.DARKGRAY.darker().darker().darker(), null, null))
         root.translateX = 0.0
         root.translateY = trackListStateFlow.state.stageHeightProperty.value /2.0 - root.maxHeight / 2.0
@@ -34,13 +35,13 @@ class MixerViewModel(
     override val parent: Widget? = null
     override val children = mutableListOf<Widget>()
     val toolBarButtons = mutableListOf<MixerButton>()
-
     val toolBarInitHeight = 35.0
     val toolBarY = -root.maxHeight/2.0 + toolBarInitHeight/2.0
+    val screenWidth: Double get() { return trackListStateFlow.state.stageWidthProperty.value }
 
     private val dividerRect = Rectangle()
     private var dividerPressed = false
-    private val toolBarRect = Rectangle()
+    val toolBarRect = Rectangle()
     private val playButton = MixerButton(
         "file:/Users/jacobzeisel/git/App_Test/src/main/resources/play.png",
         0,
@@ -105,7 +106,7 @@ class MixerViewModel(
         }
     }
     override fun addChild(child: Widget) {
-        /* children should be track objects */
+        /* children should be track fader objects */
     }
 
     override fun addMeToScene(root: StackPane) {
@@ -116,6 +117,9 @@ class MixerViewModel(
         }
         timeDisplay.addMeToScene(root)
         bpmDisplay.addMeToScene(root)
+        val master = MasterMixerFader(this)
+        addChild(master)
+        master.addMeToScene(root)
     }
 
     fun play(enabled: Boolean, action: Boolean) {
@@ -182,7 +186,7 @@ class MixerViewModel(
 
     fun setUpDividerRectangles() {
         toolBarRect.width = root.maxWidth
-        toolBarRect.height = 65.0
+        toolBarRect.height = 60.0
         toolBarRect.fill = Color.DARKGRAY.darker()
         toolBarRect.stroke = Color.BLACK
         toolBarRect.strokeWidth = 1.8
