@@ -40,7 +40,7 @@ float envelopeFollower(float input, float attack, float release, float prev_enve
 }
 
 void add_and_scale_audio(const uint8_t *source, uint8_t *destination, float volume, int num_samples) {
-    CSL_DTYPE dtype = csoundlib_state->input_dtype;
+    CSL_DTYPE dtype = csoundlib_state->input_dtype.dtype;
     uint8_t bytes_in_buffer = get_bytes_in_buffer(dtype);
     uint8_t bytes_in_sample = get_bytes_in_sample(dtype);
     for (int i = 0; i < num_samples; i++) {
@@ -71,7 +71,7 @@ void add_and_scale_audio(const uint8_t *source, uint8_t *destination, float volu
         int32_t result = (int32_t)((src_sample + dst_sample) * volume);
         
         // Clip the result to max/min bit range
-        if (is_signed_type(csoundlib_state->input_dtype)) {
+        if (csoundlib_state->input_dtype.is_signed) {
             int max_val = get_max_value(dtype);
             int min_val = get_min_value(dtype);
             result = (result > max_val) ? max_val : (result < min_val) ? min_val : result;
@@ -93,7 +93,7 @@ void add_and_scale_audio(const uint8_t *source, uint8_t *destination, float volu
 }
 
 void scale_audio(uint8_t *source, float volume, int num_samples) {
-    CSL_DTYPE dtype = csoundlib_state->input_dtype;
+    CSL_DTYPE dtype = csoundlib_state->input_dtype.dtype;
     uint8_t bytes_in_buffer = get_bytes_in_buffer(dtype);
     uint8_t bytes_in_sample = get_bytes_in_sample(dtype);
     for (int i = 0; i < num_samples; i++) {
@@ -119,7 +119,7 @@ void scale_audio(uint8_t *source, float volume, int num_samples) {
         int32_t result = (int32_t)(src_sample * volume);
         
         // Clip the result to max/min bit range
-        if (is_signed_type(csoundlib_state->input_dtype)) {
+        if (csoundlib_state->input_dtype.is_signed) {
             int max_val = get_max_value(dtype);
             int min_val = get_min_value(dtype);
             result = (result > max_val) ? max_val : (result < min_val) ? min_val : result;
@@ -142,7 +142,7 @@ void scale_audio(uint8_t *source, float volume, int num_samples) {
 
 float calculate_rms_level(const char* source, int num_bytes) {
     float rms = 0.0;
-    int bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
+    int bytes_in_buffer = csoundlib_state->input_dtype.bytes_in_buffer;
     for (int idx = 0; idx < num_bytes; idx += bytes_in_buffer) {
         float sample = four_bytes_to_sample(source + idx);
         rms += sample * sample;
@@ -159,10 +159,10 @@ float four_bytes_to_sample(const char* bytes) {
                 (bytes[0])
             );
     float sample_val_float = (float)sample_value;
-    if (sample_val_float > 0 || !is_signed_type(csoundlib_state->input_dtype)) {
-        return sample_val_float / get_max_value(csoundlib_state->input_dtype);
+    if (sample_val_float > 0 || !csoundlib_state->input_dtype.is_signed) {
+        return sample_val_float / csoundlib_state->input_dtype.max_size;
     }
     else {
-        return sample_val_float / get_min_value(csoundlib_state->input_dtype);
+        return sample_val_float / csoundlib_state->input_dtype.min_size;
     }
 }

@@ -47,6 +47,13 @@ int lib_loadInputDevices() {
     return SoundIoErrorNone;
 }
 
+void cleanup_input_devices() {
+    int num_input_devices = lib_getNumInputDevices();
+    for (int i = 0; i < num_input_devices; i++) {
+        soundio_device_unref(csoundlib_state->output_devices[i]);
+    }
+}
+
 
 int lib_getDefaultInputDeviceIndex() {
     /* returns -1 on error */
@@ -126,6 +133,13 @@ int lib_loadOutputDevices() {
         }
     }
     return SoundIoErrorNone;
+}
+
+void cleanup_output_devices() {
+    int num_output_devices = lib_getNumOutputDevices();
+    for (int i = 0; i < num_output_devices; i++) {
+        soundio_device_unref(csoundlib_state->output_devices[i]);
+    }
 }
 
 int lib_getDefaultOutputDeviceIndex() {

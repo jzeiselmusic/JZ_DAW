@@ -18,7 +18,7 @@ typedef struct _metronome {
 typedef struct _audioState {
     struct SoundIo* soundio;
     int sample_rate; 
-    CSL_DTYPE input_dtype;
+    InputDtype input_dtype;
 
     /* playback */
     bool playback_started;

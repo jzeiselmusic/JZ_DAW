@@ -3,6 +3,7 @@
 
 /* functions for input devices */
 int lib_loadInputDevices();
+void cleanup_input_devices();
 int lib_getDefaultInputDeviceIndex();
 int lib_getNumInputDevices();
 char* lib_getDefaultInputDeviceName();
@@ -13,6 +14,7 @@ char* lib_getNameOfChannelOfInputDevice(int deviceIndex, int channelIndex);
 
 /* functions for output devices */
 int lib_loadOutputDevices();
+void cleanup_output_devices();
 int lib_getDefaultOutputDeviceIndex();
 int lib_getNumOutputDevices();
 char* lib_getDefaultOutputDeviceName();

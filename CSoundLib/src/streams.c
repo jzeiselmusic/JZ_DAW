@@ -137,7 +137,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
 
     /* search for device index of this output stream */
     int device_index = -1;
-    for (int i = 0; i < lib_getNumInputDevices(); i++) {
+    for (int i = 0; i < lib_getNumOutputDevices(); i++) {
         if (csoundlib_state->output_devices[i]->id == outstream->device->id) {
             device_index = i;
             break;
@@ -220,7 +220,7 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
     struct SoundIoDevice* input_device = csoundlib_state->input_devices[device_index];
     struct SoundIoInStream* instream = soundio_instream_create(input_device);
     if (!instream) return SoundIoErrorNoMem;
-    switch(csoundlib_state->input_dtype) {
+    switch(csoundlib_state->input_dtype.dtype) {
         case CSL_S24: instream->format = SoundIoFormatS24LE; break;
         case CSL_S16: instream->format = SoundIoFormatS16LE; break;
         case CSL_S32: instream->format = SoundIoFormatS32LE; break;
@@ -239,6 +239,7 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
     if (err != SoundIoErrorNone) return err;
 
     int num_channels = lib_getNumChannelsOfInputDevice(device_index);
+    csoundlib_state->num_channels_available = num_channels;
     /* reset channel buffers */
     free(csoundlib_state->input_channel_buffers);
     csoundlib_state->input_channel_buffers = malloc(num_channels * sizeof(struct SoundIoRingBuffer*));
@@ -253,7 +254,6 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
         int fill_count = soundio_ring_buffer_capacity(ring_buffer);
         memset(buf, 0, fill_count);
         csoundlib_state->input_channel_buffers[idx] = ring_buffer;
-        csoundlib_state->num_channels_available = num_channels;
     }
     return SoundIoErrorNone;
 }
@@ -292,7 +292,7 @@ static int _createOutputStream(int device_index, float microphone_latency, int s
     struct SoundIoDevice* output_device = csoundlib_state->output_devices[device_index];
     struct SoundIoOutStream* outstream = soundio_outstream_create(output_device);
     if (!outstream) return SoundIoErrorNoMem;
-    switch(csoundlib_state->input_dtype) {
+    switch(csoundlib_state->input_dtype.dtype) {
         case CSL_S24: outstream->format = SoundIoFormatS24LE; break;
         case CSL_S16: outstream->format = SoundIoFormatS16LE; break;
         case CSL_S32: outstream->format = SoundIoFormatS32LE; break;
@@ -394,7 +394,7 @@ static void _processInputStreams(int* max_fill_samples, struct SoundIoRingBuffer
                             read_ptr, 
                             csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer,
                             1.0,
-                            fill_bytes / get_bytes_in_buffer(csoundlib_state->input_dtype)
+                            fill_bytes / csoundlib_state->input_dtype.bytes_in_buffer
                         );
                         csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes = fill_bytes;
                     }
@@ -430,7 +430,7 @@ static void _copyInputBuffersToOutputBuffers() {
                 csoundlib_state->list_of_track_objects[trackIdx].input_buffer.buffer,
                 csoundlib_state->mixed_output_buffer,
                 csoundlib_state->list_of_track_objects[trackIdx].volume,
-                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes / get_bytes_in_buffer(csoundlib_state->input_dtype)
+                csoundlib_state->list_of_track_objects[trackIdx].input_buffer.write_bytes / csoundlib_state->input_dtype.bytes_in_buffer
             );
 
             csoundlib_state->list_of_track_objects[trackIdx].current_rms_levels.output_rms_level = 
@@ -443,7 +443,7 @@ static void _copyInputBuffersToOutputBuffers() {
 }
 
 static void _copyMetronomeToOutputBuffer(int* max_fill_samples) {
-    uint8_t bytes_in_buffer = get_bytes_in_buffer(csoundlib_state->input_dtype);
+    uint8_t bytes_in_buffer = csoundlib_state->input_dtype.bytes_in_buffer;
     if (csoundlib_state->metronome.enabled && csoundlib_state->playback_started) {
         if ((csoundlib_state->current_cursor_offset % csoundlib_state->metronome.samples_in_a_beat) < (csoundlib_state->metronome.num_bytes / bytes_in_buffer)) {
             /* case where start of output buffer at or after start of beat */

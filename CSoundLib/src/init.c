@@ -38,10 +38,10 @@ int lib_startSession(int sample_rate, int bit_depth) {
     csoundlib_state = malloc( sizeof(audio_state) );
     csoundlib_state->sample_rate = sample_rate;
     switch(bit_depth) {
-        case 8: csoundlib_state->input_dtype = CSL_S8; break;
-        case 16: csoundlib_state->input_dtype = CSL_S16; break;
-        case 24: csoundlib_state->input_dtype = CSL_S24; break;
-        case 32: csoundlib_state->input_dtype = CSL_S32; break;
+        case 8: csoundlib_state->input_dtype = CSL_S8_t; break;
+        case 16: csoundlib_state->input_dtype = CSL_S16_t; break;
+        case 24: csoundlib_state->input_dtype = CSL_S24_t; break;
+        case 32: csoundlib_state->input_dtype = CSL_S32_t; break;
     } 
     struct SoundIo* soundio = soundio_create();
     char* mixed_output_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
@@ -70,6 +70,8 @@ int lib_startSession(int sample_rate, int bit_depth) {
 int lib_destroySession() {
     int ret = lib_stopOutputStream();
     ret = lib_stopInputStream();
+    cleanup_input_devices();
+    cleanup_output_devices();
     soundio_flush_events(csoundlib_state->soundio);
     soundio_destroy(csoundlib_state->soundio);
 
