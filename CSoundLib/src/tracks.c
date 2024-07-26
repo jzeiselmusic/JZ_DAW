@@ -115,13 +115,13 @@ int lib_deleteFile(int trackId, int fileId) {
 int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFileId) {
     /* find source file in source track. copy it to destination track file list. delete from source track file list */
     /* first find destination track */
-    const char* destTrackKey[50];
+    const char destTrackKey[50];
     ht_getkey(destTrackId, destTrackKey);
     trackObject* destTrack = ht_get(csoundlib_state->track_hash_table, destTrackKey);
     if (destTrack == NULL) return SoundIoErrorTrackNotFound;
 
     /* then find source track, move it to destination, and delete from source */
-    const char* srcTrackKey[50];
+    const char srcTrackKey[50];
     ht_getkey(sourceTrackId, srcTrackKey);
     trackObject* srcTrack = ht_get(csoundlib_state->track_hash_table, srcTrackKey);
     if (srcTrack == NULL) return SoundIoErrorTrackNotFound;
@@ -273,6 +273,6 @@ void lib_setMasterVolume(float logVolume) {
 void deleteAllTracks() {
     hti it = ht_iterator(csoundlib_state->track_hash_table);
     while( ht_next(&it) ) {
-        deleteTrack(it.key);
+        _deleteTrack(it.key);
     }
 }
