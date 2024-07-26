@@ -210,21 +210,19 @@ class WaveFormBox(override val parent: Widget) :
                 file.removeMeFromScene(root)
             }
         }
-        runLater {
-            unregisterForBroadcasts()
-            root.children.remove(trackRectangle)
-            root.children.remove(highlightRectangle)
-            for (measureDivider in measureDividers) {
-                root.children.remove(measureDivider)
-            }
-            for (tickDivider in beatDividers) {
-                root.children.remove(tickDivider)
-            }
-            for (beatTick in ticksForMasterTrack) {
-                root.children.remove(beatTick)
-            }
-            root.children.remove(highlightRectangle)
+        unregisterForBroadcasts()
+        root.children.remove(trackRectangle)
+        root.children.remove(highlightRectangle)
+        for (measureDivider in measureDividers) {
+            root.children.remove(measureDivider)
         }
+        for (tickDivider in beatDividers) {
+            root.children.remove(tickDivider)
+        }
+        for (beatTick in ticksForMasterTrack) {
+            root.children.remove(beatTick)
+        }
+        root.children.remove(highlightRectangle)
     }
 
     override fun respondToHeightChange(old: Double, new: Double) {

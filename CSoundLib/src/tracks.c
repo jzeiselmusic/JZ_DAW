@@ -62,6 +62,7 @@ int lib_deleteTrack(int trackId) {
     }
     /* free memory that was waiting for future audio files */
     free(track_p->files);
+    /* ht remove frees track_p */
     ht_remove(csoundlib_state->track_hash_table, key);
     csoundlib_state->num_tracks -= 1;
     return SoundIoErrorNone;
@@ -81,6 +82,7 @@ static int _deleteTrack(const char* key) {
     }
     /* free memory that was waiting for future audio files */
     free(track_p->files);
+    ht_remove(csoundlib_state->track_hash_table, key);
     csoundlib_state->num_tracks -= 1;
     return SoundIoErrorNone;
 }
@@ -156,7 +158,6 @@ int lib_trackChooseInputChannel(int trackId, int channel_index) {
 int lib_armTrackForRecording(int trackId) {
     const char key[50];
     ht_getkey(trackId, key);
-    logCallback("searching for track");
     trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
     if (track_p == NULL) return SoundIoErrorTrackNotFound;
     track_p->record_enabled = true;
@@ -268,6 +269,9 @@ void lib_setMasterVolume(float logVolume) {
 }
 
 void deleteAllTracks() {
+    /* only frees the sound files from the track and frees memory hold track.
+    *  does not call ht_destroy()
+    */
     hti it = ht_iterator(csoundlib_state->track_hash_table);
     while( ht_next(&it) ) {
         _deleteTrack(it.key);

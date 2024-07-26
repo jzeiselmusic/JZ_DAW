@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "callbacks.h"
 
 #define INITIAL_CAPACITY 32  // must not be zero
 #define MAX_CAPACITY     500
@@ -95,26 +96,31 @@ void* ht_get(ht* table, const char* key) {
 
 bool ht_remove(ht* table, const char* key) {
     /* if exists, find the value and free the memory */
-
     uint64_t hash = hash_key(key);
     /* check that key is in hash table */
     bool found = false;
     int i;
     for (i = 0; i < table->capacity; i++) {
-        if (!strcmp(key, table->entries[i].key)) {
-            found = true;
-            break;
-        }
+        if (table->entries[i].key != NULL)
+            if (!strcmp(key, table->entries[i].key)) {
+                found = true;
+                break;
+            }
     }
     if (found) {
-        free(table->entries[i].value);
-        free(table->entries[i].key);
-        table->length -= 1;
-        return true;
+        if (table->entries[i].key != NULL && table->entries[i].value != NULL) {
+            free((void*)table->entries[i].value);
+            free((void*)table->entries[i].key);
+            table->entries[i].value = NULL;
+            table->entries[i].key = NULL;
+            table->length -= 1;
+            return true;
+        }
     }
     else {
         return false;
     }
+    return false;
 }
 
 // Internal function to set an entry (without expanding table).

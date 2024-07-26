@@ -125,18 +125,16 @@ class NormalTrack(root: StackPane, override val parent: Widget,
     }
 
     override fun removeMeFromScene(root: StackPane) {
-        runLater {
-            unregisterForBroadcasts()
-            for (child in children) {
-                child.removeMeFromScene(root)
-            }
-            children.clear()
-            root.children.remove(trackLabelNumber)
-            root.children.remove(trackDivider)
-            root.children.remove(trackRectangle)
-            root.children.remove(trackLabel)
-            root.children.remove(labelDivider)
+        unregisterForBroadcasts()
+        for (child in children) {
+            child.removeMeFromScene(root)
         }
+        children.clear()
+        root.children.remove(trackLabelNumber)
+        root.children.remove(trackDivider)
+        root.children.remove(trackRectangle)
+        root.children.remove(trackLabel)
+        root.children.remove(labelDivider)
     }
 
     override fun addTrack() {
