@@ -18,7 +18,6 @@ int lib_addNewTrack(int trackId) {
     if (!files) {
         return SoundIoErrorNoMem;
     }
-    inputStreamCallback("adding track with id: ", trackId);
     trackObject* tp = malloc(sizeof(trackObject));
     trackObject track =
         {
@@ -82,7 +81,6 @@ static int _deleteTrack(const char* key) {
     }
     /* free memory that was waiting for future audio files */
     free(track_p->files);
-    ht_remove(csoundlib_state->track_hash_table, key);
     csoundlib_state->num_tracks -= 1;
     return SoundIoErrorNone;
 }
@@ -161,7 +159,6 @@ int lib_armTrackForRecording(int trackId) {
     logCallback("searching for track");
     trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
     if (track_p == NULL) return SoundIoErrorTrackNotFound;
-    inputStreamCallback("found track with id: ", track_p->track_id);
     track_p->record_enabled = true;
     return SoundIoErrorNone;
 }
