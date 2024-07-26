@@ -9,6 +9,7 @@
 #include "state.h"
 #include <string.h>
 #include "wav.h"
+#include "hash.h"
 
 static int _connectToBackend();
 static void _deallocateAllMemory();
@@ -46,14 +47,16 @@ int lib_startSession(int sample_rate, int bit_depth) {
     struct SoundIo* soundio = soundio_create();
     char* mixed_output_buffer = calloc(MAX_BUFFER_SIZE_BYTES, sizeof(char));
     trackObject* list_of_track_objects = malloc(MAX_TRACKS * sizeof(trackObject));
+    ht* hash_table = ht_create();
 
     if (soundio && mixed_output_buffer && list_of_track_objects && csoundlib_state) {
         csoundlib_state->soundio = soundio;
         csoundlib_state->mixed_output_buffer = mixed_output_buffer;
-        csoundlib_state->list_of_track_objects = list_of_track_objects;
+        csoundlib_state->track_hash_table = hash_table;
         csoundlib_state->environment_initialized = true;
         csoundlib_state->solo_engaged = false;
         csoundlib_state->master_volume = 1.0;
+        csoundlib_state->tracks_solod = 0;
         lib_setBeatsPerMinute(120.0);
         memset(&(csoundlib_state->metronome.audio), 0x00, CSL_MAX_METRONOME_BUF_SIZE);
         csoundlib_state->metronome.enabled = false;
@@ -75,11 +78,9 @@ int lib_destroySession() {
     soundio_flush_events(csoundlib_state->soundio);
     soundio_destroy(csoundlib_state->soundio);
 
-    for (int idx = csoundlib_state->num_tracks ; idx-- > 0 ; ) {
-            lib_deleteTrack(csoundlib_state->list_of_track_objects[idx].track_id);
-    }
+    deleteAllTracks();
+    ht_destroy(csoundlib_state->track_hash_table);
 
-    free(csoundlib_state->list_of_track_objects);
     free(csoundlib_state->mixed_output_buffer);
 
     if (csoundlib_state->input_memory_allocated) {

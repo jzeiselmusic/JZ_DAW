@@ -18,7 +18,8 @@ int lib_addNewTrack(int trackId) {
     if (!files) {
         return SoundIoErrorNoMem;
     }
-
+    inputStreamCallback("adding track with id: ", trackId);
+    trackObject* tp = malloc(sizeof(trackObject));
     trackObject track =
         {
             .track_id = trackId,
@@ -36,63 +37,76 @@ int lib_addNewTrack(int trackId) {
             .input_buffer.buffer = {0},
             .input_buffer.write_bytes = 0
         };
+    *tp = track;
 
-    csoundlib_state->list_of_track_objects[csoundlib_state->num_tracks] = track;
-    csoundlib_state->num_tracks += 1;
+    /* csoundlib_state->list_of_track_objects[csoundlib_state->num_tracks] = track;
+    csoundlib_state->num_tracks += 1; */
+    const char key[50];
+    ht_getkey(trackId, key);
+    ht_set(csoundlib_state->track_hash_table, key, (void*)(tp));
     return SoundIoErrorNone;
 }
 
 int lib_deleteTrack(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            trackObject track = csoundlib_state->list_of_track_objects[idx];
-            /* close any open files to free the memory */
-            for (int jdx = 0; jdx < track.num_files; jdx++) {
-                if (track.files[jdx].is_file_open) {
-                    close_wav_for_playback(&(track.files[jdx]));
-                    track.files[jdx].is_file_open = false;
-                    track.is_recording = false;
-                    track.is_playing_back = false;
-                }
-            }
-            /* free memory that was waiting for future audio files */
-            free(track.files);
-            for (int jdx = idx+1; jdx < csoundlib_state->num_tracks; jdx++) {
-                memcpy(&(csoundlib_state->list_of_track_objects[jdx-1]), 
-                        &(csoundlib_state->list_of_track_objects[jdx]), sizeof(trackObject));
-                /* set the last track in the list to null because it has been moved */
-                if (jdx == csoundlib_state->num_tracks-1) {
-                    memset(&(csoundlib_state->list_of_track_objects[jdx]), 0, sizeof(trackObject));
-                }
-            }
-            csoundlib_state->num_tracks -= 1;
-            return SoundIoErrorNone;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    /* close any open files to free the memory */
+    for (int jdx = 0; jdx < track_p->num_files; jdx++) {
+        if (track_p->files[jdx].is_file_open) {
+            close_wav_for_playback(&(track_p->files[jdx]));
+            track_p->files[jdx].is_file_open = false;
+            track_p->is_recording = false;
+            track_p->is_playing_back = false;
         }
     }
-    return SoundIoErrorTrackNotFound;
+    /* free memory that was waiting for future audio files */
+    free(track_p->files);
+    ht_remove(csoundlib_state->track_hash_table, key);
+    csoundlib_state->num_tracks -= 1;
+    return SoundIoErrorNone;
+}
+
+static int _deleteTrack(const char* key) {
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    /* close any open files to free the memory */
+    for (int jdx = 0; jdx < track_p->num_files; jdx++) {
+        if (track_p->files[jdx].is_file_open) {
+            close_wav_for_playback(&(track_p->files[jdx]));
+            track_p->files[jdx].is_file_open = false;
+            track_p->is_recording = false;
+            track_p->is_playing_back = false;
+        }
+    }
+    /* free memory that was waiting for future audio files */
+    free(track_p->files);
+    ht_remove(csoundlib_state->track_hash_table, key);
+    csoundlib_state->num_tracks -= 1;
+    return SoundIoErrorNone;
 }
 
 int lib_deleteFile(int trackId, int fileId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            trackObject track = csoundlib_state->list_of_track_objects[idx];
-            audioFile* files = csoundlib_state->list_of_track_objects[idx].files;
-            for (int jdx = 0; jdx < track.num_files; jdx++) {
-                if (files[jdx].file_id == fileId) {
-                    int fd = fileno(files[jdx].fp);
-                    flock(fd, LOCK_EX);
-                    fclose(files[jdx].fp);
-                    for (int kdx = jdx + 1; kdx < track.num_files; kdx++) {
-                        memcpy(&(files[kdx-1]), &(files[kdx]), sizeof(audioFile));
-                        if (kdx == track.num_files-1) {
-                            memset(&(files[kdx]), 0, sizeof(audioFile));
-                        }
-                    }
-                    csoundlib_state->list_of_track_objects[idx].num_files -= 1;
-                    flock(fd, LOCK_UN);
-                    return SoundIoErrorNone;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    audioFile* files = track_p->files;
+    for (int jdx = 0; jdx < track_p->num_files; jdx++) {
+        if (files[jdx].file_id == fileId) {
+            int fd = fileno(files[jdx].fp);
+            flock(fd, LOCK_EX);
+            fclose(files[jdx].fp);
+            for (int kdx = jdx + 1; kdx < track_p->num_files; kdx++) {
+                memcpy(&(files[kdx-1]), &(files[kdx]), sizeof(audioFile));
+                if (kdx == track_p->num_files-1) {
+                    memset(&(files[kdx]), 0, sizeof(audioFile));
                 }
             }
+            track_p->num_files -= 1;
+            flock(fd, LOCK_UN);
+            return SoundIoErrorNone;
         }
     }
     return SoundIoErrorFileNotFound;
@@ -101,178 +115,164 @@ int lib_deleteFile(int trackId, int fileId) {
 int lib_moveFileBetweenTracks(int destTrackId, int sourceTrackId, int sourceFileId) {
     /* find source file in source track. copy it to destination track file list. delete from source track file list */
     /* first find destination track */
-    trackObject* destTrackLocation;
-    bool destTrackFound = false;
-    for (int kdx = 0; kdx < csoundlib_state->num_tracks; kdx++) {
-        if (csoundlib_state->list_of_track_objects[kdx].track_id == destTrackId) {
-            destTrackLocation = &(csoundlib_state->list_of_track_objects[kdx]);
-            destTrackFound = true;
-            break;
-        }
-    }
-    if (destTrackFound == false) {
-        return SoundIoErrorTrackNotFound;
-    }
+    const char* destTrackKey[50];
+    ht_getkey(destTrackId, destTrackKey);
+    trackObject* destTrack = ht_get(csoundlib_state->track_hash_table, destTrackKey);
+    if (destTrack == NULL) return SoundIoErrorTrackNotFound;
+
     /* then find source track, move it to destination, and delete from source */
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == sourceTrackId) {
-            audioFile* files = csoundlib_state->list_of_track_objects[idx].files;
-            for (int jdx = 0; jdx < csoundlib_state->list_of_track_objects[idx].num_files; jdx++) {
-                if (files[jdx].file_id == sourceFileId) {
-                    memcpy(&(destTrackLocation->files[destTrackLocation->num_files]), &(files[jdx]), sizeof(audioFile));
-                    destTrackLocation->num_files += 1;
-                    lib_deleteFile(sourceTrackId, sourceFileId);
-                    return SoundIoErrorNone;
-                }
-            }
+    const char* srcTrackKey[50];
+    ht_getkey(sourceTrackId, srcTrackKey);
+    trackObject* srcTrack = ht_get(csoundlib_state->track_hash_table, srcTrackKey);
+    if (srcTrack == NULL) return SoundIoErrorTrackNotFound;
+    audioFile* files = srcTrack->files;
+    for (int jdx = 0; jdx < srcTrack->num_files; jdx++) {
+        if (files[jdx].file_id == sourceFileId) {
+            memcpy(&(destTrack->files[destTrack->num_files]), &(files[jdx]), sizeof(audioFile));
+            destTrack->num_files += 1;
+            lib_deleteFile(sourceTrackId, sourceFileId);
+            return SoundIoErrorNone;
         }
     }
     return SoundIoErrorFileNotFound;
 }
 
 int lib_trackChooseInputDevice(int trackId, int device_index) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx ++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].input_device_index = device_index;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->input_device_index = device_index;
+    return SoundIoErrorNone;
 }
 
 int lib_trackChooseInputChannel(int trackId, int channel_index) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].input_channel_index = channel_index;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->input_channel_index = channel_index;
+    return SoundIoErrorNone;
 }
 
 int lib_armTrackForRecording(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].record_enabled = true;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    logCallback("searching for track");
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    inputStreamCallback("found track with id: ", track_p->track_id);
+    track_p->record_enabled = true;
+    return SoundIoErrorNone;
 }
 
 int lib_disarmTrackForRecording(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].record_enabled = false;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->record_enabled = false;
+    return SoundIoErrorNone;
 }
 
 int lib_inputEnable(int trackId, bool enable) {
-    for (int idx = 0; idx <csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].input_enabled = enable;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->input_enabled = enable;
+    return SoundIoErrorNone;
 }
 
 float lib_getRmsVolumeTrackInput(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            return csoundlib_state->list_of_track_objects[idx].current_rms_levels.input_rms_level;
-        }
-    }
-    return 0.0;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return 0.0;
+    return track_p->current_rms_levels.input_rms_level;
 }
 
 float lib_getRmsVolumeTrackOutput(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            return csoundlib_state->list_of_track_objects[idx].current_rms_levels.output_rms_level;
-        }
-    }
-    return 0.0;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return 0.0;
+    return track_p->current_rms_levels.output_rms_level;
 }
 
 int lib_updateTrackOffset(int trackId, int fileId, int newOffset) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            for (int jdx = 0; jdx < csoundlib_state->list_of_track_objects[idx].num_files; jdx++) {
-                if (fileId == csoundlib_state->list_of_track_objects[idx].files[jdx].file_id) {
-                    csoundlib_state->list_of_track_objects[idx].files[jdx].file_sample_offset = newOffset;
-                    return SoundIoErrorNone;
-                }
-            }
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    for (int jdx = 0; jdx < track_p->num_files; jdx++) {
+        if (fileId == track_p->files[jdx].file_id) {
+            track_p->files[jdx].file_sample_offset = newOffset;
+            return SoundIoErrorNone;
         }
     }
     return SoundIoErrorFileNotFound;
 }
 
 int lib_soloEnable(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].solo_enabled = true;
-            csoundlib_state->solo_engaged = true;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->solo_enabled = true;
+    csoundlib_state->tracks_solod += 1;
+    csoundlib_state->solo_engaged = true;
+    return SoundIoErrorNone;
 }
 
 int lib_soloDisable(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].solo_enabled = false;
-            bool solo_engaged = false;
-            for (int jdx = 0; jdx < csoundlib_state->num_tracks; jdx++) {
-                if (csoundlib_state->list_of_track_objects[jdx].solo_enabled) {
-                    solo_engaged = true;
-                    break;
-                }
-            }
-            csoundlib_state->solo_engaged = solo_engaged;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->solo_enabled = false;
+    csoundlib_state->tracks_solod -= 1;
+    if (csoundlib_state->tracks_solod > 0) csoundlib_state->solo_engaged = true;
+    else csoundlib_state->solo_engaged = false;
+    return SoundIoErrorNone;
 }
 
 int lib_muteEnable(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].mute_enabled = true;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->mute_enabled = true;
+    return SoundIoErrorNone;
 }
 
 int lib_muteDisable(int trackId) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            csoundlib_state->list_of_track_objects[idx].mute_enabled = false;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    track_p->mute_enabled = false;
+    return SoundIoErrorNone;
 }
 
 int lib_setTrackVolume(int trackId, float logVolume) {
-    for (int idx = 0; idx < csoundlib_state->num_tracks; idx++) {
-        if (csoundlib_state->list_of_track_objects[idx].track_id == trackId) {
-            /* turn db volume into magnitude volume */
-            float mag = log_to_mag(logVolume);
-            csoundlib_state->list_of_track_objects[idx].volume = mag;
-            return SoundIoErrorNone;
-        }
-    }
-    return SoundIoErrorTrackNotFound;
+    const char key[50];
+    ht_getkey(trackId, key);
+    trackObject* track_p = (trackObject*)ht_get(csoundlib_state->track_hash_table, key);
+    if (track_p == NULL) return SoundIoErrorTrackNotFound;
+    /* turn db volume into magnitude volume */
+    float mag = log_to_mag(logVolume);
+    track_p->volume = mag;
+    return SoundIoErrorNone;
 }
 
 void lib_setMasterVolume(float logVolume) {
     csoundlib_state->master_volume = log_to_mag(logVolume);
+}
+
+void deleteAllTracks() {
+    hti it = ht_iterator(csoundlib_state->track_hash_table);
+    while( ht_next(&it) ) {
+        deleteTrack(it.key);
+    }
 }

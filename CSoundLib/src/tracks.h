@@ -40,7 +40,7 @@ typedef struct _rmsVals {
 } rmsVals;
 
 typedef struct _trackObj {
-    int track_id; // unique identifier
+    int track_id; // unique identifier, can be used as key in hash table
     audioFile* files; // pointer to list of files representing audio data to be read
     float volume; // value greater than 0.0
     int num_files;
@@ -55,6 +55,8 @@ typedef struct _trackObj {
     rmsVals current_rms_levels;
     inputBuffer input_buffer;
 } trackObject;
+
+static int _deleteTrack(const char* key);
 
 int lib_addNewTrack(int track_id);
 
@@ -91,5 +93,7 @@ int lib_muteDisable(int trackId);
 int lib_setTrackVolume(int trackId, float logVolume);
 
 void lib_setMasterVolume(float logVolume);
+
+void deleteAllTracks();
 
 #endif

@@ -113,7 +113,7 @@ void* write_to_wav_file(void* args) {
     writeArgs* vals = (writeArgs*)args;
     const char* byte_buffer = vals->bytes;
     int num_bytes = vals->num_bytes;
-    trackObject* track = vals->track;
+    trackObject* track_p = vals->track;
     /* copy bytes into a new buffer */
     const char* new_buffer = malloc(num_bytes);
     memcpy(new_buffer, byte_buffer, num_bytes);
@@ -125,7 +125,7 @@ void* write_to_wav_file(void* args) {
     uint8_t bytes_in_sample = csoundlib_state->input_dtype.bytes_in_sample;
     for (int idx = 0; idx < num_bytes; idx += bytes_in_buffer) {
         fwrite(new_buffer + idx, sizeof(char), bytes_in_sample, fp);
-        track->files[track->num_files - 1].samples_written += 1;
+        track_p->files[track_p->num_files - 1].samples_written += 1;
     }
     flock(fd, LOCK_UN);
 
@@ -240,21 +240,26 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     fwrite(&header, sizeof(wavHeader), 1, fp);
 
     /* open all files for reading */
-    for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
-        for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
+    hti it = ht_iterator(csoundlib_state->track_hash_table);
+    while (ht_next(&it)) {
+        trackObject* track_p = (trackObject*)it.value;
+        for (int fileIdx = 0; fileIdx < track_p->num_files; fileIdx++) {
             open_wav_for_playback(
-                &(csoundlib_state->list_of_track_objects[trackIdx]), 
-                &(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx])
+                track_p, 
+                &(track_p->files[fileIdx])
             );
         }
     }
+
     for (int sample_offset = start_sample_offset; sample_offset < end_sample_offset; sample_offset++) {
         /* read from any files available at current sample */
         char mixed_buffer[4] = {0x00};
-        for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
-            for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
+        hti it = ht_iterator(csoundlib_state->track_hash_table);
+        while (ht_next(&it)) {
+            trackObject* track_p = (trackObject*)it.value;
+            for (int fileIdx = 0; fileIdx < track_p->num_files; fileIdx++) {
                 read_wav_file_for_bounce(
-                    &(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]), 
+                    &(track_p->files[fileIdx]), 
                     mixed_buffer, 
                     sample_offset
                 );
@@ -266,9 +271,11 @@ int lib_bounceMasterToWav(int start_sample_offset, int end_sample_offset) {
     flock(fd, LOCK_UN);
 
     /* close all files for reading */
-    for (int trackIdx = 0; trackIdx < csoundlib_state->num_tracks; trackIdx++) {
-        for (int fileIdx = 0; fileIdx < csoundlib_state->list_of_track_objects[trackIdx].num_files; fileIdx++) {
-            close_wav_for_playback(&(csoundlib_state->list_of_track_objects[trackIdx].files[fileIdx]));
+    it = ht_iterator(csoundlib_state->track_hash_table);
+    while (ht_next(&it)) {
+        trackObject* track_p = (trackObject*)it.value;
+        for (int fileIdx = 0; fileIdx < track_p->num_files; fileIdx++) {
+            close_wav_for_playback(&(track_p->files[fileIdx]));
         }
     }
 

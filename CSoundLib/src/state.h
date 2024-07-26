@@ -5,6 +5,7 @@
 #include "csl_types.h"
 #include "tracks.h"
 #include "playback.h"
+#include "hash.h"
 
 typedef struct _metronome {
     bool enabled;
@@ -51,10 +52,11 @@ typedef struct _audioState {
     float current_rms_ouput;
 
     /* tracks */
-    trackObject* list_of_track_objects;
+    ht* track_hash_table;
     int num_tracks;
 
     /* solo and mute */
+    uint16_t tracks_solod;
     bool solo_engaged;
 
 } audio_state;
