@@ -65,10 +65,10 @@ public class SoundIoInterface {
 
         /* functions for starting and maintaining streams */
         int lib_createInputStream(int device_index, float microphone_latency, int sample_rate);
-        int lib_createAndStartInputStream(int deviceIndex, float microphone_latency, int sample_rate);
+        int lib_createAndStartInputStream(int deviceIndex, float microphone_latency);
         int lib_stopInputStream();
         int lib_createOutputStream(int device_index, float microphone_latency, int sample_rate);
-        int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency, int sample_rate);
+        int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency);
         int lib_stopOutputStream();
 
         /* handling tracks */
@@ -151,12 +151,12 @@ public class SoundIoInterface {
     }
 
 
-    public int lib_createAndStartInputStream(int deviceIndex, float microphone_latency, int sample_rate) {
-        return SoundIoLib.INSTANCE.lib_createAndStartInputStream(deviceIndex, microphone_latency, sample_rate);
+    public int lib_createAndStartInputStream(int deviceIndex, float microphone_latency) {
+        return SoundIoLib.INSTANCE.lib_createAndStartInputStream(deviceIndex, microphone_latency);
     }
     public int lib_stopInputStream() { return SoundIoLib.INSTANCE.lib_stopInputStream(); }
-    public int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency, int sample_rate) {
-        return SoundIoLib.INSTANCE.lib_createAndStartOutputStream(deviceIndex, microphone_latency, sample_rate);
+    public int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency) {
+        return SoundIoLib.INSTANCE.lib_createAndStartOutputStream(deviceIndex, microphone_latency);
     }
     public int lib_stopOutputStream() { return SoundIoLib.INSTANCE.lib_stopOutputStream(); }
     public int lib_addNewTrack(int trackId) { return SoundIoLib.INSTANCE.lib_addNewTrack(trackId); }

@@ -46,7 +46,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
 
         returnError = soundInterface.lib_createAndStartInputStream(
-            defaultInputIndex, microphoneLatency.toFloat(), viewModel.sampleRate)
+            defaultInputIndex, microphoneLatency.toFloat())
 
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             Logger.debug(javaClass.simpleName, "error starting input stream", 5)
@@ -63,7 +63,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         }
 
         returnError = soundInterface.lib_createAndStartOutputStream(
-            defaultOutputIndex, microphoneLatency.toFloat(), viewModel.sampleRate)
+            defaultOutputIndex, microphoneLatency.toFloat())
 
         if (returnError != AudioError.SoundIoErrorNone.ordinal) {
             Logger.debug(javaClass.simpleName, "error starting output stream", 5)
@@ -188,7 +188,7 @@ class AudioEngineManager(private val viewModel: AudioViewModel) {
         if (initialized && inputDevicesLoaded) {
             Logger.debug(javaClass.simpleName, "creating input stream", 5)
             val err: Int = soundInterface.lib_createAndStartInputStream(
-                deviceIndex, microphoneLatency.toFloat(), viewModel.sampleRate)
+                deviceIndex, microphoneLatency.toFloat())
             if (err != 0) {
                 return AudioError.InputStreamError
             }

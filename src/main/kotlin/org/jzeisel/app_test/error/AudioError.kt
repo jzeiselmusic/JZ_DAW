@@ -30,5 +30,7 @@ enum class AudioError(val readable: String) {
     SoundIoErrorTrackNotFound("Track not found with that track ID"),
     SoundIoErrorOpeningFile("Error opening file for recording"),
     SoundIoErrorFileNotFound("Error during playback: file not found"),
-    SoundIoErrorReadingWavForMetronome("Error reading wav for metronome")
+    SoundIoErrorReadingWavForMetronome("Error reading wav for metronome"),
+    SoundIoErrorInputStream("Error opening input stream"),
+    SoundIoErrorOutputStream("Error opening output stream")
 }

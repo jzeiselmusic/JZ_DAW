@@ -27,7 +27,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     private const val zValCursorTriangle = viewOrderFlip - 0.165
     private val rectangleHeight: Double
         get() {
-            return trackListFlow.numTracks * trackListFlow.state.trackHeight
+            return trackListFlow.numNormalTracks * trackListFlow.state.trackHeight
         }
     private val rectangleTranslateY: Double
         get() {

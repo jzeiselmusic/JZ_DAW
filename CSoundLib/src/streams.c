@@ -11,18 +11,19 @@
 #include "init.h"
 #include "state.h"
 #include "wav.h"
+#include "errors.h"
 
 #include <fcntl.h>
 
-static int _createInputStream(int device_index, float microphone_latency, int sample_rate);
-static int _createOutputStream(int device_index, float microphone_latency, int sample_rate);
+static int _createInputStream(int device_index, float microphone_latency);
+static int _createOutputStream(int device_index, float microphone_latency);
 static bool _sendChannelToOutput(int channel_index);
 static void _copyAudioToWavFiles(int* max_fill_samples, struct SoundIoRingBuffer* ring_buffer);
 static void _processInputStreams(int* max_fill_samples, struct SoundIoRingBuffer* ring_buffer);
 static void _readWavFileForPlayback(int max_fill_bytes);
 static void _copyInputBuffersToOutputBuffers();
 static void _copyMetronomeToOutputBuffer(int* max_fill_samples);
-static void _scaleOutputByVolume();
+static void _scaleOutputByVolume(int* max_fill_samples);
 
 __attribute__ ((cold))
 __attribute__ ((noreturn))
@@ -62,10 +63,11 @@ static void _inputStreamReadCallback(struct SoundIoInStream *instream, int frame
         }
     }
     if (device_index == -1) {
-        _panic("error finding device");
+        _panic("error finding input device");
     }
 
     if (csoundlib_state->output_stream_initialized == false) {
+        _panic("output device not initialized");
         return;
     }
 
@@ -144,9 +146,11 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
         }
     }
     if (device_index == -1) {
+        _panic("error finding output device");
         return;
     }
     if (csoundlib_state->output_stream_initialized == false) {
+        _panic("output device not initialized");
         return;
     }
 
@@ -214,7 +218,7 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
     if (csoundlib_state->playback_started) outputProcessed(read_count_samples);
 }
 
-static int _createInputStream(int device_index, float microphone_latency, int sample_rate) {
+static int _createInputStream(int device_index, float microphone_latency) {
     int err;
     err = _checkEnvironmentAndBackendConnected();
     if (err != SoundIoErrorNone) return err;
@@ -228,7 +232,7 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
         case CSL_S32: instream->format = SoundIoFormatS32LE; break;
         case CSL_S8: instream->format = SoundIoFormatS8; break;
     }
-    instream->sample_rate = sample_rate;
+    instream->sample_rate = csoundlib_state->sample_rate;
 
     /* use whatever the default channel layout is (take all the channels available) */
     /* data should come in interleaved based on how many channels are sending data */
@@ -238,7 +242,7 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
     csoundlib_state->input_stream = instream;
 
     err = soundio_instream_open(instream);
-    if (err != SoundIoErrorNone) return err;
+    if (err != SoundIoErrorNone) return SoundIoErrorInputStream;
 
     int num_channels = lib_getNumChannelsOfInputDevice(device_index);
     csoundlib_state->num_channels_available = num_channels;
@@ -260,9 +264,9 @@ static int _createInputStream(int device_index, float microphone_latency, int sa
     return SoundIoErrorNone;
 }
 
-int lib_createAndStartInputStream(int device_index, float microphone_latency, int sample_rate) {
+int lib_createAndStartInputStream(int device_index, float microphone_latency) {
     int err;
-    err = _createInputStream(device_index, microphone_latency, sample_rate);
+    err = _createInputStream(device_index, microphone_latency);
     if (err != SoundIoErrorNone) return err;
     if ((err = soundio_instream_start(csoundlib_state->input_stream)) != SoundIoErrorNone) {
         return err;
@@ -281,7 +285,7 @@ int lib_stopInputStream() {
     return SoundIoErrorNone;
 }
 
-static int _createOutputStream(int device_index, float microphone_latency, int sample_rate) {
+static int _createOutputStream(int device_index, float microphone_latency) {
     int err;
     err = _checkEnvironmentAndBackendConnected();
     if (err != SoundIoErrorNone) return err;
@@ -300,7 +304,7 @@ static int _createOutputStream(int device_index, float microphone_latency, int s
         case CSL_S32: outstream->format = SoundIoFormatS32LE; break;
         case CSL_S8: outstream->format = SoundIoFormatS8; break;
     }
-    outstream->sample_rate = sample_rate;
+    outstream->sample_rate = csoundlib_state->sample_rate;
     outstream->layout = output_device->current_layout;
     outstream->software_latency = microphone_latency;
     outstream->write_callback = _outputStreamWriteCallback;
@@ -309,15 +313,15 @@ static int _createOutputStream(int device_index, float microphone_latency, int s
     csoundlib_state->output_stream = outstream;
 
     err = soundio_outstream_open(outstream);
-    if (err != SoundIoErrorNone) return err;
+    if (err != SoundIoErrorNone) return SoundIoErrorOutputStream;
     csoundlib_state->output_stream_initialized = true;
 
     return SoundIoErrorNone;
 }
 
-int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency, int sample_rate) {
+int lib_createAndStartOutputStream(int deviceIndex, float microphone_latency) {
     int err;
-    err = _createOutputStream(deviceIndex, microphone_latency, sample_rate);
+    err = _createOutputStream(deviceIndex, microphone_latency);
     if (err != SoundIoErrorNone) return err;
 
     if ((err = soundio_outstream_start(csoundlib_state->output_stream)) != SoundIoErrorNone) {
@@ -395,8 +399,8 @@ static void _processInputStreams(int* max_fill_samples, struct SoundIoRingBuffer
                     /* write the input stream to the track's input buffer */
                     if (track_p->input_enabled) {
                         add_and_scale_audio(
-                            read_ptr, 
-                            track_p->input_buffer.buffer,
+                            (uint8_t*)read_ptr, 
+                            (uint8_t*)(track_p->input_buffer.buffer),
                             1.0,
                             fill_bytes / csoundlib_state->input_dtype.bytes_in_buffer
                         );
@@ -434,8 +438,8 @@ static void _copyInputBuffersToOutputBuffers() {
                 (csoundlib_state->solo_engaged && track_p->solo_enabled))) {
             /* this needs to be scaled by volume for each track */
             add_and_scale_audio(
-                track_p->input_buffer.buffer,
-                csoundlib_state->mixed_output_buffer,
+                (uint8_t*)(track_p->input_buffer.buffer),
+                (uint8_t*)(csoundlib_state->mixed_output_buffer),
                 track_p->volume,
                 track_p->input_buffer.write_bytes / csoundlib_state->input_dtype.bytes_in_buffer
             );
@@ -467,5 +471,9 @@ static void _copyMetronomeToOutputBuffer(int* max_fill_samples) {
 }
 
 static void _scaleOutputByVolume(int* max_fill_samples) {
-    scale_audio(csoundlib_state->mixed_output_buffer, csoundlib_state->master_volume, *max_fill_samples);
+    scale_audio(
+        (uint8_t*)(csoundlib_state->mixed_output_buffer), 
+        csoundlib_state->master_volume, 
+        *max_fill_samples
+    );
 }

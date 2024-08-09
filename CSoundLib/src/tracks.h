@@ -39,17 +39,18 @@ typedef struct _rmsVals {
     float output_rms_level;
 } rmsVals;
 
-typedef struct _trackObj {
-    int track_id; // unique identifier, can be used as key in hash table
-    audioFile* files; // pointer to list of files representing audio data to be read
+typedef struct __attribute__((packed)) _trackObj {
     float volume; // value greater than 0.0
     int num_files;
+    int track_id; // unique identifier, can be used as key in hash table
+    audioFile* files; // pointer to list of files representing audio data to be read
     bool input_enabled;
     bool record_enabled;
     bool solo_enabled;
     bool mute_enabled;
     bool is_recording;
     bool is_playing_back;
+    bool padding[2];
     int input_device_index; // input device currently attached to this track
     int input_channel_index;
     rmsVals current_rms_levels;

@@ -12,5 +12,7 @@
 #define SoundIoErrorOpeningFile                   24
 #define SoundIoErrorFileNotFound                  25
 #define SoundIoErrorReadingWavForMetronome        26
+#define SoundIoErrorInputStream                   27
+#define SoundIoErrorOutputStream                  28
 
 #endif

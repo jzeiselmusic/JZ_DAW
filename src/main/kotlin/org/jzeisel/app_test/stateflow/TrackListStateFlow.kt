@@ -2,12 +2,10 @@ package org.jzeisel.app_test.stateflow
 
 import javafx.beans.property.ReadOnlyDoubleProperty
 import javafx.scene.paint.Color
-import org.jzeisel.app_test.components.NormalTrack
 import org.jzeisel.app_test.components.Track
 import org.jzeisel.app_test.components.trackComponents.WaveFormFile
 import org.jzeisel.app_test.error.PanicErrorMessage
 import org.jzeisel.app_test.util.Observable
-import java.io.File
 
 data class KeyState(
     val shiftPressed: Boolean,
@@ -91,11 +89,11 @@ data class TrackListState(
 )
 
 class TrackListStateFlow(stageWidthProperty: ReadOnlyDoubleProperty, stageHeightProperty: ReadOnlyDoubleProperty) {
-    var state = TrackListState(stageWidthProperty, stageHeightProperty) // read only state
-    /* state shall be updated by using the "copy" method */
-    val numTracks: Int get() { return state.numTracks + 1 }
+    var state = TrackListState(stageWidthProperty, stageHeightProperty)
+    /* state should be updated by using the "copy" method */
+    val numNormalTracks: Int get() { return state.numTracks + 1 }
     val totalHeightOfAllTracks: Double get() { return bottomOfTracks - topOfTracks }
     val topOfTracks: Double get() { return state.masterOffsetY - state.trackHeight / 2.0 }
-    val bottomOfTracks: Double get() { return topOfTracks + state.trackHeight*numTracks }
+    val bottomOfTracks: Double get() { return topOfTracks + state.trackHeight*numNormalTracks }
     val waveFormTranslateX: Double get() { return state.waveFormWidth / 2.0 + state.currentDividerOffset.getValue() }
 }

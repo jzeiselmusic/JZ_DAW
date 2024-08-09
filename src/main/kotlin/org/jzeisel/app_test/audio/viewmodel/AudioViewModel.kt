@@ -3,9 +3,6 @@ package org.jzeisel.app_test.audio.viewmodel
 import org.jzeisel.app_test.audio.*
 import org.jzeisel.app_test.error.AudioError
 import org.jzeisel.app_test.stateflow.TrackListStateFlow
-import org.jzeisel.app_test.util.Logger
-import kotlin.contracts.contract
-import kotlin.random.Random
 
 class AudioViewModel(
     private val viewModelController: ViewModelController,
@@ -55,7 +52,7 @@ class AudioViewModel(
     }
 
     fun addTrack(trackId: Int) {
-        val nTracks = viewModelState.numTracks
+        val nTracks = viewModelState.numNormalTracks
         val device = audioEngineManager.getInputDeviceFromIndex(audioEngineManager.defaultInputIndex)
         val defaultChannel = Channel(0, audioEngineManager.getNameOfChannelFromIndex(device.index, 0))
         val tList = audioStateFlow._state.trackList
