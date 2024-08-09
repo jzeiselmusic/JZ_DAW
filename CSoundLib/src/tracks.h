@@ -39,7 +39,8 @@ typedef struct _rmsVals {
     float output_rms_level;
 } rmsVals;
 
-typedef struct __attribute__((packed)) _trackObj {
+typedef struct 
+__attribute__((packed)) _trackObj {
     float volume; // value greater than 0.0
     int num_files;
     int track_id; // unique identifier, can be used as key in hash table

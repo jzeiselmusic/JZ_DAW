@@ -182,24 +182,24 @@ int read_wav_file_for_playback(trackObject* track, char* mixed_buffer, int max_b
                 FILE* fp = file->fp;
                 int fd = fileno(fp);
                 char temp_buffer[MAX_BUFFER_SIZE_BYTES] = {0x00};
+                char final_buffer[MAX_BUFFER_SIZE_BYTES] = {0x00};
                 flock(fd, LOCK_EX);
                 fseek(fp, sizeof(wavHeader) + num_samples_into_file * bytes_in_sample, SEEK_SET);
-                int bytes_copied = 0;
-                while (bytes_copied < max_bytes) {
-                    int ret = fread(temp_buffer + bytes_copied, sizeof(char), bytes_in_sample, fp);
-                    if (ret < bytes_in_sample) {
-                        break;
-                    }
-                    bytes_copied += bytes_in_buffer;
+                int bytes_read = 0;
+                bytes_read = fread(temp_buffer, sizeof(uint8_t), max_bytes, fp);
+                char* dest = final_buffer;
+                for (int i = 0; i < bytes_read; i += bytes_in_sample) {
+                    memcpy(dest, temp_buffer + i, bytes_in_sample);
+                    dest += bytes_in_buffer;  
                 }
                 add_and_scale_audio(
-                    (uint8_t*)temp_buffer, 
+                    (uint8_t*)final_buffer, 
                     (uint8_t*)mixed_buffer, 
                     1.0, 
-                    bytes_copied / bytes_in_buffer
+                    bytes_read / bytes_in_buffer
                 );
                 flock(fd, LOCK_UN);
-                return bytes_copied;
+                return bytes_read;
             }
         }
     }
