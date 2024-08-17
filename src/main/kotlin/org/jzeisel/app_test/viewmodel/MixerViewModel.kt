@@ -237,7 +237,7 @@ class MixerViewModel(
             dividerPressed = false
         }
         dividerRect.onMouseDragged = EventHandler {
-            root.maxHeight -= it.y
+            root.maxHeight -= it.y/2.0
             root.translateY = trackListStateFlow.state.stageHeightProperty.value /2.0 - root.maxHeight / 2.0
             dividerRect.translateY = -root.maxHeight/2.0
             toolBarRect.translateY = -root.maxHeight/2.0 + toolBarRect.height/2.0

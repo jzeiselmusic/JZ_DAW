@@ -9,7 +9,7 @@ data class AudioState(
     var beatsPerSecond: Double = beatsPerMinute/60.0,
     var tSignatureTop: UInt = 4U,
     var tSignatureBottom: UInt = 4U,
-    var sampleRate: SampleRate = SampleRate.FOUR_FOUR_ONE,
+    var sampleRate: SampleRate = SampleRate.FOUR_EIGHT_K,
     var bitDepth: BitDepth = BitDepth.TWENTY_FOUR,
     var samplesInABeat: Int = (sampleRate.value / beatsPerSecond).toInt(),
     var numTracks: Int = 0,

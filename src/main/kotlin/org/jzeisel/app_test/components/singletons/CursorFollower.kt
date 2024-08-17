@@ -41,7 +41,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     var currentOffsetX = 0.0
         set(value) {
             field = value
-            trackListViewModel.updateCursorOffsetFromWaveformStart(value)
+            // trackListViewModel.updateCursorOffsetFromWaveformStart(value)
             if (trackListFlow.state.playBackStarted && trackListViewModel.isMetronomeEnabled()) {
                 if (value % trackListFlow.state.pixelsInABeat < 1) {
                     animateObjectColor(Color.DARKGRAY, Color.WHITE, cursorRectangle, 350.0)
@@ -162,6 +162,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
     fun updateLocation(offsetX: Double) {
         runLater {
             currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
+            trackListViewModel.updateCursorOffsetFromWaveformStart(currentOffsetX)
             cursorRectangle.translateX = trackListFlow.state.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
             cursorPointer.translateX = cursorRectangle.translateX
         }

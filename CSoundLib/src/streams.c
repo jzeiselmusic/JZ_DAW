@@ -215,7 +215,10 @@ static void _outputStreamWriteCallback(struct SoundIoOutStream *outstream, int f
         frames_left -= frame_count;
     }
     csoundlib_state->input_stream_written = false;
-    if (csoundlib_state->playback_started) outputProcessed(read_count_samples);
+    if (csoundlib_state->playback_started) {
+        outputProcessed(read_count_samples);
+        csoundlib_state->current_cursor_offset += read_count_samples;
+    }
 }
 
 static int _createInputStream(int device_index, float microphone_latency) {
