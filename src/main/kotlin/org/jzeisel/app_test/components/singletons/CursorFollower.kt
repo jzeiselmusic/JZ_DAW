@@ -4,6 +4,9 @@ import javafx.scene.layout.StackPane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Polygon
 import javafx.scene.shape.Rectangle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jzeisel.app_test.viewmodel.TrackListViewModel
 import org.jzeisel.app_test.components.interfaces.TrackElement
 import org.jzeisel.app_test.components.interfaces.WindowElement
@@ -36,12 +39,12 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
 
     private lateinit var cursorRectangle: Rectangle
     private lateinit var cursorPointer: Polygon
+    private var numMoves = 0
 
     // pixel distance from start of track waveform
     var currentOffsetX = 0.0
         set(value) {
             field = value
-            // trackListViewModel.updateCursorOffsetFromWaveformStart(value)
             if (trackListFlow.state.playBackStarted && trackListViewModel.isMetronomeEnabled()) {
                 if (value % trackListFlow.state.pixelsInABeat < 1) {
                     animateObjectColor(Color.DARKGRAY, Color.WHITE, cursorRectangle, 350.0)
@@ -160,6 +163,7 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
 
     @Synchronized
     fun updateLocation(offsetX: Double) {
+        /* update location and also alert audio engine */
         runLater {
             currentOffsetX = if (offsetX < 0.0) 0.0 else offsetX
             trackListViewModel.updateCursorOffsetFromWaveformStart(currentOffsetX)
@@ -170,11 +174,15 @@ object CursorFollower: SingularWidget, TrackElement, WindowElement {
 
     @Synchronized
     fun moveLocationForward(shiftX: Double) {
+        /* move cursor forward but dont tell audio engine */
         runLater {
-            currentOffsetX += shiftX
-            cursorRectangle.translateX =
-                trackListFlow.state.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
-            cursorPointer.translateX = cursorRectangle.translateX
+            CoroutineScope(Dispatchers.Default).launch {
+                currentOffsetX += shiftX
+                cursorRectangle.translateX =
+                    trackListFlow.state.currentDividerOffset.getValue() + currentOffsetX - waveFormOffset
+                cursorPointer.translateX = cursorRectangle.translateX
+                numMoves = 0
+            }
         }
     }
 }
