@@ -300,8 +300,8 @@ class WaveFormFile(override val parent: Widget, val fileId: Int) :
         var realX = event.x
         clickPointX?.let { realX -= it }
         val xDistance =
-            if (realX > trackListState.incrementSize) trackListState.incrementSize
-            else if (realX < -trackListState.incrementSize) -trackListState.incrementSize
+            if (realX > trackListState.incrementSize) (trackListState.incrementSize * (realX / trackListState.incrementSize).toInt())
+            else if (realX < -trackListState.incrementSize) (-trackListState.incrementSize * (-realX / trackListState.incrementSize).toInt())
             else 0.0
 
         trackListViewModel.fileXShifted(xDistance)
